@@ -41,6 +41,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:product_app/views/auth/login_screen.dart';
 import 'package:product_app/views/home/option_screen.dart';
 
 class LogoScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _LogoScreenState extends State<LogoScreen>
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const OptionScreen()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     });
   }

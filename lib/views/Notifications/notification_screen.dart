@@ -7,14 +7,16 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Notifications',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(onPressed: () {
-          Navigator.of(context).pop();
-        }, icon: Icon(Icons.arrow_back_ios)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(Icons.arrow_back_ios)),
       ),
       body: Column(
         children: [
@@ -30,7 +32,6 @@ class NotificationScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  
                   Row(
                     children: [
                       ClipRRect(
@@ -49,17 +50,15 @@ class NotificationScreen extends StatelessWidget {
                         },
                         child: const Text(
                           'New Villa added',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                   ),
-
-                  Text(
+                  const Text(
                     '6 min ago',
                     style: TextStyle(color: Colors.grey),
                   )
-               
                 ],
               ),
             ),
@@ -76,7 +75,6 @@ class NotificationScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 
                   Row(
                     children: [
                       ClipRRect(
@@ -84,7 +82,7 @@ class NotificationScreen extends StatelessWidget {
                         child: Image.asset(
                           'lib/assets/22c7ca7468778df234aab7d17ed03d05c804b058.png',
                           width: 40,
-                          height: 50,
+                          height: 52,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -95,17 +93,15 @@ class NotificationScreen extends StatelessWidget {
                         },
                         child: const Text(
                           'New Villa added',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                   ),
-
-                  Text(
+                  const Text(
                     '6 min ago',
                     style: TextStyle(color: Colors.grey),
                   )
-                  
                 ],
               ),
             ),

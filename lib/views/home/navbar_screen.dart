@@ -6,7 +6,6 @@ import 'package:product_app/profile/profile_screen.dart';
 import 'package:product_app/views/home/chat_screen.dart';
 import 'package:product_app/views/home/favourite_screen.dart';
 import 'package:product_app/views/home/home_screen.dart';
-import 'package:product_app/views/home/profile_screen.dart';
 import 'package:provider/provider.dart';
 
 class NavbarScreen extends StatelessWidget {
@@ -17,14 +16,11 @@ class NavbarScreen extends StatelessWidget {
     final bottomnavbarProvider = Provider.of<BottomNavbarProvider>(context);
 
     final pages = [
-      HomeScreen(),
-      ChatScreen(),
-      FavouriteScreen(),
-      ProfileScreen()
-      // CategoryScreen(),
-      // MyBookings(),
-      // ProfileScreen(),
-      // CartScreen()
+     const HomeScreen(),
+     const ChatScreen(),
+     const FavouriteScreen(),
+     const ProfileScreen()
+    
     ];
 
     return Scaffold(
@@ -42,7 +38,7 @@ class NavbarScreen extends StatelessWidget {
             height: 60,
             backgroundColor: Colors.transparent,
             color: const Color.fromARGB(255, 40, 43, 46),
-            buttonBackgroundColor:  Colors.teal,
+            buttonBackgroundColor:const  Color(0xFF00A8E8),
             animationDuration: const Duration(milliseconds: 300),
             animationCurve: Curves.easeInOut,
             onTap: (index) {
@@ -61,37 +57,6 @@ class NavbarScreen extends StatelessWidget {
     );
   }
 }
-
-// class _NavBarItem extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-
-//   const _NavBarItem({required this.icon, required this.label});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisAlignment: MainAxisAlignment.center,
-//       children: [
-//         Icon(icon, size: 24, color: Colors.white),
-//         // const SizedBox(height: 2),
-//         Text(
-//           label,
-//           style: const TextStyle(
-//             color: Colors.white,
-//             fontSize: 10,
-//             fontWeight: FontWeight.w500,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-
-
-
-
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
   final String label;

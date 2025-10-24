@@ -71,28 +71,61 @@ class LoginScreen extends StatelessWidget {
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 20),
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   height: 50,
+                    //   child: DecoratedBox(
+                    //     decoration: BoxDecoration(
+                    //       gradient: const LinearGradient(
+                    //         colors: [Color.fromARGB(255, 77, 208, 245), Color.fromARGB(255, 77, 208, 245)],
+                    //       ),
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //     child: ElevatedButton(
+                    //       onPressed: () {
+                    //         Navigator.push(context, MaterialPageRoute(builder: (context)=>OtpScreen()));
+                    //       },
+                    //       style: ElevatedButton.styleFrom(
+                    //         backgroundColor: Colors.transparent,
+                    //         shadowColor: Colors.transparent,
+                    //       ),
+                    //       child: const Text("Get OTP",style: TextStyle(color: Colors.white),),
+                    //     ),
+                    //   ),
+                    // ),
+
                     SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color.fromARGB(255, 77, 208, 245), Color.fromARGB(255, 77, 208, 245)],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>OtpScreen()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                          ),
-                          child: const Text("Get OTP",style: TextStyle(color: Colors.white),),
-                        ),
-                      ),
-                    ),
+  width: double.infinity,
+  height: 50,
+  child: DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [
+          Color(0xFF00A8E8), // #00A8E8
+          Color(0xFF2BBBAD), // #2BBBAD
+        ],
+      ),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OtpScreen()),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      child: const Text(
+        "Get OTP",
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+  ),
+),
+
                     const SizedBox(height: 20),
                     Row(
                       children: const [

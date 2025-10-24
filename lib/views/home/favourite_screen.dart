@@ -69,8 +69,8 @@ class FavouriteScreen extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      bottom: 8,
-                      right: 8,
+                      bottom: 1,
+                      right: 1,
                       child: Container(
                         padding:
                             const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -119,7 +119,8 @@ class FavouriteScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 16),
+                    const Icon(Icons.location_on_outlined, size: 16,color: Colors.blue,),
+                  const  SizedBox(width: 10,),
                     Text(
                       house['location'],
                       style: const TextStyle(fontSize: 13),

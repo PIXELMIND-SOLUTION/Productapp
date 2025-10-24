@@ -53,9 +53,9 @@ class LocationScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
+              child:const Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children:  [
                   Icon(Icons.my_location, size: 18),
                   SizedBox(width: 8),
                   Text("Choose Location On Map"),
@@ -72,7 +72,7 @@ class LocationScreen extends StatelessWidget {
                     dense: true,
                     visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
                     leading: const Icon(Icons.location_on_outlined),
-                    title: Text(locations[index]),
+                    title: Text(locations[index],style: TextStyle(color: Colors.black),),
                   );
                 },
               ),

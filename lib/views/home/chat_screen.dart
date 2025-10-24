@@ -73,7 +73,7 @@ class ChatScreen extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatDetailScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const ChatDetailScreen()));
                   },
                   child: CircleAvatar(
                     radius: 24,

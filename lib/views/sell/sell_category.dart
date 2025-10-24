@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:product_app/views/sell/car_sell_screen.dart';
+import 'package:product_app/views/sell/mobile_sell_screen.dart';
 
-class CategoryScreen extends StatefulWidget {
-  const CategoryScreen({super.key});
+class SellCategory extends StatefulWidget {
+  const SellCategory({super.key});
 
   @override
-  State<CategoryScreen> createState() => _CategoryScreenState();
+  State<SellCategory> createState() => _BuyScreenState();
 }
 
-class _CategoryScreenState extends State<CategoryScreen> {
+class _BuyScreenState extends State<SellCategory> {
   int selectedIndex = 0;
 
   final List<Map<String, dynamic>> categories = [
-    {"name": "House", "icon": Icons.home},
-    {"name": "Villa", "icon": Icons.villa},
-    {"name": "Apart..", "icon": Icons.apartment},
-    {"name": "Hotel", "icon": Icons.hotel},
-    {"name": "Land", "icon": Icons.terrain},
-    {"name": "Gated..", "icon": Icons.security},
-    {"name": "Farm..", "icon": Icons.agriculture},
-    {
-      "name": "Studio..",
-      "icon": Icons.stadium
-    }, // Replace with proper icon if needed
+    {"name": "Cars", "icon": Icons.directions_car},
+    {"name": "Mobiles", "icon": Icons.smartphone},
+    {"name": "Bikes", "icon": Icons.pedal_bike},
+    {"name": "Electronics", "icon": Icons.devices},
+    {"name": "Furniture", "icon": Icons.chair},
+    {"name": "Fashion", "icon": Icons.checkroom},
+    {"name": "Books", "icon": Icons.menu_book},
+    {"name": "Services", "icon": Icons.build},
   ];
 
   @override
@@ -29,7 +28,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Categories',
+          'Sell',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -78,27 +77,39 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       setState(() {
                         selectedIndex = index;
                       });
+
+                      if (categories[index]['name'] == 'Mobiles') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MobileSellScreen(),
+                          ),
+                        );
+                      } else if (categories[index]['name'] == 'Cars') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CarSellScreen(),
+                          ),
+                        );
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF2BBBAD)
+                              : Colors.grey.shade300,
+                          width: 1.5,
+                        ),
                         gradient: isSelected
                             ? const LinearGradient(
-                                colors: [
-                                  Color(0xFF00A8E8),
-                                  Color(0xFF2BBBAD),
-                                ],
+                                colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )
                             : null,
-                        color: isSelected ? null : Colors.white,
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.transparent
-                              : Colors.grey.shade300,
-                          width: 1.5,
-                        ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -107,8 +118,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             categories[index]['icon'],
                             color: isSelected
                                 ? Colors.white
-                                : const Color(0xFF2BBBAD),
-                            size: 28,
+                                : const Color.fromARGB(255, 157, 218, 211),
+                            size: 23,
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -116,7 +127,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: isSelected ? Colors.white : Colors.black,
                             ),
                           ),

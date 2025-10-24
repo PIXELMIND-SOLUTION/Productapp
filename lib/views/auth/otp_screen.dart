@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:product_app/views/home/home_screen.dart';
 import 'package:product_app/views/home/navbar_screen.dart';
+import 'package:product_app/views/home/option_screen.dart';
 
 class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key});
@@ -62,28 +63,63 @@ class OtpScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 10),
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   height: 50,
+                    //   child: DecoratedBox(
+                    //     decoration: BoxDecoration(
+                    //       gradient: const LinearGradient(
+                    //         colors: [Color.fromARGB(255, 103, 203, 231), Color.fromARGB(255, 103, 203, 231),],
+                    //       ),
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //     child: ElevatedButton(
+                    //       onPressed: () {
+                    //         Navigator.push(context,MaterialPageRoute(builder: (context)=>NavbarScreen()));
+                    //       },
+                    //       style: ElevatedButton.styleFrom(
+                    //         backgroundColor: Colors.transparent,
+                    //         shadowColor: Colors.transparent,
+                    //       ),
+                    //       child: const Text("Verify",style: TextStyle(color: Colors.white,fontSize: 18),),
+                    //     ),
+                    //   ),
+                    // ),
+
                     SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color.fromARGB(255, 103, 203, 231), Color.fromARGB(255, 103, 203, 231),],
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>NavbarScreen()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                          ),
-                          child: const Text("Verify",style: TextStyle(color: Colors.white,fontSize: 18),),
-                        ),
-                      ),
-                    ),
+  width: double.infinity,
+  height: 50,
+  child: DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [
+          Color(0xFF00A8E8), // #00A8E8
+          Color(0xFF2BBBAD), // #2BBBAD
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight, // makes gradient left → right
+      ),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: ElevatedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OptionScreen()),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      child: const Text(
+        "Verify",
+        style: TextStyle(color: Colors.white, fontSize: 18),
+      ),
+    ),
+  ),
+),
+
                     const SizedBox(height: 20),
                     Row(
                       children: const [
