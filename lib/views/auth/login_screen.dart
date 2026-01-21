@@ -829,18 +829,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 20),
-                              const Row(
-                                children: [
-                                  Expanded(child: Divider()),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text("Or"),
-                                  ),
-                                  Expanded(child: Divider()),
-                                ],
-                              ),
+                              // const SizedBox(height: 20),
+                              // const Row(
+                              //   children: [
+                              //     Expanded(child: Divider()),
+                              //     Padding(
+                              //       padding:
+                              //           EdgeInsets.symmetric(horizontal: 10),
+                              //       child: Text("Or"),
+                              //     ),
+                              //     Expanded(child: Divider()),
+                              //   ],
+                              // ),
                               const SizedBox(height: 20),
                               // Row(
                               //   mainAxisAlignment:

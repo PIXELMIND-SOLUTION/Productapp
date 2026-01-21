@@ -3926,11 +3926,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   ],
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: GestureDetector(
-                      onTap: () {}, child: _choiceChip('Listora', true)),
-                ),
+                // const SizedBox(height: 16),
+                // Center(
+                //   child: GestureDetector(
+                //       onTap: () {}, child: _choiceChip('Listora', true)),
+                // ),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),
