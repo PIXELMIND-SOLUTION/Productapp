@@ -44,36 +44,43 @@ class OptionScreen extends StatelessWidget {
                             builder: (context) => const NavbarScreen()));
                   },
                   child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: Colors.teal,
+                    width: 340,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF00A8E8), // Bright Blue
+                          Color(0xFF2BBBAD), // Teal Green
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      width: 340,
-                      height: 90,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // SizedBox(width: 10,),
-                            const Text(
-                              'Buy',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Buy',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                            // SizedBox(width: 280,),
-                            IconButton(
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.white,
-                                ))
-                          ],
-                        ),
-                      )),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -162,8 +169,7 @@ class OptionScreen extends StatelessWidget {
           ),
           Expanded(
               child: Image.asset(
-                  'lib/assets/345bd60d710065fe219bdc89188a2907600d3f0f.png')
-          )
+                  'lib/assets/345bd60d710065fe219bdc89188a2907600d3f0f.png'))
         ],
       ),
     );

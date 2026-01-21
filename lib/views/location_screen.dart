@@ -72,7 +72,7 @@ class LocationScreen extends StatelessWidget {
                     dense: true,
                     visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
                     leading: const Icon(Icons.location_on_outlined),
-                    title: Text(locations[index],style: TextStyle(color: Colors.black),),
+                    title: Text(locations[index],style:const TextStyle(color: Colors.black),),
                   );
                 },
               ),

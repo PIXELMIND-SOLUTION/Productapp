@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -8,7 +10,7 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  int selectedPlan = 1; // 0 for 1 month, 1 for 12 months
+  int selectedPlan = 1; 
 
   @override
   Widget build(BuildContext context) {

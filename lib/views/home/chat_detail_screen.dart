@@ -13,18 +13,21 @@ class ChatDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
-        title:const Row(
+        title: const Row(
           children: [
-            SizedBox(width: 10,),
-             CircleAvatar(
+            SizedBox(
+              width: 10,
+            ),
+            CircleAvatar(
               backgroundColor: Colors.tealAccent,
-              backgroundImage: AssetImage('lib/assets/9318a2556f09aa6ed839fa7b57767edf7998c27a.png'),
+              backgroundImage: AssetImage(
+                  'lib/assets/9318a2556f09aa6ed839fa7b57767edf7998c27a.png'),
               radius: 18,
             ),
-             SizedBox(width: 10),
+            SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children:  [
+              children: [
                 Text(
                   'Alex Linderson',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -58,16 +61,19 @@ class ChatDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      SizedBox(height: 400,),
-                      Row(
+                      const SizedBox(
+                        height: 400,
+                      ),
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: const [
+                        children: [
                           Text("You", style: TextStyle(fontSize: 12)),
                           SizedBox(width: 6),
                           CircleAvatar(
                             backgroundColor: Colors.purpleAccent,
                             radius: 12,
-                            backgroundImage: AssetImage('lib/assets/dbde5058d24a732b30128c0e1fea4e97b9530bf0.png'),
+                            backgroundImage: AssetImage(
+                                'lib/assets/dbde5058d24a732b30128c0e1fea4e97b9530bf0.png'),
                           ),
                         ],
                       ),
@@ -101,7 +107,8 @@ class ChatDetailScreen extends StatelessWidget {
                     const CircleAvatar(
                       backgroundColor: Colors.tealAccent,
                       radius: 18,
-                      backgroundImage: AssetImage('lib/assets/9318a2556f09aa6ed839fa7b57767edf7998c27a.png'),
+                      backgroundImage: AssetImage(
+                          'lib/assets/9318a2556f09aa6ed839fa7b57767edf7998c27a.png'),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -124,13 +131,15 @@ class ChatDetailScreen extends StatelessWidget {
                             child: const Text("Yes! Rent Was 10000 per Month"),
                           ),
                           const SizedBox(height: 4),
-                          Row(
-                          
+                          const Row(
                             children: [
-                              SizedBox(width: 179,),
-                              const Text(
+                              SizedBox(
+                                width: 179,
+                              ),
+                              Text(
                                 "09:25 AM",
-                                style: TextStyle(fontSize: 10, color: Colors.grey),
+                                style:
+                                    TextStyle(fontSize: 10, color: Colors.grey),
                               ),
                             ],
                           ),
@@ -177,10 +186,3 @@ class ChatDetailScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
