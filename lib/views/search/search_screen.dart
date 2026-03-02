@@ -76,9 +76,11 @@ class _SearchScreenState extends State<SearchScreen> {
           'Search Products',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(onPressed: (){
-          Navigator.of(context).pop();
-        }, icon: Icon(Icons.arrow_back_ios)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back_ios)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
