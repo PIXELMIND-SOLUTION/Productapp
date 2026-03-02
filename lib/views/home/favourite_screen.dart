@@ -1,359 +1,9 @@
-// import 'package:flutter/material.dart';
-// import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
-// import 'package:provider/provider.dart';
-
-// class FavouriteScreen extends StatefulWidget {
-//   const FavouriteScreen({super.key});
-
-//   @override
-//   State<FavouriteScreen> createState() => _FavouriteScreenState();
-// }
-
-// class _FavouriteScreenState extends State<FavouriteScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Fetch wishlist when screen loads
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       context.read<WishlistProvider>().fetchWishlist();
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           'Wishlist',
-//           style: TextStyle(fontWeight: FontWeight.bold),
-//         ),
-//         centerTitle: true,
-//         automaticallyImplyLeading: false,
-//         actions: [
-//           Consumer<WishlistProvider>(
-//             builder: (context, wishlistProvider, _) {
-//               if (wishlistProvider.wishlistItems.isNotEmpty) {
-//                 return IconButton(
-//                   icon: const Icon(Icons.refresh),
-//                   onPressed: () {
-//                     wishlistProvider.refreshWishlist();
-//                   },
-//                 );
-//               }
-//               return const SizedBox.shrink();
-//             },
-//           ),
-//         ],
-//       ),
-//       body: Consumer<WishlistProvider>(
-//         builder: (context, wishlistProvider, child) {
-//           // Show loading indicator
-//           if (wishlistProvider.isLoading) {
-//             return const Center(
-//               child: CircularProgressIndicator(),
-//             );
-//           }
-
-//           // Show error message
-//           if (wishlistProvider.errorMessage != null) {
-//             return Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.error_outline,
-//                     size: 64,
-//                     color: Colors.red.shade300,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   Text(
-//                     wishlistProvider.errorMessage!,
-//                     style: const TextStyle(
-//                       fontSize: 16,
-//                       color: Colors.red,
-//                     ),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       wishlistProvider.fetchWishlist();
-//                     },
-//                     child: const Text('Retry'),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-
-//           // Show empty state
-//           if (wishlistProvider.wishlistItems.isEmpty) {
-//             return Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.favorite_border,
-//                     size: 100,
-//                     color: Colors.grey.shade300,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   Text(
-//                     'Your wishlist is empty',
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       fontWeight: FontWeight.w600,
-//                       color: Colors.grey.shade600,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 8),
-//                   Text(
-//                     'Add properties you like to see them here',
-//                     style: TextStyle(
-//                       fontSize: 14,
-//                       color: Colors.grey.shade500,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-
-//           // Show wishlist items
-//           return RefreshIndicator(
-//             onRefresh: () => wishlistProvider.refreshWishlist(),
-//             child: ListView.builder(
-//               padding: const EdgeInsets.all(12),
-//               itemCount: wishlistProvider.wishlistItems.length,
-//               itemBuilder: (context, index) {
-//                 final item = wishlistProvider.wishlistItems[index];
-                
-//                 // Extract features
-//                 String bed = '';
-//                 String bath = '';
-//                 String area = '';
-
-//                 if (item['features'] != null && item['features'] is List) {
-//                   for (var feature in item['features']) {
-//                     String name = feature['name'].toString().toLowerCase();
-//                     if (name.contains('bedroom') || name.contains('bed')) {
-//                       bed = feature['name'];
-//                     } else if (name.contains('bathroom') ||
-//                         name.contains('bath')) {
-//                       bath = feature['name'];
-//                     } else if (name.contains('sqft') || name.contains('sq')) {
-//                       area = feature['name'];
-//                     }
-//                   }
-//                 }
-
-//                 return Container(
-//                   margin: const EdgeInsets.only(bottom: 16),
-//                   padding: const EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     border: Border.all(
-//                       color: Colors.grey.shade300,
-//                       width: 1,
-//                     ),
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Stack(
-//                         children: [
-//                           ClipRRect(
-//                             borderRadius: BorderRadius.circular(10),
-//                             child: Image.network(
-//                              (item['images'] != null && item['images'].isNotEmpty)
-//     ? item['images'][0]
-//     : '',
-
-//                               height: 160,
-//                               width: double.infinity,
-//                               fit: BoxFit.cover,
-//                               errorBuilder: (context, error, stackTrace) {
-//                                 return Container(
-//                                   height: 160,
-//                                   width: double.infinity,
-//                                   color: Colors.grey.shade300,
-//                                   child: const Icon(
-//                                     Icons.home,
-//                                     size: 64,
-//                                     color: Colors.grey,
-//                                   ),
-//                                 );
-//                               },
-//                               loadingBuilder:
-//                                   (context, child, loadingProgress) {
-//                                 if (loadingProgress == null) return child;
-//                                 return Container(
-//                                   height: 160,
-//                                   width: double.infinity,
-//                                   color: Colors.grey.shade200,
-//                                   child: const Center(
-//                                     child: CircularProgressIndicator(),
-//                                   ),
-//                                 );
-//                               },
-//                             ),
-//                           ),
-//                           Positioned(
-//                             top: 8,
-//                             left: 8,
-//                             child: Container(
-//                               padding: const EdgeInsets.symmetric(
-//                                   horizontal: 8, vertical: 4),
-//                               decoration: BoxDecoration(
-//                                 color: Colors.white,
-//                                 borderRadius: BorderRadius.circular(20),
-//                               ),
-//                               child: Text(
-//                                 item['type'] ?? "For Sale",
-//                                 style: const TextStyle(
-//                                     color: Colors.black, fontSize: 12),
-//                               ),
-//                             ),
-//                           ),
-//                           Positioned(
-//                             top: 8,
-//                             right: 8,
-//                             child: CircleAvatar(
-//                               backgroundColor: Colors.white,
-//                               child: wishlistProvider.isToggling
-//                                   ? const SizedBox(
-//                                       width: 20,
-//                                       height: 20,
-//                                       child: CircularProgressIndicator(
-//                                         strokeWidth: 2,
-//                                         valueColor:
-//                                             AlwaysStoppedAnimation<Color>(
-//                                                 Colors.red),
-//                                       ),
-//                                     )
-//                                   : IconButton(
-//                                       icon: const Icon(
-//                                         Icons.favorite,
-//                                         color: Colors.red,
-//                                       ),
-//                                       onPressed: () async {
-//                                         final success = await wishlistProvider
-//                                             .toggleWishlist(item['_id']);
-
-//                                         if (context.mounted) {
-//                                           ScaffoldMessenger.of(context)
-//                                               .showSnackBar(
-//                                             SnackBar(
-//                                               backgroundColor: success
-//                                                   ? Colors.red
-//                                                   : Colors.red,
-//                                               content: Text(
-//                                                 success
-//                                                     ? 'Removed from wishlist'
-//                                                     : (wishlistProvider
-//                                                             .errorMessage ??
-//                                                         'Failed to remove'),
-//                                               ),
-//                                               duration:
-//                                                   const Duration(seconds: 2),
-//                                               behavior:
-//                                                   SnackBarBehavior.floating,
-//                                             ),
-//                                           );
-//                                         }
-//                                       },
-//                                     ),
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//                       const SizedBox(height: 8),
-//                       Text(
-//                         item['name'] ?? 'Property',
-//                         style: const TextStyle(
-//                           fontWeight: FontWeight.w600,
-//                           fontSize: 15,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 6),
-//                       Row(
-//                         children: [
-//                           _iconText(Icons.bed_outlined,
-//                               bed.isNotEmpty ? bed : '4 Bed'),
-//                           const SizedBox(width: 8),
-//                           _iconText(Icons.bathtub_outlined,
-//                               bath.isNotEmpty ? bath : '2 Bath'),
-//                           const SizedBox(width: 8),
-//                           _iconText(Icons.square_foot,
-//                               area.isNotEmpty ? area : '7,500 sqft'),
-//                         ],
-//                       ),
-//                       const SizedBox(height: 6),
-//                       Row(
-//                         children: [
-//                           const Icon(
-//                             Icons.location_on_outlined,
-//                             size: 16,
-//                             color: Colors.blue,
-//                           ),
-//                           const SizedBox(width: 4),
-//                           Expanded(
-//                             child: Text(
-//                               item['address'] ?? 'Location not available',
-//                               style: const TextStyle(fontSize: 13),
-//                               overflow: TextOverflow.ellipsis,
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 );
-//               },
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   Widget _iconText(IconData icon, String label) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey.shade300),
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       child: Row(
-//         children: [
-//           Icon(icon, size: 14),
-//           const SizedBox(width: 4),
-//           Text(label, style: const TextStyle(fontSize: 12)),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
+import 'package:product_app/utils/call_utils.dart';
+import 'package:product_app/utils/whatsapp_utils.dart';
+import 'package:product_app/utils/location_utils.dart';
+import 'package:product_app/views/Details/nearest_house_detail.dart';
 import 'package:provider/provider.dart';
 
 class FavouriteScreen extends StatefulWidget {
@@ -366,6 +16,9 @@ class FavouriteScreen extends StatefulWidget {
 class _FavouriteScreenState extends State<FavouriteScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
+  // Default agent phone number - replace with actual agent number from your data
+  final String agentPhone = "919961593179";
 
   @override
   void initState() {
@@ -390,7 +43,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Column(
           children: [
@@ -421,137 +74,39 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.red.shade400, Colors.red.shade600],
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              'Wishlist',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
               ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
-            child: const Icon(
-              Icons.favorite_rounded,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Wishlist',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                Text(
-                  'Your favorite properties',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Consumer<WishlistProvider>(
-            builder: (context, wishlistProvider, _) {
-              if (wishlistProvider.wishlistItems.isNotEmpty) {
-                return Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${wishlistProvider.wishlistItems.length}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red.shade600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'items',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
+            const SizedBox(height: 20),
+            Divider(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.2),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.red.shade400),
-              strokeWidth: 3,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Loading your favorites...',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 
@@ -562,53 +117,30 @@ class _FavouriteScreenState extends State<FavouriteScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline_rounded,
-                size: 64,
-                color: Colors.red.shade400,
-              ),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.grey.shade400,
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Oops! Something went wrong',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
-              wishlistProvider.errorMessage ?? 'Please try again',
+              wishlistProvider.errorMessage ?? 'Something went wrong',
               style: const TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
+                fontSize: 14,
+                color: Colors.black54,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
+            const SizedBox(height: 16),
+            ElevatedButton(
               onPressed: () {
                 wishlistProvider.fetchWishlist();
               },
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade400,
+                backgroundColor: const Color(0xFFE33629),
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 2,
               ),
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -624,68 +156,34 @@ class _FavouriteScreenState extends State<FavouriteScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.red.shade50,
-                    Colors.red.shade100,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.grey.shade100,
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.favorite_border_rounded,
-                size: 80,
-                color: Colors.red.shade300,
+                Icons.favorite_border,
+                size: 48,
+                color: Colors.grey.shade400,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             const Text(
-              'Your Wishlist is Empty',
+              'Your wishlist is empty',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
-              'Start adding your favorite properties\nto see them here',
+              'Start adding properties to your wishlist',
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 color: Colors.grey.shade600,
-                height: 1.5,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.amber.shade700),
-                  const SizedBox(width: 12),
-                  const Flexible(
-                    child: Text(
-                      'Tap the heart icon on any property to save it',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -696,7 +194,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   Widget _buildWishlistContent(WishlistProvider wishlistProvider) {
     return RefreshIndicator(
       onRefresh: () => wishlistProvider.refreshWishlist(),
-      color: Colors.red.shade400,
+      color: const Color(0xFFE33629),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: wishlistProvider.wishlistItems.length,
@@ -727,6 +225,28 @@ class _FavouriteScreenState extends State<FavouriteScreen>
       }
     }
 
+    // Default values if features not found
+    bed = bed.isNotEmpty ? bed : '4 Bed';
+    bath = bath.isNotEmpty ? bath : '2 Bath';
+    area = area.isNotEmpty ? area : '7,500 sqft';
+
+    // Create house object for navigation
+    Map<String, dynamic> house = {
+      'id': item['_id']?.toString() ?? '',
+      'image': (item['images'] != null && item['images'].isNotEmpty)
+          ? item['images'][0].toString()
+          : '',
+      'tag': item['type']?.toString() ?? 'For Sale',
+      'title': item['name']?.toString() ?? 'Unnamed Property',
+      'location': item['address']?.toString() ?? 'Unknown',
+      'price': item['price']?.toString() ?? '₹25,000',
+      'beds': bed,
+      'baths': bath,
+      'area': area,
+      'description': item['description']?.toString() ?? 
+          'Beautiful property located in prime area with modern amenities and peaceful surroundings.',
+    };
+
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 300 + (index * 100)),
       tween: Tween<double>(begin: 0, end: 1),
@@ -739,282 +259,412 @@ class _FavouriteScreenState extends State<FavouriteScreen>
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
+      child: GestureDetector(
+        onTap: () {
+          // Navigate to detail screen when card is tapped
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NearestHouseDetail(house: house),
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPropertyImage(item, wishlistProvider),
-            _buildPropertyDetails(item, bed, bath, area),
-          ],
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.07),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// Property Image
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                    child: SizedBox(
+                      height: 180,
+                      width: double.infinity,
+                      child: (item['images'] != null && item['images'].isNotEmpty)
+                          ? (item['images'][0].toString().startsWith('http')
+                              ? Image.network(
+                                  item['images'][0],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey.shade300,
+                                      child: const Center(
+                                        child: Icon(Icons.image_not_supported, size: 50),
+                                      ),
+                                    );
+                                  },
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey.shade200,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  color: Colors.grey.shade300,
+                                  child: const Center(
+                                    child: Icon(Icons.image_not_supported, size: 50),
+                                  ),
+                                ))
+                          : Container(
+                              color: Colors.grey.shade300,
+                              child: const Center(
+                                child: Icon(Icons.image_not_supported, size: 50),
+                              ),
+                            ),
+                    ),
+                  ),
+                  // Type Badge
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        house['tag'],
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Favorite Button
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (!wishlistProvider.isToggling) {
+                          final success =
+                              await wishlistProvider.toggleWishlist(item['_id']);
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: success ? Colors.green : Colors.red,
+                                content: Text(
+                                  success
+                                      ? 'Removed from wishlist'
+                                      : (wishlistProvider.errorMessage ??
+                                          'Failed to remove'),
+                                ),
+                                duration: const Duration(seconds: 2),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: wishlistProvider.isToggling
+                            ? const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                ),
+                              )
+                            : Icon(
+                                Icons.favorite,
+                                size: 16,
+                                color: const Color(0xFFE33629),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Title
+                    Text(
+                      house['title'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    /// Location
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/location.png',
+                          width: 14,
+                          height: 14,
+                          errorBuilder: (_, __, ___) {
+                            return const Icon(Icons.location_on, size: 14, color: Colors.grey);
+                          },
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            house['location'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    /// Stats Row with asset images
+                    Row(
+                      children: [
+                        _StatChip(
+                          imagePath: 'assets/images/bed.png',
+                          label: bed,
+                        ),
+                        const SizedBox(width: 12),
+                        _StatChip(
+                          imagePath: 'assets/images/bath.png',
+                          label: bath,
+                        ),
+                        const SizedBox(width: 12),
+                        _StatChip(
+                          imagePath: 'assets/images/sqft.png',
+                          label: area,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+                    Divider(color: Colors.grey.shade200, height: 1),
+                    const SizedBox(height: 10),
+
+                    /// Action Buttons
+                    Row(
+                      children: [
+                        _CallButton(
+                          onTap: () {
+                            // Show call options
+                            CallUtils.showCallOptions(
+                              context: context,
+                              phoneNumber: agentPhone,
+                              name: "Property Agent",
+                              showMessage: true,
+                              showWhatsApp: true,
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        _ActionButton(
+                          imagePath: 'assets/images/whatsapp.png',
+                          label: "Whatsapp",
+                          onTap: () {
+                            // Share property via WhatsApp
+                            WhatsAppUtils.shareProperty(
+                              context: context,
+                              propertyTitle: house['title'],
+                              propertyLocation: house['location'],
+                              propertyPrice: house['price'],
+                              agentPhone: agentPhone,
+                            );
+                          },
+                        ),
+                        const Spacer(),
+                        _ActionButton(
+                          imagePath: 'assets/images/location.png',
+                          label: "Location",
+                          onTap: () {
+                            // Show location options
+                            LocationUtils.showMapOptions(
+                              context: context,
+                              latitude: 28.6139, // Replace with actual latitude from your data
+                              longitude: 77.2090, // Replace with actual longitude from your data
+                              address: house['location'],
+                              locationName: house['title'],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+                    
+                    /// View Details Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "View Details",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildPropertyImage(
-      Map<String, dynamic> item, WishlistProvider wishlistProvider) {
-    return Stack(
+// ── Stat Chip ────────────────────────────────────────────────────────────────
+class _StatChip extends StatelessWidget {
+  final String imagePath;
+  final String label;
+
+  const _StatChip({
+    required this.imagePath,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
       children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: Image.network(
-            (item['images'] != null && item['images'].isNotEmpty)
-                ? item['images'][0]
-                : '',
-            height: 200,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.grey.shade200, Colors.grey.shade300],
-                  ),
-                ),
-                child: Icon(
-                  Icons.home_rounded,
-                  size: 80,
-                  color: Colors.grey.shade400,
-                ),
-              );
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.grey.shade100, Colors.grey.shade200],
-                  ),
-                ),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.red.shade400),
-                  ),
-                ),
-              );
-            },
-          ),
+        Image.asset(
+          imagePath,
+          width: 14,
+          height: 14,
+          errorBuilder: (_, __, ___) {
+            return Container(
+              width: 14,
+              height: 14,
+              color: Colors.grey,
+            );
+          },
         ),
-        Positioned(
-          top: 12,
-          left: 12,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.sell_rounded,
-                  size: 14,
-                  color: Colors.red.shade600,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  item['type'] ?? "For Sale",
-                  style: TextStyle(
-                    color: Colors.red.shade600,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          top: 12,
-          right: 12,
-          child: GestureDetector(
-            onTap: () async {
-              if (!wishlistProvider.isToggling) {
-                final success =
-                    await wishlistProvider.toggleWishlist(item['_id']);
-
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: success
-                          ? Colors.green.shade600
-                          : Colors.red.shade600,
-                      content: Row(
-                        children: [
-                          Icon(
-                            success
-                                ? Icons.check_circle_rounded
-                                : Icons.error_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            success
-                                ? 'Removed from wishlist'
-                                : (wishlistProvider.errorMessage ??
-                                    'Failed to remove'),
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      margin: const EdgeInsets.all(16),
-                    ),
-                  );
-                }
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: wishlistProvider.isToggling
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.red.shade400),
-                      ),
-                    )
-                  : Icon(
-                      Icons.favorite_rounded,
-                      color: Colors.red.shade400,
-                      size: 20,
-                    ),
-            ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey.shade600,
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildPropertyDetails(
-      Map<String, dynamic> item, String bed, String bath, String area) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item['name'] ?? 'Property',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black87,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+// ── Call Button ──────────────────────────────────────────────────────────────
+class _CallButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _CallButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE33629),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          "Call",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_rounded,
-                size: 16,
-                color: Colors.red.shade400,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  item['address'] ?? 'Location not available',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildFeatureChip(
-                  Icons.bed_rounded, bed.isNotEmpty ? bed : '4 Bed'),
-              const SizedBox(width: 8),
-              _buildFeatureChip(
-                  Icons.bathtub_rounded, bath.isNotEmpty ? bath : '2 Bath'),
-              const SizedBox(width: 8),
-              _buildFeatureChip(Icons.square_foot_rounded,
-                  area.isNotEmpty ? area : '7,500 sqft'),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildFeatureChip(IconData icon, String label) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: Colors.grey.shade700,
+// ── Action Button ────────────────────────────────────────────────────────────
+class _ActionButton extends StatelessWidget {
+  final String imagePath;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.imagePath,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Image.asset(
+            imagePath,
+            width: 16,
+            height: 16,
+            errorBuilder: (_, __, ___) {
+              return Container(
+                width: 16,
+                height: 16,
+                color: Colors.grey,
+              );
+            },
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

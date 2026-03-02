@@ -1,767 +1,7 @@
-// // ignore_for_file: deprecated_member_use
-
-// import 'package:flutter/material.dart';
-// import 'package:product_app/views/popup/call_popup.dart';
-
-// class NearestHouseDetail extends StatelessWidget {
-//   const NearestHouseDetail({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           // Main scrollable content
-//           SingleChildScrollView(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Hero Image with overlay buttons
-//                 Stack(
-//                   children: [
-//                     // House Image
-//                     Container(
-//                       height: 320,
-//                       width: double.infinity,
-//                       decoration:const BoxDecoration(
-//                         image: DecorationImage(
-//                           image: AssetImage(
-//                             'lib/assets/22c7ca7468778df234aab7d17ed03d05c804b058.png',
-//                           ),
-//                           fit: BoxFit.cover,
-//                         ),
-//                       ),
-//                     ),
-//                     // Gradient overlay
-//                     Container(
-//                       height: 320,
-//                       decoration: BoxDecoration(
-//                         gradient: LinearGradient(
-//                           begin: Alignment.topCenter,
-//                           end: Alignment.bottomCenter,
-//                           colors: [
-//                             Colors.black.withOpacity(0.3),
-//                             Colors.transparent,
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-
-//                     SafeArea(
-//                       child: Padding(
-//                         padding: const EdgeInsets.all(16.0),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             // Back button
-//                             Container(
-//                               decoration: BoxDecoration(
-//                                 color: Colors.white,
-//                                 borderRadius: BorderRadius.circular(12),
-//                               ),
-//                               child: IconButton(
-//                                 icon: const Icon(Icons.arrow_back_ios_new),
-//                                 onPressed: () => Navigator.pop(context),
-//                               ),
-//                             ),
-
-//                             // Right buttons
-//                             Column(
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Container(
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.white,
-//                                     borderRadius: BorderRadius.circular(25),
-//                                   ),
-//                                   child: IconButton(
-//                                     icon: const Icon(Icons.favorite_border),
-//                                     onPressed: () {},
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 12),
-//                                 Container(
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.white,
-//                                     borderRadius: BorderRadius.circular(25),
-//                                   ),
-//                                   child: IconButton(
-//                                     icon:
-//                                         const Icon(Icons.share), // Example icon
-//                                     onPressed: () {},
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//                 // Content section
-//                 Container(
-//                   decoration: const BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.only(
-//                       topLeft: Radius.circular(24),
-//                       topRight: Radius.circular(24),
-//                     ),
-//                   ),
-//                   transform: Matrix4.translationValues(0, -20, 0),
-//                   child: Padding(
-//                     padding: const EdgeInsets.all(20.0),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         // Title
-//                         const Text(
-//                           'Luxury House LakeView Estate',
-//                           style: TextStyle(
-//                             fontSize: 24,
-//                             fontWeight: FontWeight.bold,
-//                             color: Colors.black87,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 8),
-//                         // Location
-//                         Row(
-//                           children: [
-//                            const Icon(
-//                               Icons.location_on,
-//                               size: 18,
-//                               color: Color(0xFF00A8E8),
-//                             ),
-//                             const SizedBox(width: 4),
-//                             Text(
-//                               '1-2-12, Gandhi Nagar, kakinada',
-//                               style: TextStyle(
-//                                 fontSize: 14,
-//                                 color: Colors.grey[600],
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         const SizedBox(height: 20),
-//                         // Features row
-//                         Row(
-//                           children: [
-//                             Expanded(
-//                               child: _buildFeatureCard(
-//                                 Icons.bed_outlined,
-//                                 '4',
-//                                 'Bedroom',
-//                               ),
-//                             ),
-//                             const SizedBox(width: 12),
-//                             Expanded(
-//                               child: _buildFeatureCard(
-//                                 Icons.bathtub_outlined,
-//                                 '3',
-//                                 'Bathroom',
-//                               ),
-//                             ),
-//                             const SizedBox(width: 12),
-//                             Expanded(
-//                               child: _buildFeatureCard(
-//                                 Icons.straighten,
-//                                 '7,500',
-//                                 'Sqft',
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         const SizedBox(height: 24),
-//                         // Description
-//                         const Text(
-//                           'Description',
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.bold,
-//                             color: Colors.black87,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 12),
-//                         Text(
-//                           'Lorem ipsum dolor is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-//                           style: TextStyle(
-//                             fontSize: 14,
-//                             height: 1.6,
-//                             color: Colors.grey[700],
-//                           ),
-//                         ),
-//                         const SizedBox(height: 24),
-//                         // View Map section
-//                         const Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text(
-//                               'View on Map',
-//                               style: TextStyle(
-//                                 fontSize: 18,
-//                                 fontWeight: FontWeight.bold,
-//                                 color: Colors.black87,
-//                               ),
-//                             ),
-//                             // TextButton(
-//                             //   onPressed: () {},
-//                             //   child: Text(
-//                             //     'Map',
-//                             //     style: TextStyle(
-//                             //       fontSize: 14,
-//                             //       color: Colors.grey[600],
-//                             //     ),
-//                             //   ),
-//                             // ),
-//                           ],
-//                         ),
-//                         const SizedBox(height: 12),
-//                         // Map preview
-//                         Container(
-//                           height: 200,
-//                           width: double.infinity,
-//                           decoration: BoxDecoration(
-//                             borderRadius: BorderRadius.circular(16),
-//                             image: const DecorationImage(
-//                               image: AssetImage(
-//                                 'lib/assets/map.png',
-//                               ),
-//                               fit: BoxFit.cover,
-//                             ),
-//                           ),
-//                         ),
-//                         const SizedBox(height: 100), // Space for bottom buttons
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           // Bottom buttons
-//           Positioned(
-//             left: 0,
-//             right: 0,
-//             bottom: 0,
-//             child: Container(
-//               padding: const EdgeInsets.all(20),
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.05),
-//                     blurRadius: 10,
-//                     offset: const Offset(0, -5),
-//                   ),
-//                 ],
-//               ),
-//               child: SafeArea(
-//                 child: Row(
-//                   children: [
-//                     Expanded(
-//                       child: Container(
-//                         decoration: BoxDecoration(
-//                           gradient: const LinearGradient(
-//                             colors: [
-//                               Color(0xFF00A8E8),
-//                               Color(0xFF2BBBAD)
-//                             ], // your colors
-//                           ),
-//                           borderRadius: BorderRadius.circular(30), // pill shape
-//                         ),
-//                         child: ElevatedButton.icon(
-//                           onPressed: () {},
-//                           icon: const Icon(Icons.chat_bubble_outline),
-//                           label: const Text(
-//                             'Chat',
-//                             style: TextStyle(
-//                               fontSize: 16,
-//                               fontWeight: FontWeight.w600,
-//                             ),
-//                           ),
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor:
-//                                 Colors.transparent, // transparent for gradient
-//                             shadowColor: Colors.transparent, // remove shadow
-//                             foregroundColor: Colors.white,
-//                             padding: const EdgeInsets.symmetric(vertical: 16),
-//                             shape:
-//                                 const StadiumBorder(), // full curved pill button
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(width: 16),
-//                     Expanded(
-//                       child: Container(
-//                         decoration: BoxDecoration(
-//                           gradient: const LinearGradient(
-//                             colors: [
-//                               Color(0xFF00A8E8),
-//                               Color(0xFF2BBBAD)
-//                             ], // gradient colors
-//                           ),
-//                           borderRadius:
-//                               BorderRadius.circular(30), // rounded shape
-//                         ),
-//                         child: ElevatedButton.icon(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => CallPopup()));
-//                           },
-//                           icon: const Icon(Icons.phone),
-//                           label: const Text(
-//                             'Call',
-//                             style: TextStyle(
-//                               fontSize: 16,
-//                               fontWeight: FontWeight.w600,
-//                             ),
-//                           ),
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor:
-//                                 Colors.transparent, // transparent for gradient
-//                             shadowColor: Colors.transparent, // remove shadow
-//                             foregroundColor: Colors.white,
-//                             padding: const EdgeInsets.symmetric(vertical: 16),
-//                             shape: const StadiumBorder(), // pill shaped
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildFeatureCard(IconData icon, String number, String label) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(16),
-//         border: Border.all(
-//           color: Colors.grey[300]!,
-//           width: 1,
-//         ),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(
-//             icon,
-//             size: 20,
-//             color: Colors.grey[700],
-//           ),
-//           const SizedBox(height: 8),
-//           Row(
-//             crossAxisAlignment: CrossAxisAlignment.baseline,
-//             textBaseline: TextBaseline.alphabetic,
-//             children: [
-//               Text(
-//                 number,
-//                 style: const TextStyle(
-//                   fontSize: 16,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.black87,
-//                 ),
-//               ),
-//               const SizedBox(width: 4),
-//               Text(
-//                 label,
-//                 style: TextStyle(
-//                   fontSize: 13,
-//                   color: Colors.grey[600],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-// // ignore_for_file: deprecated_member_use
-
-// import 'package:flutter/material.dart';
-// import 'package:product_app/views/popup/call_popup.dart';
-
-// class NearestHouseDetail extends StatelessWidget {
-//   final Map<String, dynamic> house;
-
-//   const NearestHouseDetail({
-//     super.key,
-//     required this.house,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           SingleChildScrollView(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // ================= IMAGE =================
-//                 Stack(
-//                   children: [
-//                     Container(
-//                       height: 320,
-//                       width: double.infinity,
-//                       decoration: BoxDecoration(
-//                         image: DecorationImage(
-//                           image: house['image'] != null &&
-//                                   house['image'].toString().startsWith('http')
-//                               ? NetworkImage(house['image'])
-//                               : const AssetImage('lib/assets/placeholder.png')
-//                                   as ImageProvider,
-//                           fit: BoxFit.cover,
-//                         ),
-//                       ),
-//                     ),
-
-//                     // Gradient
-//                     Container(
-//                       height: 320,
-//                       decoration: BoxDecoration(
-//                         gradient: LinearGradient(
-//                           begin: Alignment.topCenter,
-//                           end: Alignment.bottomCenter,
-//                           colors: [
-//                             Colors.black.withOpacity(0.3),
-//                             Colors.transparent,
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-
-//                     // Back & actions
-//                     SafeArea(
-//                       child: Padding(
-//                         padding: const EdgeInsets.all(16),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             _iconButton(
-//                               icon: Icons.arrow_back_ios_new,
-//                               onTap: () => Navigator.pop(context),
-//                             ),
-//                             Column(
-//                               children: [
-//                                 // _iconButton(
-//                                 //   icon: Icons.favorite_border,
-//                                 //   onTap: () {},
-//                                 // ),
-//                                 // const SizedBox(height: 12),
-//                                 // _iconButton(
-//                                 //   icon: Icons.share,
-//                                 //   onTap: () {},
-//                                 // ),
-//                               ],
-//                             )
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-
-//                 // ================= CONTENT =================
-//                 Container(
-//                   transform: Matrix4.translationValues(0, -20, 0),
-//                   decoration: const BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.vertical(
-//                       top: Radius.circular(24),
-//                     ),
-//                   ),
-//                   padding: const EdgeInsets.all(20),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       // Title
-//                       Text(
-//                         house['title'] ?? 'Property',
-//                         style: const TextStyle(
-//                           fontSize: 24,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-
-//                       const SizedBox(height: 8),
-
-//                       // Location
-//                       Row(
-//                         children: [
-//                           const Icon(Icons.location_on,
-//                               size: 18, color: Color(0xFF00A8E8)),
-//                           const SizedBox(width: 6),
-//                           Expanded(
-//                             child: Text(
-//                               house['location'] ?? 'Unknown location',
-//                               style: TextStyle(
-//                                 fontSize: 14,
-//                                 color: Colors.grey[600],
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-
-//                       const SizedBox(height: 20),
-
-//                       // Features
-//                       Row(
-//                         children: [
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.bed_outlined,
-//                               house['beds'] ?? 'N/A',
-//                               'Bedroom',
-//                             ),
-//                           ),
-//                           const SizedBox(width: 12),
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.bathtub_outlined,
-//                               house['baths'] ?? 'N/A',
-//                               'Bathroom',
-//                             ),
-//                           ),
-//                           const SizedBox(width: 12),
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.straighten,
-//                               house['area'] ?? 'N/A',
-//                               'Sqft',
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-
-//                       const SizedBox(height: 24),
-
-//                       // Description
-//                       const Text(
-//                         'Description',
-//                         style: TextStyle(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 12),
-//                       Text(
-//                         house['description'] ??
-//                             'No description available.',
-//                         style: TextStyle(
-//                           fontSize: 14,
-//                           height: 1.6,
-//                           color: Colors.grey[700],
-//                         ),
-//                       ),
-
-//                       const SizedBox(height: 24),
-
-//                       // Map preview (static for now)
-//                       // const Text(
-//                       //   'View on Map',
-//                       //   style: TextStyle(
-//                       //     fontSize: 18,
-//                       //     fontWeight: FontWeight.bold,
-//                       //   ),
-//                       // ),
-//                       const SizedBox(height: 12),
-//                       // Container(
-//                       //   height: 200,
-//                       //   decoration: BoxDecoration(
-//                       //     borderRadius: BorderRadius.circular(16),
-//                       //     image: const DecorationImage(
-//                       //       image: AssetImage('lib/assets/map.png'),
-//                       //       fit: BoxFit.cover,
-//                       //     ),
-//                       //   ),
-//                       // ),
-
-//                       const SizedBox(height: 100),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           // ================= BOTTOM BUTTONS =================
-//           // Positioned(
-//           //   left: 0,
-//           //   right: 0,
-//           //   bottom: 0,
-//           //   child: SafeArea(
-//           //     child: Padding(
-//           //       padding: const EdgeInsets.all(16),
-//           //       child: Row(
-//           //         children: [
-//           //           _gradientButton(
-//           //             icon: Icons.chat_bubble_outline,
-//           //             text: 'Chat',
-//           //             onTap: () {},
-//           //           ),
-//           //           const SizedBox(width: 16),
-//           //           _gradientButton(
-//           //             icon: Icons.phone,
-//           //             text: 'Call',
-//           //             onTap: () {
-//           //               Navigator.push(
-//           //                 context,
-//           //                 MaterialPageRoute(
-//           //                   builder: (_) => CallPopup(),
-//           //                 ),
-//           //               );
-//           //             },
-//           //           ),
-//           //         ],
-//           //       ),
-//           //     ),
-//           //   ),
-//           // ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // ================= HELPERS =================
-
-//   Widget _iconButton({
-//     required IconData icon,
-//     required VoidCallback onTap,
-//   }) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(25),
-//       ),
-//       child: IconButton(
-//         icon: Icon(icon),
-//         onPressed: onTap,
-//       ),
-//     );
-//   }
-
-//   Widget _gradientButton({
-//     required IconData icon,
-//     required String text,
-//     required VoidCallback onTap,
-//   }) {
-//     return Expanded(
-//       child: Container(
-//         decoration: BoxDecoration(
-//           gradient: const LinearGradient(
-//             colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
-//           ),
-//           borderRadius: BorderRadius.circular(30),
-//         ),
-//         child: ElevatedButton.icon(
-//           onPressed: onTap,
-//           icon: Icon(icon),
-//           label: Text(
-//             text,
-//             style: const TextStyle(
-//               fontSize: 16,
-//               fontWeight: FontWeight.w600,
-//             ),
-//           ),
-//           style: ElevatedButton.styleFrom(
-//             backgroundColor: Colors.transparent,
-//             shadowColor: Colors.transparent,
-//             foregroundColor: Colors.white,
-//             padding: const EdgeInsets.symmetric(vertical: 16),
-//             shape: const StadiumBorder(),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildFeatureCard(
-//       IconData icon, String value, String label) {
-//     return Container(
-//       padding: const EdgeInsets.all(14),
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey[300]!),
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Icon(icon, size: 20, color: Colors.grey[700]),
-//           const SizedBox(height: 8),
-//           Text(
-//             value,
-//             style: const TextStyle(
-//               fontWeight: FontWeight.bold,
-//               fontSize: 16,
-//             ),
-//           ),
-//           Text(
-//             label,
-//             style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // ignore_for_file: deprecated_member_use
-
 // import 'package:flutter/material.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
-// class NearestHouseDetail extends StatelessWidget {
+// class NearestHouseDetail extends StatefulWidget {
 //   final Map<String, dynamic> house;
 
 //   const NearestHouseDetail({
@@ -769,379 +9,516 @@
 //     required this.house,
 //   });
 
-//   // Function to open WhatsApp
+//   @override
+//   State<NearestHouseDetail> createState() => _NearestHouseDetailState();
+// }
+
+// class _NearestHouseDetailState extends State<NearestHouseDetail> {
+//   bool isFavorite = false;
+
 //   Future<void> _openWhatsApp(BuildContext context) async {
-//     // Replace with your WhatsApp number (include country code without + or 00)
-//     // Example: For +1234567890, use '1234567890'
-//     const String phoneNumber = '919961593179'; // Replace with actual number
-    
+//     const String phoneNumber = '919961593179';
+
 //     final String message = Uri.encodeComponent(
-//       'Hi, I am interested in the property: ${house['title'] ?? 'Property'} located at ${house['location'] ?? 'Unknown location'}',
+//       'Hi, I am interested in the property: ${widget.house['title'] ?? 'Property'} located at ${widget.house['location'] ?? 'Unknown location'}',
 //     );
-    
+
 //     final Uri whatsappUrl = Uri.parse('https://wa.me/$phoneNumber?text=$message');
-    
+
 //     try {
 //       if (await canLaunchUrl(whatsappUrl)) {
 //         await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
 //       } else {
 //         if (context.mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Could not open WhatsApp')),
-//           );
+//           _showErrorSnackBar(context, 'Could not open WhatsApp');
 //         }
 //       }
 //     } catch (e) {
 //       if (context.mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Error: $e')),
-//         );
+//         _showErrorSnackBar(context, 'Error: $e');
 //       }
 //     }
 //   }
 
-//   // Function to make phone call
 //   Future<void> _makePhoneCall(BuildContext context) async {
-//     // Replace with your phone number
-//     const String phoneNumber = 'tel:+919961593179'; // Replace with actual number
-    
+//     const String phoneNumber = 'tel:+919961593179';
+
 //     final Uri phoneUrl = Uri.parse(phoneNumber);
-    
+
 //     try {
 //       if (await canLaunchUrl(phoneUrl)) {
 //         await launchUrl(phoneUrl);
 //       } else {
 //         if (context.mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Could not make phone call')),
-//           );
+//           _showErrorSnackBar(context, 'Could not make phone call');
 //         }
 //       }
 //     } catch (e) {
 //       if (context.mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Error: $e')),
-//         );
+//         _showErrorSnackBar(context, 'Error: $e');
 //       }
 //     }
+//   }
+
+//   void _showErrorSnackBar(BuildContext context, String message) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(message),
+//         backgroundColor: Colors.red,
+//         behavior: SnackBarBehavior.floating,
+//       ),
+//     );
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
+//       backgroundColor: Colors.white,
 //       body: Stack(
 //         children: [
-//           SingleChildScrollView(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // ================= IMAGE =================
-//                 Stack(
-//                   children: [
-//                     Container(
-//                       height: 320,
-//                       width: double.infinity,
-//                       decoration: BoxDecoration(
-//                         image: DecorationImage(
-//                           image: house['image'] != null &&
-//                                   house['image'].toString().startsWith('http')
-//                               ? NetworkImage(house['image'])
-//                               : const AssetImage('lib/assets/placeholder.png')
-//                                   as ImageProvider,
-//                           fit: BoxFit.cover,
-//                         ),
-//                       ),
-//                     ),
-
-//                     // Gradient
-//                     Container(
-//                       height: 320,
-//                       decoration: BoxDecoration(
-//                         gradient: LinearGradient(
-//                           begin: Alignment.topCenter,
-//                           end: Alignment.bottomCenter,
-//                           colors: [
-//                             Colors.black.withOpacity(0.3),
-//                             Colors.transparent,
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-
-//                     // Back & actions
-//                     SafeArea(
-//                       child: Padding(
-//                         padding: const EdgeInsets.all(16),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             _iconButton(
-//                               icon: Icons.arrow_back_ios_new,
-//                               onTap: () => Navigator.pop(context),
-//                             ),
-//                             Column(
-//                               children: [
-//                                 // _iconButton(
-//                                 //   icon: Icons.favorite_border,
-//                                 //   onTap: () {},
-//                                 // ),
-//                                 // const SizedBox(height: 12),
-//                                 // _iconButton(
-//                                 //   icon: Icons.share,
-//                                 //   onTap: () {},
-//                                 // ),
-//                               ],
-//                             )
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   ],
+//           CustomScrollView(
+//             slivers: [
+//               SliverToBoxAdapter(
+//                 child: _PropertyImageHeader(
+//                   imageUrl: widget.house['image'],
+//                   title: widget.house['title'],
+//                   isFavorite: isFavorite,
+//                   onFavoriteTap: () {
+//                     setState(() {
+//                       isFavorite = !isFavorite;
+//                     });
+//                   },
 //                 ),
-
-//                 // ================= CONTENT =================
-//                 Container(
-//                   transform: Matrix4.translationValues(0, -20, 0),
-//                   decoration: const BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.vertical(
-//                       top: Radius.circular(24),
-//                     ),
-//                   ),
-//                   padding: const EdgeInsets.all(20),
+//               ),
+//               SliverToBoxAdapter(
+//                 child: Padding(
+//                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
 //                   child: Column(
 //                     crossAxisAlignment: CrossAxisAlignment.start,
 //                     children: [
-//                       // Title
+//                       /// Title
 //                       Text(
-//                         house['title'] ?? 'Property',
+//                         widget.house['title'] ?? 'Property',
 //                         style: const TextStyle(
-//                           fontSize: 24,
-//                           fontWeight: FontWeight.bold,
+//                           fontSize: 17,
+//                           fontWeight: FontWeight.w700,
+//                           color: Colors.black87,
 //                         ),
 //                       ),
 
-//                       const SizedBox(height: 8),
+//                       const SizedBox(height: 6),
 
-//                       // Location
+//                       /// Location
 //                       Row(
 //                         children: [
-//                           const Icon(Icons.location_on,
-//                               size: 18, color: Color(0xFF00A8E8)),
-//                           const SizedBox(width: 6),
+//                           Image.asset(
+//                             'assets/images/map.png',
+//                             width: 14,
+//                             height: 14,
+//                             errorBuilder: (_, __, ___) {
+//                               return const Icon(Icons.location_on, size: 14);
+//                             },
+//                           ),
+//                           const SizedBox(width: 4),
 //                           Expanded(
 //                             child: Text(
-//                               house['location'] ?? 'Unknown location',
+//                               widget.house['location'] ?? 'Unknown location',
 //                               style: TextStyle(
-//                                 fontSize: 14,
-//                                 color: Colors.grey[600],
+//                                 fontSize: 12,
+//                                 color: Colors.grey.shade500,
 //                               ),
 //                             ),
 //                           ),
 //                         ],
 //                       ),
 
+//                       const SizedBox(height: 16),
+
+//                       /// Stats Container
+//                       Container(
+//                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+//                         decoration: BoxDecoration(
+//                           color: Colors.grey.shade50,
+//                           borderRadius: BorderRadius.circular(12),
+//                           border: Border.all(color: Colors.grey.shade200),
+//                         ),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.spaceAround,
+//                           children: [
+//                             _StatItem(
+//                               imagePath: 'assets/images/bed.png',
+//                               value: widget.house['beds'] ?? '4 Bed',
+//                             ),
+//                             _Divider(),
+//                             _StatItem(
+//                               imagePath: 'assets/images/bath.png',
+//                               value: widget.house['baths'] ?? '2 Bath',
+//                             ),
+//                             _Divider(),
+//                             _StatItem(
+//                               imagePath: 'assets/images/sqft.png',
+//                               value: widget.house['area'] ?? '7,500 sqft',
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+
 //                       const SizedBox(height: 20),
 
-//                       // Features
-//                       Row(
-//                         children: [
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.bed_outlined,
-//                               house['beds'] ?? 'N/A',
-//                               'Bedroom',
-//                             ),
-//                           ),
-//                           const SizedBox(width: 12),
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.bathtub_outlined,
-//                               house['baths'] ?? 'N/A',
-//                               'Bathroom',
-//                             ),
-//                           ),
-//                           const SizedBox(width: 12),
-//                           Expanded(
-//                             child: _buildFeatureCard(
-//                               Icons.straighten,
-//                               house['area'] ?? 'N/A',
-//                               'Sqft',
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-
-//                       const SizedBox(height: 24),
-
-//                       // Description
-//                       const Text(
-//                         'Description',
-//                         style: TextStyle(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 12),
+//                       /// Description
+//                       const _SectionTitle("Description"),
+//                       const SizedBox(height: 8),
 //                       Text(
-//                         house['description'] ??
-//                             'No description available.',
+//                         widget.house['description'] ??
+//                             'Beautiful property located in prime area with modern amenities and peaceful surroundings.',
 //                         style: TextStyle(
-//                           fontSize: 14,
+//                           fontSize: 12,
+//                           color: Colors.grey.shade600,
 //                           height: 1.6,
-//                           color: Colors.grey[700],
 //                         ),
 //                       ),
 
-//                       const SizedBox(height: 24),
+//                       const SizedBox(height: 20),
 
-//                       // Map preview (static for now)
-//                       // const Text(
-//                       //   'View on Map',
-//                       //   style: TextStyle(
-//                       //     fontSize: 18,
-//                       //     fontWeight: FontWeight.bold,
-//                       //   ),
-//                       // ),
-//                       const SizedBox(height: 12),
-//                       // Container(
-//                       //   height: 200,
-//                       //   decoration: BoxDecoration(
-//                       //     borderRadius: BorderRadius.circular(16),
-//                       //     image: const DecorationImage(
-//                       //       image: AssetImage('lib/assets/map.png'),
-//                       //       fit: BoxFit.cover,
-//                       //     ),
-//                       //   ),
-//                       // ),
+//                       /// Map Section
+//                       const _SectionTitle("View on Map"),
+//                       const SizedBox(height: 10),
 
-//                       const SizedBox(height: 100),
+//                       ClipRRect(
+//                         borderRadius: BorderRadius.circular(14),
+//                         child: Container(
+//                           width: double.infinity,
+//                           height: 160,
+//                           color: Colors.grey.shade200,
+                      
+//                          child: Image.asset(
+//                             'assets/images/map.png',
+//                             width: double.infinity,
+//                             height: 160,
+//                             fit: BoxFit.cover,
+//                           ),
+//                         ),
+//                       ),
 //                     ],
 //                   ),
 //                 ),
-//               ],
-//             ),
+//               ),
+//             ],
 //           ),
 
-//           // ================= BOTTOM BUTTONS =================
 //           Positioned(
+//             bottom: 0,
 //             left: 0,
 //             right: 0,
-//             bottom: 0,
-//             child: Container(
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.05),
-//                     blurRadius: 10,
-//                     offset: const Offset(0, -5),
-//                   ),
-//                 ],
-//               ),
-//               child: SafeArea(
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(16),
-//                   child: Row(
-//                     children: [
-//                       _gradientButton(
-//                         icon: Icons.chat_bubble_outline,
-//                         text: 'For booking',
-//                         onTap: () => _openWhatsApp(context),
-//                       ),
-//                       const SizedBox(width: 16),
-//                       _gradientButton(
-//                         icon: Icons.phone,
-//                         text: 'Call',
-//                         onTap: () => _makePhoneCall(context),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
+//             child: _BottomActionBar(
+//               onWhatsAppTap: () => _openWhatsApp(context),
+//               onCallTap: () => _makePhoneCall(context),
 //             ),
 //           ),
 //         ],
 //       ),
 //     );
 //   }
+// }
 
-//   // ================= HELPERS =================
+// // ── Property Image Header (exact same as first UI) ───────────────────────────
 
-//   Widget _iconButton({
-//     required IconData icon,
-//     required VoidCallback onTap,
-//   }) {
+// class _PropertyImageHeader extends StatelessWidget {
+//   final String? imageUrl;
+//   final String? title;
+//   final bool isFavorite;
+//   final VoidCallback onFavoriteTap;
+//   final VoidCallback? onShareTap;
+
+//   const _PropertyImageHeader({
+//     required this.imageUrl,
+//     required this.title,
+//     required this.isFavorite,
+//     required this.onFavoriteTap,
+//     this.onShareTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       children: [
+//         // 🔥 Curved Bottom Image
+//         ClipRRect(
+//           borderRadius: const BorderRadius.vertical(
+//             bottom: Radius.circular(30),
+//           ),
+//           child: SizedBox(
+//             height: 375,
+//             width: double.infinity,
+//             child: imageUrl != null &&
+//                     imageUrl!.toString().startsWith('http')
+//                 ? Image.network(
+//                     imageUrl!,
+//                     fit: BoxFit.cover,
+//                     errorBuilder: (context, error, stackTrace) {
+//                       return Container(
+//                         color: Colors.grey.shade300,
+//                         child: const Center(
+//                           child:
+//                               Icon(Icons.image_not_supported, size: 50),
+//                         ),
+//                       );
+//                     },
+//                     loadingBuilder:
+//                         (context, child, loadingProgress) {
+//                       if (loadingProgress == null) return child;
+//                       return Container(
+//                         color: Colors.grey.shade200,
+//                         child: const Center(
+//                           child: CircularProgressIndicator(),
+//                         ),
+//                       );
+//                     },
+//                   )
+//                 : Container(
+//                     color: Colors.grey.shade300,
+//                     child: const Center(
+//                       child:
+//                           Icon(Icons.image_not_supported, size: 50),
+//                     ),
+//                   ),
+//           ),
+//         ),
+
+//         // 🔙 Back Button
+//         Positioned(
+//           top: 44,
+//           left: 14,
+//           child: _CircleIconButton(
+//             icon: Icons.arrow_back,
+//             onTap: () => Navigator.pop(context),
+//           ),
+//         ),
+
+//         // ❤️ + 🔗 Icons Right Side
+//         Positioned(
+//           top: 44,
+//           right: 14,
+//           child: Column(
+//             children: [
+//               _CircleIconButton(
+//                 icon: isFavorite
+//                     ? Icons.favorite
+//                     : Icons.favorite_border,
+//                 onTap: onFavoriteTap,
+//               ),
+//               const SizedBox(height: 12),
+//               _CircleIconButton(
+//                 icon: Icons.reply,
+//                 onTap: onShareTap ?? () {
+
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// // ── Circle Icon Button (exact same as first UI) ─────────────────────────────
+
+// class _CircleIconButton extends StatelessWidget {
+//   final IconData icon;
+//   final VoidCallback onTap;
+
+//   const _CircleIconButton({
+//     required this.icon,
+//     required this.onTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         width: 36,
+//         height: 36,
+//         decoration: const BoxDecoration(
+//           color: Colors.white,
+//           shape: BoxShape.circle,
+//         ),
+//         child: Icon(icon, size: 18),
+//       ),
+//     );
+//   }
+// }
+
+// // ── Section Title (exact same as first UI) ─────────────────────────────────
+
+// class _SectionTitle extends StatelessWidget {
+//   final String title;
+
+//   const _SectionTitle(this.title);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Text(
+//       title,
+//       style: const TextStyle(
+//         fontSize: 15,
+//         fontWeight: FontWeight.w700,
+//         color: Colors.black87,
+//       ),
+//     );
+//   }
+// }
+
+// // ── Stat Item (exact same as first UI) ─────────────────────────────────────
+
+// class _StatItem extends StatelessWidget {
+//   final String imagePath;
+//   final String value;
+
+//   const _StatItem({
+//     required this.imagePath,
+//     required this.value,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       children: [
+//         Image.asset(
+//           imagePath,
+//           width: 16,
+//           height: 16,
+//           errorBuilder: (_, __, ___) {
+//             return Container(
+//               width: 16,
+//               height: 16,
+//               color: Colors.grey,
+//             );
+//           },
+//         ),
+//         const SizedBox(width: 6),
+//         Text(
+//           value,
+//           style: const TextStyle(
+//             fontSize: 12,
+//             color: Colors.black87,
+//             fontWeight: FontWeight.w500,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// // ── Divider (exact same as first UI) ───────────────────────────────────────
+
+// class _Divider extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
 //     return Container(
+//       width: 1,
+//       height: 18,
+//       color: Colors.grey.shade300,
+//     );
+//   }
+// }
+
+// // ── Bottom Action Bar (exact same as first UI) ─────────────────────────────
+
+// class _BottomActionBar extends StatelessWidget {
+//   final VoidCallback onWhatsAppTap;
+//   final VoidCallback onCallTap;
+
+//   const _BottomActionBar({
+//     required this.onWhatsAppTap,
+//     required this.onCallTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
 //       decoration: BoxDecoration(
 //         color: Colors.white,
-//         borderRadius: BorderRadius.circular(25),
-//       ),
-//       child: IconButton(
-//         icon: Icon(icon),
-//         onPressed: onTap,
-//       ),
-//     );
-//   }
-
-//   Widget _gradientButton({
-//     required IconData icon,
-//     required String text,
-//     required VoidCallback onTap,
-//   }) {
-//     return Expanded(
-//       child: Container(
-//         decoration: BoxDecoration(
-//           gradient: const LinearGradient(
-//             colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.07),
+//             blurRadius: 12,
+//             offset: const Offset(0, -3),
 //           ),
-//           borderRadius: BorderRadius.circular(30),
-//         ),
-//         child: ElevatedButton.icon(
-//           onPressed: onTap,
-//           icon: Icon(icon),
-//           label: Text(
-//             text,
-//             style: const TextStyle(
-//               fontSize: 16,
-//               fontWeight: FontWeight.w600,
-//             ),
-//           ),
-//           style: ElevatedButton.styleFrom(
-//             backgroundColor: Colors.transparent,
-//             shadowColor: Colors.transparent,
-//             foregroundColor: Colors.white,
-//             padding: const EdgeInsets.symmetric(vertical: 16),
-//             shape: const StadiumBorder(),
-//           ),
-//         ),
+//         ],
 //       ),
-//     );
-//   }
-
-//   Widget _buildFeatureCard(
-//       IconData icon, String value, String label) {
-//     return Container(
-//       padding: const EdgeInsets.all(14),
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey[300]!),
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
+//       child: Row(
 //         children: [
-//           Icon(icon, size: 20, color: Colors.grey[700]),
-//           const SizedBox(height: 8),
-//           Text(
-//             value,
-//             style: const TextStyle(
-//               fontWeight: FontWeight.bold,
-//               fontSize: 16,
+//           Expanded(
+//             child: GestureDetector(
+//               onTap: onCallTap,
+//               child: Container(
+//                 height: 48,
+//                 decoration: BoxDecoration(
+//                   color: const Color(0xFFE33629),
+//                   borderRadius: BorderRadius.circular(10),
+//                 ),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Image.asset(
+//                       'assets/images/whatsapp.png',
+//                       width: 16,
+//                       height: 16,
+//                       color: Colors.white,
+//                       errorBuilder: (_, __, ___) {
+//                         return const Icon(Icons.phone, color: Colors.white, size: 16);
+//                       },
+//                     ),
+//                     const SizedBox(width: 8),
+//                     const Text(
+//                       "Call",
+//                       style: TextStyle(
+//                         color: Colors.white,
+//                         fontSize: 14,
+//                         fontWeight: FontWeight.w600,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
 //             ),
 //           ),
-//           Text(
-//             label,
-//             style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+//           const SizedBox(width: 12),
+//           Expanded(
+//             child: GestureDetector(
+//               onTap: onWhatsAppTap,
+//               child: Container(
+//                 height: 48,
+//                 decoration: BoxDecoration(
+//                   borderRadius: BorderRadius.circular(10),
+//                   border: Border.all(color: Colors.grey.shade300),
+//                 ),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Image.asset(
+//                       'assets/images/whatsapp.png',
+//                       width: 18,
+//                       height: 18,
+//                       errorBuilder: (_, __, ___) {
+//                         return const Icon(Icons.chat, size: 18);
+//                       },
+//                     ),
+//                     const SizedBox(width: 8),
+//                     const Text(
+//                       "Whatsapp",
+//                       style: TextStyle(
+//                         fontSize: 14,
+//                         fontWeight: FontWeight.w600,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
 //           ),
 //         ],
 //       ),
@@ -1166,10 +543,15 @@
 
 
 
-// ignore_for_file: deprecated_member_use
+
+
+
+
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 
 class NearestHouseDetail extends StatefulWidget {
   final Map<String, dynamic> house;
@@ -1183,42 +565,9 @@ class NearestHouseDetail extends StatefulWidget {
   State<NearestHouseDetail> createState() => _NearestHouseDetailState();
 }
 
-class _NearestHouseDetailState extends State<NearestHouseDetail>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+class _NearestHouseDetailState extends State<NearestHouseDetail> {
   bool isFavorite = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
-    );
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  // Function to open WhatsApp
   Future<void> _openWhatsApp(BuildContext context) async {
     const String phoneNumber = '919961593179';
 
@@ -1243,7 +592,6 @@ class _NearestHouseDetailState extends State<NearestHouseDetail>
     }
   }
 
-  // Function to make phone call
   Future<void> _makePhoneCall(BuildContext context) async {
     const String phoneNumber = 'tel:+919961593179';
 
@@ -1264,13 +612,189 @@ class _NearestHouseDetailState extends State<NearestHouseDetail>
     }
   }
 
+  Future<void> _shareProperty() async {
+    try {
+      // Create share text with property details
+      String shareText = _generateShareText();
+      
+      // Share via share_plus
+      await Share.share(
+        shareText,
+        subject: 'Check out this property: ${widget.house['title']}',
+      );
+      
+      if (context.mounted) {
+        _showSuccessSnackBar(context, 'Sharing options opened');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showErrorSnackBar(context, 'Error sharing: $e');
+      }
+    }
+  }
+
+  String _generateShareText() {
+    StringBuffer text = StringBuffer();
+    
+    text.writeln('🏠 *${widget.house['title'] ?? 'Property'}*');
+    text.writeln('');
+    text.writeln('📍 *Location:* ${widget.house['location'] ?? 'Unknown'}');
+    text.writeln('💰 *Price:* ${widget.house['price'] ?? 'Contact for price'}');
+    text.writeln('🛏️ *Beds:* ${widget.house['beds'] ?? '4 Bed'}');
+    text.writeln('🚿 *Baths:* ${widget.house['baths'] ?? '2 Bath'}');
+    text.writeln('📐 *Area:* ${widget.house['area'] ?? '7,500 sqft'}');
+    text.writeln('');
+    text.writeln('📝 *Description:*');
+    text.writeln(widget.house['description'] ?? 'Beautiful property located in prime area with modern amenities and peaceful surroundings.');
+    text.writeln('');
+    text.writeln('Contact for more details:');
+    text.writeln('📞 +91 9961593179');
+    text.writeln('💬 WhatsApp: +91 9961593179');
+    text.writeln('');
+    text.writeln('Download our app to view more properties!');
+    
+    return text.toString();
+  }
+
+  Future<void> _shareWithImage() async {
+    try {
+      // Create share text
+      String shareText = _generateShareText();
+      
+      // If you have image URL and want to share image as well
+      // Note: This requires downloading the image first
+      if (widget.house['image'] != null && widget.house['image'].toString().isNotEmpty) {
+        // For sharing with image, you'd need to download the image first
+        // This is a simplified version without image
+        await Share.share(
+          shareText,
+          subject: 'Check out this property: ${widget.house['title']}',
+        );
+      } else {
+        await Share.share(
+          shareText,
+          subject: 'Check out this property: ${widget.house['title']}',
+        );
+      }
+      
+      if (context.mounted) {
+        _showSuccessSnackBar(context, 'Sharing options opened');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showErrorSnackBar(context, 'Error sharing: $e');
+      }
+    }
+  }
+
+  void _showShareOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.share, color: Colors.blue, size: 24),
+                ),
+                title: const Text('Share via...'),
+                subtitle: const Text('Share to social media, messages, etc.'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _shareProperty();
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset(
+                    'assets/images/whatsapp.png',
+                    width: 24,
+                    height: 24,
+                    errorBuilder: (_, __, ___) {
+                      return const Icon(Icons.chat, color: Colors.green, size: 24);
+                    },
+                  ),
+                ),
+                title: const Text('Share on WhatsApp'),
+                subtitle: const Text('Send to WhatsApp contacts'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openWhatsApp(context);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.copy, color: Colors.grey, size: 24),
+                ),
+                title: const Text('Copy Details'),
+                subtitle: const Text('Copy property details to clipboard'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _copyToClipboard(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _copyToClipboard(BuildContext context) async {
+    String shareText = _generateShareText();
+    await Share.share(shareText); // This will show share dialog
+  }
+
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red[400],
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -1278,565 +802,477 @@ class _NearestHouseDetailState extends State<NearestHouseDetail>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           CustomScrollView(
             slivers: [
-              // ================= APP BAR WITH IMAGE =================
-              SliverAppBar(
-                expandedHeight: 380,
-                pinned: true,
-                backgroundColor: Colors.white,
-                elevation: 0,
-                leading: Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                    color: Colors.black87,
-                    onPressed: () => Navigator.pop(context),
-                  ),
+              SliverToBoxAdapter(
+                child: _PropertyImageHeader(
+                  imageUrl: widget.house['image'],
+                  title: widget.house['title'],
+                  isFavorite: isFavorite,
+                  onFavoriteTap: () {
+                    setState(() {
+                      isFavorite = !isFavorite;
+                    });
+                  },
+                  onShareTap: _showShareOptions,
                 ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        size: 22,
-                      ),
-                      color: isFavorite ? Colors.red : Colors.black87,
-                      onPressed: () {
-                        setState(() {
-                          isFavorite = !isFavorite;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    fit: StackFit.expand,
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Property Image
-                      Hero(
-                        tag: 'property_${widget.house['title'] ?? 'image'}',
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: widget.house['image'] != null &&
-                                      widget.house['image']
-                                          .toString()
-                                          .startsWith('http')
-                                  ? NetworkImage(widget.house['image'])
-                                  : const AssetImage('lib/assets/placeholder.png')
-                                      as ImageProvider,
+                      /// Title
+                      Text(
+                        widget.house['title'] ?? 'Property',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      /// Location
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/map.png',
+                            width: 14,
+                            height: 14,
+                            errorBuilder: (_, __, ___) {
+                              return const Icon(Icons.location_on, size: 14);
+                            },
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              widget.house['location'] ?? 'Unknown location',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      /// Stats Container
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _StatItem(
+                              imagePath: 'assets/images/bed.png',
+                              value: widget.house['beds'] ?? '4 Bed',
+                            ),
+                            _Divider(),
+                            _StatItem(
+                              imagePath: 'assets/images/bath.png',
+                              value: widget.house['baths'] ?? '2 Bath',
+                            ),
+                            _Divider(),
+                            _StatItem(
+                              imagePath: 'assets/images/sqft.png',
+                              value: widget.house['area'] ?? '7,500 sqft',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// Description
+                      const _SectionTitle("Description"),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.house['description'] ??
+                            'Beautiful property located in prime area with modern amenities and peaceful surroundings.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                          height: 1.6,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// Map Section
+                      const _SectionTitle("View on Map"),
+                      const SizedBox(height: 10),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: GestureDetector(
+                          onTap: () {
+                            // You can add map navigation here
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: 160,
+                            color: Colors.grey.shade200,
+                            child: Image.asset(
+                              'assets/images/map.png',
+                              width: double.infinity,
+                              height: 160,
                               fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.map, size: 40, color: Colors.grey.shade400),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Tap to open map',
+                                        style: TextStyle(color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ),
-
-                      // Gradient Overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withOpacity(0.3),
-                              Colors.transparent,
-                              Colors.white.withOpacity(0.8),
-                            ],
-                            stops: const [0.0, 0.5, 1.0],
-                          ),
-                        ),
-                      ),
-
-                      // Price Badge
-                      // Positioned(
-                      //   bottom: 20,
-                      //   left: 20,
-                      //   child: Container(
-                      //     padding: const EdgeInsets.symmetric(
-                      //       horizontal: 20,
-                      //       vertical: 12,
-                      //     ),
-                      //     decoration: BoxDecoration(
-                      //       gradient: const LinearGradient(
-                      //         colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
-                      //       ),
-                      //       borderRadius: BorderRadius.circular(30),
-                      //       boxShadow: [
-                      //         BoxShadow(
-                      //           color: const Color(0xFF00A8E8).withOpacity(0.3),
-                      //           blurRadius: 12,
-                      //           offset: const Offset(0, 4),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //     child: Row(
-                      //       mainAxisSize: MainAxisSize.min,
-                      //       children: [
-                      //         const Icon(
-                      //           Icons.currency_rupee,
-                      //           color: Colors.white,
-                      //           size: 20,
-                      //         ),
-                      //         Text(
-                      //           widget.house['price'] ?? 'Price on Request',
-                      //           style: const TextStyle(
-                      //             color: Colors.white,
-                      //             fontSize: 18,
-                      //             fontWeight: FontWeight.bold,
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                     ],
-                  ),
-                ),
-              ),
-
-              // ================= CONTENT =================
-              SliverToBoxAdapter(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Main Info Card
-                        Container(
-                          margin: const EdgeInsets.all(20),
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Title
-                              Text(
-                                widget.house['title'] ?? 'Property',
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A1A1A),
-                                  height: 1.3,
-                                ),
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              // Location with Icon
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF00A8E8).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                      Icons.location_on,
-                                      size: 18,
-                                      color: Color(0xFF00A8E8),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      widget.house['location'] ?? 'Unknown location',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // Features Grid
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildModernFeatureCard(
-                                      Icons.bed_rounded,
-                                      widget.house['beds'] ?? 'N/A',
-                                      'Bedrooms',
-                                      const Color(0xFF6C63FF),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildModernFeatureCard(
-                                      Icons.bathtub_rounded,
-                                      widget.house['baths'] ?? 'N/A',
-                                      'Bathrooms',
-                                      const Color(0xFFFF6B9D),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildModernFeatureCard(
-                                      Icons.square_foot,
-                                      widget.house['area'] ?? 'N/A',
-                                      'Sq.Ft',
-                                      const Color(0xFF00A8E8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Description Section
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Icon(
-                                      Icons.description_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    'Description',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1A1A1A),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                widget.house['description'] ??
-                                    'This beautiful property offers modern amenities and comfortable living spaces. Perfect for families looking for a peaceful neighborhood with easy access to all essential facilities.',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  height: 1.7,
-                                  color: Colors.grey[700],
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // // Amenities Section (Optional Enhancement)
-                        // Container(
-                        //   margin: const EdgeInsets.all(20),
-                        //   padding: const EdgeInsets.all(24),
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.white,
-                        //     borderRadius: BorderRadius.circular(20),
-                        //     boxShadow: [
-                        //       BoxShadow(
-                        //         color: Colors.black.withOpacity(0.05),
-                        //         blurRadius: 15,
-                        //         offset: const Offset(0, 5),
-                        //       ),
-                        //     ],
-                        //   ),
-                        //   child: Column(
-                        //     crossAxisAlignment: CrossAxisAlignment.start,
-                        //     children: [
-                        //       Row(
-                        //         children: [
-                        //           Container(
-                        //             padding: const EdgeInsets.all(10),
-                        //             decoration: BoxDecoration(
-                        //               gradient: const LinearGradient(
-                        //                 colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
-                        //               ),
-                        //               borderRadius: BorderRadius.circular(12),
-                        //             ),
-                        //             child: const Icon(
-                        //               Icons.stars_rounded,
-                        //               color: Colors.white,
-                        //               size: 20,
-                        //             ),
-                        //           ),
-                        //           const SizedBox(width: 12),
-                        //           const Text(
-                        //             'Key Features',
-                        //             style: TextStyle(
-                        //               fontSize: 20,
-                        //               fontWeight: FontWeight.bold,
-                        //               color: Color(0xFF1A1A1A),
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //       const SizedBox(height: 20),
-                        //       // Wrap(
-                        //       //   spacing: 10,
-                        //       //   runSpacing: 10,
-                        //       //   children: [
-                        //       //     _buildAmenityChip('Parking Available', Icons.local_parking),
-                        //       //     _buildAmenityChip('Security', Icons.security),
-                        //       //     _buildAmenityChip('Garden', Icons.park),
-                        //       //     _buildAmenityChip('Power Backup', Icons.power),
-                        //       //     _buildAmenityChip('Water Supply', Icons.water_drop),
-                        //       //     _buildAmenityChip('Elevator', Icons.elevator),
-                        //       //   ],
-                        //       // ),
-                        //     ],
-                        //   ),
-                        // ),
-
-                        const SizedBox(height: 100),
-                      ],
-                    ),
                   ),
                 ),
               ),
             ],
           ),
 
-          // ================= BOTTOM ACTION BAR =================
           Positioned(
+            bottom: 0,
             left: 0,
             right: 0,
-            bottom: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _buildGradientButton(
-                          icon: Icons.chat_bubble_rounded,
-                          text: 'WhatsApp',
-                          onTap: () => _openWhatsApp(context),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF25D366), Color(0xFF128C7E)],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: _buildGradientButton(
-                          icon: Icons.phone_rounded,
-                          text: 'Call',
-                          onTap: () => _makePhoneCall(context),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF00A8E8), Color(0xFF2BBBAD)],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            child: _BottomActionBar(
+              onWhatsAppTap: () => _openWhatsApp(context),
+              onCallTap: () => _makePhoneCall(context),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  // ================= HELPER WIDGETS =================
+// ── Property Image Header (exact same as first UI) ───────────────────────────
 
-  Widget _buildModernFeatureCard(
-    IconData icon,
-    String value,
-    String label,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+class _PropertyImageHeader extends StatelessWidget {
+  final String? imageUrl;
+  final String? title;
+  final bool isFavorite;
+  final VoidCallback onFavoriteTap;
+  final VoidCallback? onShareTap;
+
+  const _PropertyImageHeader({
+    required this.imageUrl,
+    required this.title,
+    required this.isFavorite,
+    required this.onFavoriteTap,
+    this.onShareTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // 🔥 Curved Bottom Image
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+          child: SizedBox(
+            height: 375,
+            width: double.infinity,
+            child: imageUrl != null &&
+                    imageUrl!.toString().startsWith('http')
+                ? Image.network(
+                    imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                          child:
+                              Icon(Icons.image_not_supported, size: 50),
+                        ),
+                      );
+                    },
+                    loadingBuilder:
+                        (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child:
+                          Icon(Icons.image_not_supported, size: 50),
+                    ),
+                  ),
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 24, color: color),
+
+        // 🔙 Back Button
+        Positioned(
+          top: 44,
+          left: 14,
+          child: _CircleIconButton(
+            icon: Icons.arrow_back,
+            onTap: () => Navigator.pop(context),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: color,
-            ),
+        ),
+
+        // ❤️ + 🔗 Icons Right Side
+        Positioned(
+          top: 44,
+          right: 14,
+          child: Column(
+            children: [
+              _CircleIconButton(
+                icon: isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                onTap: onFavoriteTap,
+              ),
+              const SizedBox(height: 12),
+              _CircleIconButton(
+                icon: Icons.reply,
+                onTap: onShareTap ?? () {
+                  // Default share if no callback provided
+                  Share.share(
+                    'Check out this property: $title\n\nDownload our app to view more properties!',
+                  );
+                },
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+// ── Circle Icon Button (exact same as first UI) ─────────────────────────────
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18),
       ),
     );
   }
+}
 
-  Widget _buildAmenityChip(String label, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: const Color(0xFF00A8E8)),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[800],
-            ),
-          ),
-        ],
+// ── Section Title (exact same as first UI) ─────────────────────────────────
+
+class _SectionTitle extends StatelessWidget {
+  final String title;
+
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w700,
+        color: Colors.black87,
       ),
     );
   }
+}
 
-  Widget _buildGradientButton({
-    required IconData icon,
-    required String text,
-    required VoidCallback onTap,
-    required Gradient gradient,
-  }) {
+// ── Stat Item (exact same as first UI) ─────────────────────────────────────
+
+class _StatItem extends StatelessWidget {
+  final String imagePath;
+  final String value;
+
+  const _StatItem({
+    required this.imagePath,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Image.asset(
+          imagePath,
+          width: 16,
+          height: 16,
+          errorBuilder: (_, __, ___) {
+            return Container(
+              width: 16,
+              height: 16,
+              color: Colors.grey,
+            );
+          },
+        ),
+        const SizedBox(width: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Divider (exact same as first UI) ───────────────────────────────────────
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      width: 1,
+      height: 18,
+      color: Colors.grey.shade300,
+    );
+  }
+}
+
+// ── Bottom Action Bar (exact same as first UI) ─────────────────────────────
+
+class _BottomActionBar extends StatelessWidget {
+  final VoidCallback onWhatsAppTap;
+  final VoidCallback onCallTap;
+
+  const _BottomActionBar({
+    required this.onWhatsAppTap,
+    required this.onCallTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: gradient.colors.first.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.07),
             blurRadius: 12,
-            offset: const Offset(0, 6),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: onCallTap,
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE33629),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/whatsapp.png',
+                      width: 16,
+                      height: 16,
+                      color: Colors.white,
+                      errorBuilder: (_, __, ___) {
+                        return const Icon(Icons.phone, color: Colors.white, size: 16);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Call",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: onWhatsAppTap,
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/whatsapp.png',
+                      width: 18,
+                      height: 18,
+                      errorBuilder: (_, __, ___) {
+                        return const Icon(Icons.chat, size: 18);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Whatsapp",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

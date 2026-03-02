@@ -1,141 +1,8 @@
-// // import 'package:flutter/material.dart';
-
-// // class LogoScreen extends StatelessWidget {
-// //   const LogoScreen({super.key});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Scaffold(
-// //       backgroundColor: Colors.white, 
-// //       body: SafeArea(
-// //         child: Column(
-// //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-// //           children: [
-// //             const SizedBox(height: 70,), 
-
-// //             Center(
-// //               child: Image.asset(
-// //                 'lib/assets/splashscreenlogo.png',
-// //                 height: 190,
-// //               ),
-// //             ),
-
-           
-// //             Padding(
-// //               padding: const EdgeInsets.only(bottom: 8),
-// //               child: Image.asset(
-// //                 'lib/assets/345bd60d710065fe219bdc89188a2907600d3f0f.png',
-// //                 height: 190,
-              
-// //               ),
-// //             ),
-// //           ],
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
-
-
-
-// import 'dart:async';
-// import 'package:flutter/material.dart';
-// import 'package:product_app/views/auth/login_screen.dart';
-
-// class LogoScreen extends StatefulWidget {
-//   const LogoScreen({super.key});
-
-//   @override
-//   State<LogoScreen> createState() => _LogoScreenState();
-// }
-
-// class _LogoScreenState extends State<LogoScreen>
-//     with SingleTickerProviderStateMixin {
-//   late AnimationController _controller;
-//   late Animation<double> _animation;
-
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     // Setup fade-in animation
-//     _controller = AnimationController(
-//       duration: const Duration(seconds: 2),
-//       vsync: this,
-//     );
-
-//     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-
-//     _controller.forward();
-
-//     // Navigate to next screen after 3 seconds
-//     Timer(const Duration(seconds: 3), () {
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => const LoginScreen()),
-//       );
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: SafeArea(
-//         child: FadeTransition(
-//           opacity: _animation,
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               const SizedBox(height: 70),
-
-//               // Top logo
-//               Center(
-//                 child: Image.asset(
-//                   'lib/assets/splashscreenlogo.png',
-//                   height: 190,
-//                 ),
-//               ),
-
-//               // Bottom image
-//               Padding(
-//                 padding: const EdgeInsets.only(bottom: 8),
-//                 child: Image.asset(
-//                   'lib/assets/345bd60d710065fe219bdc89188a2907600d3f0f.png',
-//                   height: 190,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/views/auth/login_screen.dart';
 import 'package:product_app/views/home/navbar_screen.dart';
-
 
 class LogoScreen extends StatefulWidget {
   const LogoScreen({super.key});
@@ -144,40 +11,60 @@ class LogoScreen extends StatefulWidget {
   State<LogoScreen> createState() => _LogoScreenState();
 }
 
-class _LogoScreenState extends State<LogoScreen>
+class _LogoScreenState extends State<LogoScreen> 
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  late Animation<Offset> _positionAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    // Setup fade-in animation
+    
+    // Setup animation controller
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
 
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    // Position animation from bottom to center
+    _positionAnimation = Tween<Offset>(
+      begin: const Offset(0, 2.5), // Start from bottom
+      end: Offset.zero, // End at center
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack, // Slight bounce effect at the end
+    ));
 
+    // Fade animation for smooth appearance
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
+
+    // Start animation
     _controller.forward();
 
-    Timer(const Duration(seconds: 3), () {
-      _navigateToNextScreen();
-    });
+    // Navigate after animation + delay
+    _initialize();
   }
 
-  /// Navigate based on login status
-  void _navigateToNextScreen() {
-    // Check if user has valid session
+  Future<void> _initialize() async {
+    // Wait for animation to complete (1 second) plus 1 more second
+    await Future.delayed(const Duration(seconds: 2));
+
     final bool hasValidSession = SharedPrefHelper.hasValidSession();
+
+    if (!mounted) return;
 
     if (hasValidSession) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const NavbarScreen(), 
+          builder: (context) => const NavbarScreen(),
         ),
       );
     } else {
@@ -200,33 +87,31 @@ class _LogoScreenState extends State<LogoScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _animation,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(height: 70),
-
-              // Top logo
-              Center(
-                child: Image.asset(
-                  'lib/assets/splashscreenlogo.png',
-                  height: 190,
+      body: Column(
+        children: [
+          /// Top section — animated logo from bottom to center
+          Expanded(
+            child: Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _positionAnimation,
+                  child: Image.asset(
+                    'assets/images/splash1.png',
+                    width: 180,
+                  ),
                 ),
               ),
-
-              // Bottom image
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Image.asset(
-                  'lib/assets/345bd60d710065fe219bdc89188a2907600d3f0f.png',
-                  height: 190,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          /// Bottom section — city skyline pinned to bottom
+          Image.asset(
+            'assets/images/splash2.png',
+            width: double.infinity,
+            fit: BoxFit.fitWidth,
+          ),
+        ],
       ),
     );
   }
