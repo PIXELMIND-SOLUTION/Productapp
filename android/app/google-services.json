@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "672933220400",
+    "project_id": "estatehouz",
+    "storage_bucket": "estatehouz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672933220400:android:1a7f5a0d6f5d061c7a5df5",
+        "android_client_info": {
+          "package_name": "com.product.product_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "672933220400-2pc7rgl2g05onhsea24alljdq13vmjp4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.product.product_app",
+            "certificate_hash": "f0ae96c1ec3dd66fbc997b3ff93564e1e2b48e3d"
+          }
+        },
+        {
+          "client_id": "672933220400-8lsrpr2hpv1h5i7j29fklreeongvofe4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3MYwpMG9_--1_u5rd7gzuvExL9m5_shc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "672933220400-8lsrpr2hpv1h5i7j29fklreeongvofe4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
