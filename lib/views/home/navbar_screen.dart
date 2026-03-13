@@ -9,7 +9,12 @@ import 'package:product_app/views/posting/posting_details.dart';
 import 'package:provider/provider.dart';
 
 class NavbarScreen extends StatelessWidget {
-  const NavbarScreen({super.key});
+  final int? initialIndex; // Optional initial index
+  
+  const NavbarScreen({
+    super.key,
+    this.initialIndex, // Make it optional
+  });
 
   Future<bool> _onWillPop(BuildContext context) async {
     final bottomnavbarProvider =
@@ -51,93 +56,97 @@ class NavbarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomnavbarProvider = Provider.of<BottomNavbarProvider>(context);
+    return ChangeNotifierProvider(
+      create: (_) => BottomNavbarProvider(initialIndex: initialIndex ?? 0),
+      child: Consumer<BottomNavbarProvider>(
+        builder: (context, provider, child) {
+          final pages = [
+            const HomeScreen(),
+            const FavouriteScreen(),
+            const SellScreen(),
+            const PostingDetails(),
+            const ProfileScreen(),
+          ];
 
-    final pages = [
-      const HomeScreen(),
-      const FavouriteScreen(),
-      const SellScreen(),
-      const PostingDetails(),
-      const ProfileScreen(),
-    ];
-
-    return WillPopScope(
-      onWillPop: () => _onWillPop(context),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: pages[bottomnavbarProvider.currentIndex],
-        bottomNavigationBar: Container(
-          height: 70,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildNavItem(
-                icon: Icons.home_outlined,
-                label: 'Home',
-                isActive: bottomnavbarProvider.currentIndex == 0,
-                onTap: () => bottomnavbarProvider.setIndex(0),
-              ),
-              _buildNavItem(
-                icon: Icons.favorite_border,
-                label: 'Fav',
-                isActive: bottomnavbarProvider.currentIndex == 1,
-                onTap: () => bottomnavbarProvider.setIndex(1),
-              ),
-
-              // Center Upload Button
-              GestureDetector(
-                onTap: () => bottomnavbarProvider.setIndex(2),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFE33629), Color(0xFFB41B16)],
+          return WillPopScope(
+            onWillPop: () => _onWillPop(context),
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              body: pages[provider.currentIndex],
+              bottomNavigationBar: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
                     ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            const Color(0xFFE33629).withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem(
+                      icon: Icons.home_outlined,
+                      label: 'Home',
+                      isActive: provider.currentIndex == 0,
+                      onTap: () => provider.setIndex(0),
+                    ),
+                    _buildNavItem(
+                      icon: Icons.favorite_border,
+                      label: 'Fav',
+                      isActive: provider.currentIndex == 1,
+                      onTap: () => provider.setIndex(1),
+                    ),
+
+                    // Center Upload Button
+                    GestureDetector(
+                      onTap: () => provider.setIndex(2),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE33629), Color(0xFFB41B16)],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE33629).withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 28,
-                  ),
+                    ),
+
+                    _buildNavItem(
+                      icon: Icons.grid_view_outlined,
+                      label: 'Post',
+                      isActive: provider.currentIndex == 3,
+                      onTap: () => provider.setIndex(3),
+                    ),
+                    _buildNavItem(
+                      icon: Icons.person_outline,
+                      label: 'Profile',
+                      isActive: provider.currentIndex == 4,
+                      onTap: () => provider.setIndex(4),
+                    ),
+                  ],
                 ),
               ),
-
-              _buildNavItem(
-                icon: Icons.grid_view_outlined,
-                label: 'Post',
-                isActive: bottomnavbarProvider.currentIndex == 3,
-                onTap: () => bottomnavbarProvider.setIndex(3),
-              ),
-              _buildNavItem(
-                icon: Icons.person_outline,
-                label: 'Profile',
-                isActive: bottomnavbarProvider.currentIndex == 4,
-                onTap: () => bottomnavbarProvider.setIndex(4),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

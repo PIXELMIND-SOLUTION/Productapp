@@ -157,54 +157,58 @@ class _PixelmindLogoButtonState extends State<PixelmindLogoButton>
                     ),
 
                     // PMS text + pixel dot
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Animated pixel square
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 400),
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Color.lerp(
-                              const Color(0xFF7C3AED),
-                              const Color(0xFF06B6D4),
-                              _pulseAnim.value,
-                            ),
-                            borderRadius: BorderRadius.circular(1.5),
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                            colors: [
-                              Color.lerp(
-                                const Color(0xFFE879F9),
-                                const Color(0xFF38BDF8),
-                                _pulseAnim.value,
-                              )!,
-                              Color.lerp(
-                                const Color(0xFF7C3AED),
-                                const Color(0xFF06B6D4),
-                                _pulseAnim.value,
-                              )!,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(bounds),
-                          child: const Text(
-                            'PMS',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 1.5,
-                              height: 1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+Row(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    // Animated image that changes color/opacity
+    AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(180),
+        child: Image.asset(
+          'assets/images/app_icon_ios.png', // Replace with your asset path
+          width: 25,
+          height: 25,
+          // color: Color.lerp( // Optional: Tint the image with animation
+          //   const Color(0xFF7C3AED),
+          //   const Color(0xFF06B6D4),
+          //   _pulseAnim.value,
+          // ),
+          fit: BoxFit.contain,
+        ),
+      ),
+    ),
+    const SizedBox(width: 5),
+    ShaderMask(
+      shaderCallback: (bounds) => LinearGradient(
+        colors: [
+          Color.lerp(
+            const Color(0xFFE879F9),
+            const Color(0xFF38BDF8),
+            _pulseAnim.value,
+          )!,
+          Color.lerp(
+            const Color(0xFF7C3AED),
+            const Color(0xFF06B6D4),
+            _pulseAnim.value,
+          )!,
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: const Text(
+        'PMS',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+          letterSpacing: 1.5,
+          height: 1,
+        ),
+      ),
+    ),
+  ],
+),
                   ],
                 ),
               ),

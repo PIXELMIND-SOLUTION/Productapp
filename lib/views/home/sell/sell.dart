@@ -1,13 +1,13 @@
-
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_app/views/home/navbar_screen.dart';
 import 'dart:convert';
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:product_app/views/widgets/app_back_control.dart';
 
 class SellScreen extends StatefulWidget {
   const SellScreen({super.key});
@@ -46,6 +46,12 @@ class _SellScreenState extends State<SellScreen> {
   List<File> _featureImages = [];
   List<TextEditingController> _featureNameControllers = [];
 
+  // ===== NEW: Portfolio Section =====
+  List<Map<String, dynamic>> _portfolioItems = [];
+  
+  // ===== NEW: Previous Events Section =====
+  List<Map<String, dynamic>> _previousEvents = [];
+
   // Dynamic Attributes Map
   Map<String, dynamic> attributeValues = {};
   Map<String, TextEditingController> attributeControllers = {};
@@ -65,9 +71,13 @@ class _SellScreenState extends State<SellScreen> {
     'roomTypes': ['Single', 'Double', 'Suite', 'Deluxe', 'Executive', 'Presidential'],
     'businessType': ['Startup', 'Small Business', 'Enterprise', 'Co-working', 'Freelance'],
     'serviceType': ['Gold Purchase', 'Gold Sale', 'Exchange', 'Custom Design', 'Repairs'],
-    'companySize': ['1-10', '11-50', '51-200', '201-500', '500+'],
     'workingDays': ['Mon-Fri', 'Mon-Sat', 'All Days', 'Weekends Only'],
     'amenities': ['WiFi', 'Parking', 'Cafeteria', 'Conference Room', 'Security', 'Power Backup'],
+    'industry': [
+    'App Development',
+    'Web Development',
+    'Digital Marketing'
+    ]
   };
 
   // Category-specific attribute templates
@@ -151,24 +161,20 @@ class _SellScreenState extends State<SellScreen> {
       {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
     ],
     'companies': [
-      {'key': 'companyName', 'label': 'Company/Startup Name', 'type': 'text', 'hint': 'e.g., TechInnovate Solutions', 'isRequired': true},
-      {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
-      {'key': 'industry', 'label': 'Industry', 'type': 'text', 'hint': 'e.g., Mobile App Development, Web Development, AI/ML', 'isRequired': true},
+         {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
+      {'key': 'industry', 'label': 'Industry', 'type': 'dropdown', 'options': 'industry', 'isRequired': true},
       {'key': 'foundedYear', 'label': 'Founded Year', 'type': 'number', 'hint': 'e.g., 2020'},
-      {'key': 'companySize', 'label': 'Company Size', 'type': 'dropdown', 'options': 'companySize'},
       {'key': 'services', 'label': 'Services Offered', 'type': 'text', 'hint': 'e.g., App Development, UI/UX Design, Cloud Solutions', 'isRequired': true},
       {'key': 'technologies', 'label': 'Technologies', 'type': 'text', 'hint': 'e.g., Flutter, React, Node.js, Python'},
-      {'key': 'portfolio', 'label': 'Portfolio/Projects', 'type': 'text', 'hint': 'e.g., 50+ apps delivered'},
       {'key': 'clients', 'label': 'Notable Clients', 'type': 'text', 'hint': 'e.g., Startup Name, Enterprise Name'},
       {'key': 'officeSpace', 'label': 'Office Space (sq.ft)', 'type': 'number', 'hint': 'e.g., 1500'},
-      {'key': 'seatingCapacity', 'label': 'Seating Capacity', 'type': 'number', 'hint': 'e.g., 30'},
       {'key': 'meetingRooms', 'label': 'Meeting Rooms', 'type': 'number', 'hint': 'e.g., 2'},
-      {'key': 'amenities', 'label': 'Amenities', 'type': 'multiselect', 'options': 'amenities'},
-      {'key': 'wifi', 'label': 'WiFi Available', 'type': 'boolean'},
-      {'key': 'parking', 'label': 'Parking Available', 'type': 'boolean'},
-      {'key': 'cafeteria', 'label': 'Cafeteria', 'type': 'boolean'},
-      {'key': 'powerBackup', 'label': 'Power Backup', 'type': 'boolean'},
-      {'key': 'workingHours', 'label': 'Working Hours', 'type': 'text', 'hint': 'e.g., 9:00 AM - 6:00 PM'},
+      // {'key': 'amenities', 'label': 'Amenities', 'type': 'multiselect', 'options': 'amenities'},
+      // {'key': 'wifi', 'label': 'WiFi Available', 'type': 'boolean'},
+      // {'key': 'parking', 'label': 'Parking Available', 'type': 'boolean'},
+      // {'key': 'cafeteria', 'label': 'Cafeteria', 'type': 'boolean'},
+      // {'key': 'powerBackup', 'label': 'Power Backup', 'type': 'boolean'},
+      {'key': 'workingHours', 'label': 'Working Hours', 'type': 'text', 'hint': 'e.g., 10:00 AM - 07:00 PM'},
       {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
       {'key': 'remoteWork', 'label': 'Remote Work Options', 'type': 'boolean'},
       {'key': 'hiring', 'label': 'Currently Hiring', 'type': 'boolean'},
@@ -211,7 +217,7 @@ class _SellScreenState extends State<SellScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://estatehouz-backend.onrender.com/api/auth/getall-categories'),
+        Uri.parse('${ApiConstants.baseUrl}/api/auth/getall-categories'),
       );
 
       if (response.statusCode == 200) {
@@ -397,7 +403,79 @@ class _SellScreenState extends State<SellScreen> {
     }
   }
 
-  Future<void> _pickFeatureImage(int index) async {
+  // ===== NEW: Portfolio Functions =====
+  void _addPortfolioItem() {
+    setState(() {
+      _portfolioItems.add({
+        'logo': null,
+        'name': TextEditingController(),
+        'playStoreLink': TextEditingController(),
+        'appStoreLink': TextEditingController(),
+        'website': TextEditingController(),
+        'description': TextEditingController(),
+      });
+    });
+  }
+
+  void _removePortfolioItem(int index) {
+    final item = _portfolioItems[index];
+    (item['name'] as TextEditingController).dispose();
+    (item['playStoreLink'] as TextEditingController).dispose();
+    (item['appStoreLink'] as TextEditingController).dispose();
+    (item['website'] as TextEditingController).dispose();
+    (item['description'] as TextEditingController).dispose();
+    
+    setState(() {
+      _portfolioItems.removeAt(index);
+    });
+  }
+
+  Future<void> _pickPortfolioLogo(int index) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 500,
+        maxHeight: 500,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _portfolioItems[index]['logo'] = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking logo: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  // ===== NEW: Previous Events Functions =====
+  void _addPreviousEvent() {
+    setState(() {
+      _previousEvents.add({
+        'image': null,
+        'title': TextEditingController(),
+        'description': TextEditingController(),
+        'eventDate': null,
+        'location': TextEditingController(),
+      });
+    });
+  }
+
+  void _removePreviousEvent(int index) {
+    final event = _previousEvents[index];
+    (event['title'] as TextEditingController).dispose();
+    (event['description'] as TextEditingController).dispose();
+    (event['location'] as TextEditingController).dispose();
+    
+    setState(() {
+      _previousEvents.removeAt(index);
+    });
+  }
+
+  Future<void> _pickEventImage(int index) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
@@ -408,19 +486,28 @@ class _SellScreenState extends State<SellScreen> {
 
       if (pickedFile != null) {
         setState(() {
-          while (_featureImages.length <= index) {
-            _featureImages.add(File(''));
-          }
-          _featureImages[index] = File(pickedFile.path);
+          _previousEvents[index]['image'] = File(pickedFile.path);
         });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error picking image: $e'), backgroundColor: Colors.red),
       );
+    }
+  }
+
+  Future<void> _selectEventDate(int index) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    
+    if (picked != null) {
+      setState(() {
+        _previousEvents[index]['eventDate'] = picked;
+      });
     }
   }
 
@@ -669,6 +756,34 @@ class _SellScreenState extends State<SellScreen> {
     return attributes;
   }
 
+  // ===== NEW: Build portfolio items for API =====
+List<Map<String, dynamic>> _buildPortfolioData() {
+  return _portfolioItems.map((item) {
+    return {
+      'name': (item['name'] as TextEditingController?)?.text ?? '',
+      'playStoreLink': (item['playStoreLink'] as TextEditingController?)?.text ?? '',
+      'appStoreLink': (item['appStoreLink'] as TextEditingController?)?.text ?? '',
+      'website': (item['website'] as TextEditingController?)?.text ?? '',
+      'description': (item['description'] as TextEditingController?)?.text ?? '',
+    };
+  }).where((item) {
+    final name = item['name'];
+    return name != null && name is String && name.isNotEmpty;
+  }).toList();
+}
+
+  // ===== NEW: Build previous events for API =====
+  List<Map<String, dynamic>> _buildEventsData() {
+    return _previousEvents.map((event) {
+      return {
+        'title': (event['title'] as TextEditingController).text,
+        'description': (event['description'] as TextEditingController).text,
+        'location': (event['location'] as TextEditingController).text,
+        'eventDate': event['eventDate']?.toIso8601String(),
+      };
+    }).where((event) => event['title'].isNotEmpty).toList();
+  }
+
   Widget _buildMultiSelectField(String key, Map<String, dynamic> fieldData) {
     final options = fieldData['options'] as List<String>;
     final selectedValues = fieldData['selected'] as List<String>? ?? [];
@@ -726,891 +841,1572 @@ class _SellScreenState extends State<SellScreen> {
     );
   }
 
-  Future<void> _submitListing() async {
 
-
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    if (selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a category'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (_selectedImages.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one image'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Validate required attributes
-// Validate required attributes
-bool hasRequiredFields = true;
-attributeValues.forEach((key, value) {
-  // Skip price validation for gold shops and companies
-  if (key == 'price' && 
-      (selectedCategoryName?.toLowerCase() == 'gold shops' || 
-       selectedCategoryName?.toLowerCase() == 'companies')) {
-    return; // Skip validation for price in these categories
-  }
-  
-  if (value['isRequired'] == true) {
-    if (attributeControllers.containsKey(key) && attributeControllers[key]!.text.isEmpty) {
-      hasRequiredFields = false;
-    }
-  }
-});
-
-    if (!hasRequiredFields) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all required fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _isUploading = true;
-    });
-
+    Future<void> _pickFeatureImage(int index) async {
     try {
-      final userId = await SharedPrefHelper.getUserId();
-      if (userId == null) {
-        throw Exception('User not logged in');
-      }
-
-      // Prepare the request
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://estatehouz-backend.onrender.com/api/create/$selectedCategoryId'),
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1080,
+        maxHeight: 1080,
       );
 
-      // Add basic fields
-      request.fields['userId'] = userId;
-      request.fields['name'] = _titleController.text;
-      request.fields['description'] = _descriptionController.text;
-      request.fields['address'] = _addressController.text;
-      request.fields['contactNumber'] = _contactNumberController.text;
-      request.fields['email'] = _emailController.text;
-      request.fields['website'] = _websiteController.text;
-      request.fields['latitude'] = _latitudeController.text.isNotEmpty 
-          ? _latitudeController.text 
-          : '17.4065';
-      request.fields['longitude'] = _longitudeController.text.isNotEmpty 
-          ? _longitudeController.text 
-          : '78.4483';
+      if (pickedFile != null) {
+        setState(() {
+          while (_featureImages.length <= index) {
+            _featureImages.add(File(''));
+          }
+          _featureImages[index] = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
-          // Create contact object
-Map<String, dynamic> contactInfo = {
-  'callNumber': _contactNumberController.text,
-  'email': _emailController.text,
-};
+  // Future<void> _submitListing() async {
+  //   if (!_formKey.currentState!.validate()) {
+  //     return;
+  //   }
 
-// Add website to contact if it exists
-if (_websiteController.text.isNotEmpty) {
-  contactInfo['website'] = _websiteController.text;
-}
+  //   if (selectedCategoryId == null) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please select a category'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return;
+  //   }
 
-// Add contact as JSON string
-request.fields['contact'] = json.encode(contactInfo);
+  //   if (_selectedImages.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please add at least one image'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   // Validate required attributes
+  //   bool hasRequiredFields = true;
+  //   attributeValues.forEach((key, value) {
+  //     // Skip price validation for gold shops and companies
+  //     if (key == 'price' && 
+  //         (selectedCategoryName?.toLowerCase() == 'gold shops' || 
+  //          selectedCategoryName?.toLowerCase() == 'companies')) {
+  //       return;
+  //     }
       
-      // Add attributes as JSON
-      request.fields['attributes'] = json.encode(_buildAttributes());
+  //     if (value['isRequired'] == true) {
+  //       if (attributeControllers.containsKey(key) && attributeControllers[key]!.text.isEmpty) {
+  //         hasRequiredFields = false;
+  //       }
+  //     }
+  //   });
 
-      // Add feature names if any
-      if (_featureNameControllers.isNotEmpty && _featureNameControllers.any((c) => c.text.isNotEmpty)) {
-        List<String> featureNames = _featureNameControllers
-            .where((c) => c.text.isNotEmpty)
-            .map((c) => c.text)
-            .toList();
+  //   if (!hasRequiredFields) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please fill all required fields'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   setState(() {
+  //     _isUploading = true;
+  //   });
+
+  //   try {
+  //     final userId = await SharedPrefHelper.getUserId();
+  //     if (userId == null) {
+  //       throw Exception('User not logged in');
+  //     }
+
+  //     // Prepare the request
+  //     var request = http.MultipartRequest(
+  //       'POST',
+  //       Uri.parse('${ApiConstants.baseUrl}/api/create/$selectedCategoryId'),
+  //     );
+
+  //     // Add basic fields
+  //     request.fields['userId'] = userId;
+  //     request.fields['name'] = _titleController.text;
+  //     request.fields['description'] = _descriptionController.text;
+  //     request.fields['address'] = _addressController.text;
+  //     request.fields['contactNumber'] = _contactNumberController.text;
+  //     request.fields['email'] = _emailController.text;
+  //     request.fields['website'] = _websiteController.text;
+  //     request.fields['latitude'] = _latitudeController.text.isNotEmpty 
+  //         ? _latitudeController.text 
+  //         : '17.4065';
+  //     request.fields['longitude'] = _longitudeController.text.isNotEmpty 
+  //         ? _longitudeController.text 
+  //         : '78.4483';
+
+  //     // Create contact object
+  //     Map<String, dynamic> contactInfo = {
+  //       'callNumber': _contactNumberController.text,
+  //       'email': _emailController.text,
+  //     };
+
+  //     // Add website to contact if it exists
+  //     if (_websiteController.text.isNotEmpty) {
+  //       contactInfo['website'] = _websiteController.text;
+  //     }
+
+  //     // Add contact as JSON string
+  //     request.fields['contact'] = json.encode(contactInfo);
+      
+  //     // Add attributes as JSON
+  //     request.fields['attributes'] = json.encode(_buildAttributes());
+
+  //     // ===== NEW: Add portfolio data =====
+  //     final portfolioData = _buildPortfolioData();
+  //     if (portfolioData.isNotEmpty) {
+  //       request.fields['portfolio'] = json.encode(portfolioData);
+  //     }
+
+  //     // ===== NEW: Add previous events data =====
+  //     final eventsData = _buildEventsData();
+  //     if (eventsData.isNotEmpty) {
+  //       request.fields['previousEvents'] = json.encode(eventsData);
+  //     }
+
+  //     // Add feature names if any
+  //     if (_featureNameControllers.isNotEmpty && _featureNameControllers.any((c) => c.text.isNotEmpty)) {
+  //       List<String> featureNames = _featureNameControllers
+  //           .where((c) => c.text.isNotEmpty)
+  //           .map((c) => c.text)
+  //           .toList();
+  //       request.fields['featureNames'] = json.encode(featureNames);
+  //     }
+
+  //     // Add main images
+  //     for (var i = 0; i < _selectedImages.length; i++) {
+  //       var file = await http.MultipartFile.fromPath(
+  //         'images',
+  //         _selectedImages[i].path,
+  //       );
+  //       request.files.add(file);
+  //     }
+
+  //     // Add feature images
+  //     for (var i = 0; i < _featureImages.length; i++) {
+  //       if (_featureImages[i].path.isNotEmpty) {
+  //         var file = await http.MultipartFile.fromPath(
+  //           'featureImages',
+  //           _featureImages[i].path,
+  //         );
+  //         request.files.add(file);
+  //       }
+  //     }
+
+  //     // ===== NEW: Add portfolio logos =====
+  //     for (var i = 0; i < _portfolioItems.length; i++) {
+  //       final logo = _portfolioItems[i]['logo'];
+  //       if (logo != null && logo.path.isNotEmpty) {
+  //         var file = await http.MultipartFile.fromPath(
+  //           'portfolioLogos',
+  //           logo.path,
+  //         );
+  //         request.files.add(file);
+  //       }
+  //     }
+
+  //     // ===== NEW: Add event images =====
+  //     for (var i = 0; i < _previousEvents.length; i++) {
+  //       final image = _previousEvents[i]['image'];
+  //       if (image != null && image.path.isNotEmpty) {
+  //         var file = await http.MultipartFile.fromPath(
+  //           'eventImages',
+  //           image.path,
+  //         );
+  //         request.files.add(file);
+  //       }
+  //     }
+
+  //     // Send request
+  //     var response = await request.send();
+  //     var responseData = await response.stream.bytesToString();
+  //     var decodedData = json.decode(responseData);
+  //     print("rrrrrrrrrrrrrrrrrrrrrrr${response.statusCode}");
+
+  //     print("rrrrrrrrrrrrrrrrrrrrrrr$decodedData");
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(
+  //             content: Text('Property listed successfully!'),
+  //             backgroundColor: Colors.green,
+  //           ),
+  //         );
+          
+  //         // Navigate back
+  //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const NavbarScreen()));
+  //       }
+  //     } else {
+  //       throw Exception(decodedData['message'] ?? 'Failed to list property');
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Error: $e'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         _isUploading = false;
+  //       });
+  //     }
+  //   }
+  // }
+
+
+
+  Future<void> _submitListing() async {
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
+
+  if (selectedCategoryId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please select a category'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  if (_selectedImages.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please add at least one image'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  setState(() {
+    _isUploading = true;
+  });
+
+  try {
+    final userId = await SharedPrefHelper.getUserId();
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+
+    // Prepare the request
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${ApiConstants.baseUrl}/api/create/$selectedCategoryId'),
+    );
+
+    // Add basic fields
+    request.fields['userId'] = userId;
+    request.fields['name'] = _titleController.text;
+    request.fields['description'] = _descriptionController.text;
+    request.fields['address'] = _addressController.text;
+    request.fields['latitude'] = _latitudeController.text.isNotEmpty 
+        ? _latitudeController.text 
+        : '17.4065';
+    request.fields['longitude'] = _longitudeController.text.isNotEmpty 
+        ? _longitudeController.text 
+        : '78.4483';
+
+    // Create contact object
+    Map<String, dynamic> contactInfo = {};
+    if (_contactNumberController.text.isNotEmpty) {
+      contactInfo['callNumber'] = _contactNumberController.text;
+    }
+    if (_emailController.text.isNotEmpty) {
+      contactInfo['email'] = _emailController.text;
+    }
+    if (_websiteController.text.isNotEmpty) {
+      contactInfo['website'] = _websiteController.text;
+    }
+    
+    if (contactInfo.isNotEmpty) {
+      request.fields['contact'] = json.encode(contactInfo);
+    }
+    
+    // Add attributes as JSON
+    final attributes = _buildAttributes();
+    if (attributes.isNotEmpty) {
+      request.fields['attributes'] = json.encode(attributes);
+    }
+
+    // ✅ FIX: Add feature names ONLY if there are features
+    if (_featureNameControllers.isNotEmpty && _featureNameControllers.any((c) => c.text.isNotEmpty)) {
+      List<String> featureNames = _featureNameControllers
+          .where((c) => c.text.isNotEmpty)
+          .map((c) => c.text)
+          .toList();
+      if (featureNames.isNotEmpty) {
+        // Your backend already handles featureNames from the request body
         request.fields['featureNames'] = json.encode(featureNames);
       }
+    }
 
-      // Add images
-      for (var i = 0; i < _selectedImages.length; i++) {
+    // Add portfolio data
+    final portfolioData = _buildPortfolioData();
+    if (portfolioData.isNotEmpty) {
+      request.fields['portfolio'] = json.encode(portfolioData);
+    }
+
+    // Add previous events data
+    final eventsData = _buildEventsData();
+    if (eventsData.isNotEmpty) {
+      request.fields['previousEvents'] = json.encode(eventsData);
+    }
+
+    // ✅ ADD DEBUG PRINT
+    print("========== FIELDS BEING SENT ==========");
+    request.fields.forEach((key, value) {
+      print("Field: $key = $value");
+    });
+
+    // Add main images
+    for (var i = 0; i < _selectedImages.length; i++) {
+      var file = await http.MultipartFile.fromPath(
+        'images',
+        _selectedImages[i].path,
+      );
+      request.files.add(file);
+    }
+
+    // Add feature images
+    for (var i = 0; i < _featureImages.length; i++) {
+      if (_featureImages[i].path.isNotEmpty) {
         var file = await http.MultipartFile.fromPath(
-          'images',
-          _selectedImages[i].path,
+          'featureImages',
+          _featureImages[i].path,
         );
         request.files.add(file);
       }
+    }
 
-      // Add feature images
-      for (var i = 0; i < _featureImages.length; i++) {
-        if (_featureImages[i].path.isNotEmpty) {
-          var file = await http.MultipartFile.fromPath(
-            'featureImages',
-            _featureImages[i].path,
-          );
-          request.files.add(file);
-        }
-      }
-
-      // Send request
-      var response = await request.send();
-      var responseData = await response.stream.bytesToString();
-      var decodedData = json.decode(responseData);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Property listed successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          
-          // Navigate back
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const NavbarScreen()));
-        }
-      } else {
-        throw Exception(decodedData['message'] ?? 'Failed to list property');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+    // Add portfolio logos
+    for (var i = 0; i < _portfolioItems.length; i++) {
+      final logo = _portfolioItems[i]['logo'];
+      if (logo != null && logo.path.isNotEmpty) {
+        var file = await http.MultipartFile.fromPath(
+          'portfolioLogos',
+          logo.path,
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-        });
+        request.files.add(file);
       }
     }
+
+    // Add event images
+    for (var i = 0; i < _previousEvents.length; i++) {
+      final image = _previousEvents[i]['image'];
+      if (image != null && image.path.isNotEmpty) {
+        var file = await http.MultipartFile.fromPath(
+          'eventImages',
+          image.path,
+        );
+        request.files.add(file);
+      }
+    }
+
+    // ✅ ADD DEBUG PRINT FOR FILES
+    print("========== FILES BEING SENT ==========");
+    for (var file in request.files) {
+      print("File field: ${file.field} - ${file.filename}");
+    }
+
+    // Send request
+    var response = await request.send();
+    var responseData = await response.stream.bytesToString();
+    var decodedData = json.decode(responseData);
+
+    print("Response status: ${response.statusCode}");
+    print("Response body: $decodedData");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Property listed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const NavbarScreen()));
+      }
+    } else {
+      throw Exception(decodedData['message'] ?? 'Failed to list property');
+    }
+  } catch (e) {
+    print("Submission error: $e");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isUploading = false;
+      });
+    }
   }
+}
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return AppBackControl(
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
-        title: const Text(
-          "List Property",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: const Text(
+            "List Property",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          centerTitle: true,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Divider(height: 1, color: Colors.grey.shade200),
           ),
         ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, color: Colors.grey.shade200),
-        ),
-      ),
-      body: _isUploading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Uploading property...'),
-                ],
-              ),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
+        body: _isUploading
+            ? const Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Category Selection Section
-                    const Text(
-                      "Select Category",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Uploading property...'),
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category Selection Section
+                      const Text(
+                        "Select Category",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    isLoadingCategories
-                        ? _buildCategorySkeleton()
-                        : categories.isEmpty
-                            ? Center(
-                                child: Column(
-                                  children: [
-                                    const Text('No categories found'),
-                                    TextButton(
-                                      onPressed: fetchCategories,
-                                      child: const Text('Retry'),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade200),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: 0.9,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 8,
+                      const SizedBox(height: 12),
+                      
+                      isLoadingCategories
+                          ? _buildCategorySkeleton()
+                          : categories.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    children: [
+                                      const Text('No categories found'),
+                                      TextButton(
+                                        onPressed: fetchCategories,
+                                        child: const Text('Retry'),
+                                      ),
+                                    ],
                                   ),
-                                  padding: const EdgeInsets.all(12),
-                                  itemCount: categories.length,
-                                  itemBuilder: (context, index) {
-                                    final category = categories[index];
-                                    final isSelected = selectedCategoryId == category['id'];
-
-                                    return GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedCategoryId = category['id'];
-                                          selectedCategoryName = category['name'];
-                                        });
-                                        _initializeAttributeFields(category['name']);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: isSelected
-                                              ? const LinearGradient(
-                                                  colors: [
-                                                    Color(0xFFE33629),
-                                                    Color(0xFF9D0D0D),
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                )
-                                              : null,
-                                          color: isSelected ? null : Colors.grey.shade50,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: isSelected
-                                                ? const Color(0xFFE33629)
-                                                : Colors.grey.shade200,
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade200),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      childAspectRatio: 0.9,
+                                      crossAxisSpacing: 8,
+                                      mainAxisSpacing: 8,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    itemCount: categories.length,
+                                    itemBuilder: (context, index) {
+                                      final category = categories[index];
+                                      final isSelected = selectedCategoryId == category['id'];
+      
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedCategoryId = category['id'];
+                                            selectedCategoryName = category['name'];
+                                          });
+                                          _initializeAttributeFields(category['name']);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: isSelected
+                                                ? const LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFE33629),
+                                                      Color(0xFF9D0D0D),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  )
+                                                : null,
+                                            color: isSelected ? null : Colors.grey.shade50,
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? const Color(0xFFE33629)
+                                                  : Colors.grey.shade200,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                width: 30,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: category['image'] != null && category['image'].isNotEmpty
+                                                    ? Image.network(
+                                                        category['image'],
+                                                        width: 20,
+                                                        height: 20,
+                                                        errorBuilder: (_, __, ___) {
+                                                          return Icon(
+                                                            Icons.category,
+                                                            size: 20,
+                                                            color: isSelected
+                                                                ? const Color(0xFFE33629)
+                                                                : Colors.grey,
+                                                          );
+                                                        },
+                                                      )
+                                                    : Icon(
+                                                        Icons.category,
+                                                        size: 20,
+                                                        color: isSelected
+                                                            ? const Color(0xFFE33629)
+                                                            : Colors.grey,
+                                                      ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                category['name']!.length > 6
+                                                    ? '${category['name']!.substring(0, 5)}.'
+                                                    : category['name']!,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: isSelected
+                                                      ? Colors.white
+                                                      : Colors.black87,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
+                                      );
+                                    },
+                                  ),
+                                ),
+      
+                      const SizedBox(height: 24),
+      
+                      // Images Section
+                      const Text(
+                        "Property Photos",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Image Grid
+                      if (_selectedImages.isNotEmpty)
+                        Container(
+                          height: 100,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _selectedImages.length,
+                            itemBuilder: (context, index) {
+                              return Stack(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    margin: const EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: FileImage(_selectedImages[index]),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 12,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      
+                      // Add Image Button
+                      GestureDetector(
+                        onTap: _showImagePickerSheet,
+                        child: Container(
+                          height: 80,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 28,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Add Photos (${_selectedImages.length}/10)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+      
+                      const SizedBox(height: 24),
+      
+                      // Basic Details Section
+                      const Text(
+                        "Basic Details",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+      
+                      // Title
+                      _buildTextField(
+                        controller: _titleController,
+                        label: selectedCategoryName != null 
+                            ? "${selectedCategoryName!} Title" 
+                            : "Property Title",
+                        hint: "e.g., ${_getExampleTitle(selectedCategoryName)}",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter title';
+                          }
+                          return null;
+                        },
+                      ),
+      
+                      const SizedBox(height: 16),
+      
+                      // Description
+                      _buildTextField(
+                        controller: _descriptionController,
+                        label: "Description",
+                        hint: _getDescriptionHint(selectedCategoryName),
+                        maxLines: 4,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter description';
+                          }
+                          return null;
+                        },
+                      ),
+      
+                      const SizedBox(height: 16),
+      
+                      // Contact Information
+                      const Text(
+                        "Contact Information",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+      
+                      // Contact Number
+                      _buildTextField(
+                        controller: _contactNumberController,
+                        label: "Contact Number",
+                        hint: "e.g., +91 9876543210",
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter contact number';
+                          }
+                          return null;
+                        },
+                      ),
+      
+                      const SizedBox(height: 12),
+      
+                      // Email
+                      _buildTextField(
+                        controller: _emailController,
+                        label: "Email",
+                        hint: "e.g., contact@example.com",
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+      
+                      const SizedBox(height: 12),
+      
+                      // Website (optional)
+                      if (selectedCategoryName?.toLowerCase() == 'companies' || 
+                          selectedCategoryName?.toLowerCase() == 'gold shops')
+                        _buildTextField(
+                          controller: _websiteController,
+                          label: "Website",
+                          hint: "e.g., www.example.com",
+                        ),
+      
+                      const SizedBox(height: 16),
+      
+                      // Location Section
+                      const Text(
+                        "Location Details",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+      
+                      // Address
+                      _buildTextField(
+                        controller: _addressController,
+                        label: "Address",
+                        hint: "Enter full address",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter address';
+                          }
+                          return null;
+                        },
+                      ),
+      
+                      const SizedBox(height: 12),
+      
+                      // Latitude & Longitude
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _latitudeController,
+                              label: "Latitude",
+                              hint: "e.g., 17.4065",
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _longitudeController,
+                              label: "Longitude",
+                              hint: "e.g., 78.4483",
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ],
+                      ),
+      
+                      const SizedBox(height: 12),
+      
+                      // Get Current Location Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _isGettingLocation ? null : _getCurrentLocation,
+                          icon: _isGettingLocation
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.my_location, size: 18),
+                          label: Text(_isGettingLocation ? 'Getting Location...' : 'Get Current Location'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFE33629),
+                            side: const BorderSide(color: Color(0xFFE33629)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+      
+                      const SizedBox(height: 24),
+      
+                      // Dynamic Attribute Fields based on Category
+                      if (selectedCategoryId != null) ...[
+                        const Text(
+                          "Property Details",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+      
+                        // Price Field (always show)
+                        if (selectedCategoryName?.toLowerCase() != 'companies' && 
+                            selectedCategoryName?.toLowerCase() != 'gold shops') ...[
+                          _buildTextField(
+                            controller: attributeControllers['price'] ?? TextEditingController(),
+                            label: attributeValues['price']?['label'] ?? 'Price',
+                            hint: attributeValues['price']?['hint'] ?? 'Enter price',
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Price is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+      
+                        // Dynamic Fields
+                        ...attributeValues.keys
+                            .where((key) => key != 'price')
+                            .map((key) {
+                              final fieldData = attributeValues[key];
+                              if (fieldData == null) return const SizedBox();
+      
+                              switch (fieldData['type']) {
+                                case 'boolean':
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: Row(
+                                      children: [
+                                        Checkbox(
+                                          value: booleanAttributes[key] ?? false,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              booleanAttributes[key] = value ?? false;
+                                            });
+                                          },
+                                          activeColor: const Color(0xFFE33629),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            fieldData['label'],
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                
+                                case 'dropdown':
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          fieldData['label'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey.shade300),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: DropdownButton<String>(
+                                            value: dropdownAttributes[key] ?? 
+                                                  (fieldData['options'] as List<String>?)?.firstOrNull,
+                                            isExpanded: true,
+                                            underline: const SizedBox(),
+                                            icon: const Icon(Icons.arrow_drop_down),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                dropdownAttributes[key] = value!;
+                                              });
+                                            },
+                                            items: (fieldData['options'] as List<String>)
+                                                .map((String item) {
+                                              return DropdownMenuItem<String>(
+                                                value: item,
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(fontSize: 14),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                
+                                case 'multiselect':
+                                  return _buildMultiSelectField(key, fieldData);
+                                
+                                default:
+                                  return Column(
+                                    children: [
+                                      _buildTextField(
+                                        controller: attributeControllers[key]!,
+                                        label: fieldData['label'],
+                                        hint: fieldData['hint'] ?? 'Enter ${fieldData['label']}',
+                                        keyboardType: fieldData['isNumber'] == true
+                                            ? TextInputType.number
+                                            : TextInputType.text,
+                                        validator: fieldData['isRequired'] == true
+                                            ? (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return '${fieldData['label']} is required';
+                                                }
+                                                return null;
+                                              }
+                                            : null,
+                                      ),
+                                      const SizedBox(height: 16),
+                                    ],
+                                  );
+                              }
+                            }).toList(),
+                      ],
+      
+                      const SizedBox(height: 24),
+      
+                      // ===== NEW: Portfolio Section =====
+                      if (selectedCategoryName?.toLowerCase() == 'companies') ...[
+                        const Text(
+                          "Portfolio (Optional)",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Portfolio Items
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _portfolioItems.length,
+                          itemBuilder: (context, index) {
+                            final item = _portfolioItems[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade200),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Logo
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => _pickPortfolioLogo(index),
+                                        child: Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                            image: item['logo'] != null
+                                                ? DecorationImage(
+                                                    image: FileImage(item['logo']),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : null,
+                                          ),
+                                          child: item['logo'] == null
+                                              ? Icon(
+                                                  Icons.add_photo_alternate,
+                                                  size: 24,
+                                                  color: Colors.grey.shade400,
+                                                )
+                                              : null,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Tap to upload logo',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  
+                                  // Name
+                                  TextFormField(
+                                    controller: item['name'],
+                                    decoration: InputDecoration(
+                                      labelText: 'Project/App Name',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'e.g., E-commerce App',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Play Store Link
+                                  TextFormField(
+                                    controller: item['playStoreLink'],
+                                    decoration: InputDecoration(
+                                      labelText: 'Play Store Link',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'https://play.google.com/...',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // App Store Link
+                                  TextFormField(
+                                    controller: item['appStoreLink'],
+                                    decoration: InputDecoration(
+                                      labelText: 'App Store Link',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'https://apps.apple.com/...',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Website
+                                  TextFormField(
+                                    controller: item['website'],
+                                    decoration: InputDecoration(
+                                      labelText: 'Website',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'https://www.example.com',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Description
+                                  TextFormField(
+                                    controller: item['description'],
+                                    maxLines: 2,
+                                    decoration: InputDecoration(
+                                      labelText: 'Description',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'Brief description of the project',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  
+                                  if (_portfolioItems.length > 1)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () => _removePortfolioItem(index),
+                                        child: const Text(
+                                          'Remove',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        
+                        // Add Portfolio Button
+                        TextButton.icon(
+                          onPressed: _addPortfolioItem,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Portfolio Item'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFFE33629),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                      ],
+      
+                      // ===== NEW: Previous Events Section =====
+                      if (selectedCategoryName?.toLowerCase() == 'companies' || 
+                          selectedCategoryName?.toLowerCase() == 'hotel' ||
+                          selectedCategoryName?.toLowerCase() == 'gold shops') ...[
+                        const Text(
+                          "Previous Events (Optional)",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Event Items
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _previousEvents.length,
+                          itemBuilder: (context, index) {
+                            final event = _previousEvents[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade200),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  // Image
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => _pickEventImage(index),
+                                        child: Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                            image: event['image'] != null
+                                                ? DecorationImage(
+                                                    image: FileImage(event['image']),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : null,
+                                          ),
+                                          child: event['image'] == null
+                                              ? Icon(
+                                                  Icons.add_photo_alternate,
+                                                  size: 24,
+                                                  color: Colors.grey.shade400,
+                                                )
+                                              : null,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Container(
-                                              width: 30,
-                                              height: 30,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                shape: BoxShape.circle,
+                                            Text(
+                                              'Event Image',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade700,
                                               ),
-                                              child: category['image'] != null && category['image'].isNotEmpty
-                                                  ? Image.network(
-                                                      category['image'],
-                                                      width: 20,
-                                                      height: 20,
-                                                      errorBuilder: (_, __, ___) {
-                                                        return Icon(
-                                                          Icons.category,
-                                                          size: 20,
-                                                          color: isSelected
-                                                              ? const Color(0xFFE33629)
-                                                              : Colors.grey,
-                                                        );
-                                                      },
-                                                    )
-                                                  : Icon(
-                                                      Icons.category,
-                                                      size: 20,
-                                                      color: isSelected
-                                                          ? const Color(0xFFE33629)
-                                                          : Colors.grey,
-                                                    ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              category['name']!.length > 6
-                                                  ? '${category['name']!.substring(0, 5)}.'
-                                                  : category['name']!,
+                                              'Tap to upload',
                                               style: TextStyle(
                                                 fontSize: 11,
-                                                color: isSelected
-                                                    ? Colors.white
-                                                    : Colors.black87,
-                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey.shade500,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
-                              ),
-
-                    const SizedBox(height: 24),
-
-                    // Images Section
-                    const Text(
-                      "Property Photos",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // Image Grid
-                    if (_selectedImages.isNotEmpty)
-                      Container(
-                        height: 100,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _selectedImages.length,
-                          itemBuilder: (context, index) {
-                            return Stack(
-                              children: [
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: DecorationImage(
-                                      image: FileImage(_selectedImages[index]),
-                                      fit: BoxFit.cover,
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  
+                                  // Title
+                                  TextFormField(
+                                    controller: event['title'],
+                                    decoration: InputDecoration(
+                                      labelText: 'Event Title',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'e.g., Annual Tech Conference 2024',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 12,
-                                  child: GestureDetector(
-                                    onTap: () => _removeImage(index),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Description
+                                  TextFormField(
+                                    controller: event['description'],
+                                    maxLines: 2,
+                                    decoration: InputDecoration(
+                                      labelText: 'Description',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'Brief description of the event',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Location
+                                  TextFormField(
+                                    controller: event['location'],
+                                    decoration: InputDecoration(
+                                      labelText: 'Event Location',
+                                      labelStyle: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      hintText: 'e.g., Mumbai, India',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  
+                                  // Event Date
+                                  GestureDetector(
+                                    onTap: () => _selectEventDate(index),
                                     child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 14,
                                       ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 12,
-                                        color: Colors.white,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today,
+                                            size: 16,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              event['eventDate'] != null
+                                                  ? '${event['eventDate'].day}/${event['eventDate'].month}/${event['eventDate'].year}'
+                                                  : 'Select Event Date',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: event['eventDate'] != null
+                                                    ? Colors.black87
+                                                    : Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  
+                                  if (_previousEvents.length > 1)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () => _removePreviousEvent(index),
+                                        child: const Text(
+                                          'Remove',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             );
                           },
                         ),
-                      ),
-                    
-                    // Add Image Button
-                    GestureDetector(
-                      onTap: _showImagePickerSheet,
-                      child: Container(
-                        height: 80,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            style: BorderStyle.solid,
+                        
+                        // Add Event Button
+                        TextButton.icon(
+                          onPressed: _addPreviousEvent,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Previous Event'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFFE33629),
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_photo_alternate_outlined,
-                              size: 28,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Add Photos (${_selectedImages.length}/10)',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Basic Details Section
-                    const Text(
-                      "Basic Details",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Title
-                    _buildTextField(
-                      controller: _titleController,
-                      label: selectedCategoryName != null 
-                          ? "${selectedCategoryName!} Title" 
-                          : "Property Title",
-                      hint: "e.g., ${_getExampleTitle(selectedCategoryName)}",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter title';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Description
-                    _buildTextField(
-                      controller: _descriptionController,
-                      label: "Description",
-                      hint: _getDescriptionHint(selectedCategoryName),
-                      maxLines: 4,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter description';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Contact Information
-                    const Text(
-                      "Contact Information",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Contact Number
-                    _buildTextField(
-                      controller: _contactNumberController,
-                      label: "Contact Number",
-                      hint: "e.g., +91 9876543210",
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter contact number';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Email
-                    _buildTextField(
-                      controller: _emailController,
-                      label: "Email",
-                      hint: "e.g., contact@example.com",
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Website (optional)
-                    if (selectedCategoryName?.toLowerCase() == 'companies' || 
-                        selectedCategoryName?.toLowerCase() == 'gold shops')
-                      _buildTextField(
-                        controller: _websiteController,
-                        label: "Website",
-                        hint: "e.g., www.example.com",
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    // Location Section
-                    const Text(
-                      "Location Details",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Address
-                    _buildTextField(
-                      controller: _addressController,
-                      label: "Address",
-                      hint: "Enter full address",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter address';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Latitude & Longitude
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildTextField(
-                            controller: _latitudeController,
-                            label: "Latitude",
-                            hint: "e.g., 17.4065",
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildTextField(
-                            controller: _longitudeController,
-                            label: "Longitude",
-                            hint: "e.g., 78.4483",
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
+                        
+                        const SizedBox(height: 24),
                       ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Get Current Location Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _isGettingLocation ? null : _getCurrentLocation,
-                        icon: _isGettingLocation
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Icon(Icons.my_location, size: 18),
-                        label: Text(_isGettingLocation ? 'Getting Location...' : 'Get Current Location'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFFE33629),
-                          side: const BorderSide(color: Color(0xFFE33629)),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+      
+                      // Features Section (Optional)
+                      if (selectedCategoryId != null) ...[
+                        const Text(
+                          "Features (Optional)",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Dynamic Attribute Fields based on Category
-                    if (selectedCategoryId != null) ...[
-                      const Text(
-                        "Property Details",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Price Field (always show)
- if (selectedCategoryName?.toLowerCase() != 'companies' && 
-      selectedCategoryName?.toLowerCase() != 'gold shops') ...[
-    _buildTextField(
-      controller: attributeControllers['price'] ?? TextEditingController(),
-      label: attributeValues['price']?['label'] ?? 'Price',
-      hint: attributeValues['price']?['hint'] ?? 'Enter price',
-      keyboardType: TextInputType.number,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Price is required';
-        }
-        return null;
-      },
-    ),
-    const SizedBox(height: 16),
-  ],
-
-                      const SizedBox(height: 16),
-
-                      // Dynamic Fields
-                      ...attributeValues.keys
-                          .where((key) => key != 'price')
-                          .map((key) {
-                            final fieldData = attributeValues[key];
-                            if (fieldData == null) return const SizedBox();
-
-                            switch (fieldData['type']) {
-                              case 'boolean':
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 16),
-                                  child: Row(
+                        const SizedBox(height: 12),
+      
+                        // Feature Fields
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _featureNameControllers.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade200),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
                                     children: [
-                                      Checkbox(
-                                        value: booleanAttributes[key] ?? false,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            booleanAttributes[key] = value ?? false;
-                                          });
-                                        },
-                                        activeColor: const Color(0xFFE33629),
-                                      ),
                                       Expanded(
-                                        child: Text(
-                                          fieldData['label'],
-                                          style: const TextStyle(fontSize: 14),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              
-                              case 'dropdown':
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        fieldData['label'],
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: Colors.grey.shade300),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: DropdownButton<String>(
-                                          value: dropdownAttributes[key] ?? 
-                                                (fieldData['options'] as List<String>?)?.firstOrNull,
-                                          isExpanded: true,
-                                          underline: const SizedBox(),
-                                          icon: const Icon(Icons.arrow_drop_down),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              dropdownAttributes[key] = value!;
-                                            });
-                                          },
-                                          items: (fieldData['options'] as List<String>)
-                                              .map((String item) {
-                                            return DropdownMenuItem<String>(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              
-                              case 'multiselect':
-                                return _buildMultiSelectField(key, fieldData);
-                              
-                              default:
-                                return Column(
-                                  children: [
-                                    _buildTextField(
-                                      controller: attributeControllers[key]!,
-                                      label: fieldData['label'],
-                                      hint: fieldData['hint'] ?? 'Enter ${fieldData['label']}',
-                                      keyboardType: fieldData['isNumber'] == true
-                                          ? TextInputType.number
-                                          : TextInputType.text,
-                                      validator: fieldData['isRequired'] == true
-                                          ? (value) {
-                                              if (value == null || value.isEmpty) {
-                                                return '${fieldData['label']} is required';
-                                              }
-                                              return null;
-                                            }
-                                          : null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                );
-                            }
-                          }).toList(),
-                    ],
-
-                    const SizedBox(height: 24),
-
-                    // Features Section (Optional)
-                    if (selectedCategoryId != null) ...[
-                      const Text(
-                        "Features (Optional)",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Feature Fields
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _featureNameControllers.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade200),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
-                                        controller: _featureNameControllers[index],
-                                        decoration: InputDecoration(
-                                          labelText: 'Feature Name',
-                                          labelStyle: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey.shade600,
+                                        child: TextFormField(
+                                          controller: _featureNameControllers[index],
+                                          decoration: InputDecoration(
+                                            labelText: 'Feature Name',
+                                            labelStyle: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                            hintText: _getFeatureHint(selectedCategoryName),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 12,
+                                            ),
                                           ),
-                                          hintText: _getFeatureHint(selectedCategoryName),
-                                          border: OutlineInputBorder(
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () => _pickFeatureImage(index),
+                                        child: Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade100,
                                             borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                            image: _featureImages.length > index && 
+                                                  _featureImages[index].path.isNotEmpty
+                                                ? DecorationImage(
+                                                    image: FileImage(_featureImages[index]),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : null,
                                           ),
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () => _pickFeatureImage(index),
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade100,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: Colors.grey.shade300),
-                                          image: _featureImages.length > index && 
-                                                _featureImages[index].path.isNotEmpty
-                                              ? DecorationImage(
-                                                  image: FileImage(_featureImages[index]),
-                                                  fit: BoxFit.cover,
+                                          child: _featureImages.length <= index || 
+                                                 _featureImages[index].path.isEmpty
+                                              ? Icon(
+                                                  Icons.add_photo_alternate,
+                                                  size: 24,
+                                                  color: Colors.grey.shade400,
                                                 )
                                               : null,
                                         ),
-                                        child: _featureImages.length <= index || 
-                                               _featureImages[index].path.isEmpty
-                                            ? Icon(
-                                                Icons.add_photo_alternate,
-                                                size: 24,
-                                                color: Colors.grey.shade400,
-                                              )
-                                            : null,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                if (_featureNameControllers.length > 1)
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: TextButton(
-                                      onPressed: () => _removeFeatureField(index),
-                                      child: const Text(
-                                        'Remove',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                              ],
+                                  if (_featureNameControllers.length > 1)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: () => _removeFeatureField(index),
+                                        child: const Text(
+                                          'Remove',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+      
+                        // Add More Feature Button
+                        TextButton.icon(
+                          onPressed: _addFeatureField,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Feature'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFFE33629),
+                          ),
+                        ),
+      
+                        const SizedBox(height: 16),
+                      ],
+      
+                      const SizedBox(height: 32),
+      
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _submitListing,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE33629),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-                        },
-                      ),
-
-                      // Add More Feature Button
-                      TextButton.icon(
-                        onPressed: _addFeatureField,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Feature'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFFE33629),
+                          ),
+                          child: const Text(
+                            "List Property",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-
-                      const SizedBox(height: 16),
+      
+                      const SizedBox(height: 20),
                     ],
-
-                    const SizedBox(height: 32),
-
-                    // Submit Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _submitListing,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE33629),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "List Property",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-                  ],
+                  ),
                 ),
               ),
-            ),
+      ),
     );
   }
 
@@ -1721,7 +2517,7 @@ request.fields['contact'] = json.encode(contactInfo);
           ),
         ),
         const SizedBox(height: 6),
-                TextFormField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           maxLines: maxLines,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
+import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/utils/call_utils.dart';
 import 'package:product_app/utils/location_utils.dart';
@@ -75,7 +76,7 @@ class _CategoryListingScreenState extends State<CategoryListingScreen>
 
     try {
       // Build URL with category filter
-      String url = 'https://estatehouz-backend.onrender.com/api/nearest/user/$userId/${widget.categoryId}';
+      String url = '${ApiConstants.baseUrl}/api/nearest/user/$userId/${widget.categoryId}';
 
       print('Fetching category products from: $url'); // Debug print
 
@@ -373,7 +374,7 @@ class _CategoryListingScreenState extends State<CategoryListingScreen>
         opacity: _fadeAnimation,
         child: isLoading
             ? _buildSkeletonLoader()
-            : errorMessage != null && categoryProducts.isEmpty
+            : errorMessage != null || categoryProducts.isEmpty
                 ? _buildEmptyState()
                 : RefreshIndicator(
                     onRefresh: fetchCategoryProducts,

@@ -825,6 +825,7 @@
 import 'package:flutter/material.dart';
 import 'package:product_app/Provider/auth/login_provider.dart';
 import 'package:product_app/views/home/navbar_screen.dart';
+import 'package:product_app/views/splash/logo_screen.dart';
 import 'package:provider/provider.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -924,7 +925,7 @@ class _OtpScreenState extends State<OtpScreen> {
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavbarScreen()),
+        MaterialPageRoute(builder: (context) => const LogoScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

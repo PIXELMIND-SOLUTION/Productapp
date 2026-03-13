@@ -1,117 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class NotificationScreen extends StatelessWidget {
-//   const NotificationScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           'Notifications',
-//           style: TextStyle(fontWeight: FontWeight.bold),
-//         ),
-//         centerTitle: true,
-//         leading: IconButton(
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//             icon: const Icon(Icons.arrow_back_ios)),
-//       ),
-//       body: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Container(
-//               width: 330,
-//               height: 50,
-//               padding: const EdgeInsets.all(8.0),
-//               decoration: BoxDecoration(
-//                   border: Border.all(color: Colors.black),
-//                   borderRadius: BorderRadius.circular(6)),
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       ClipRRect(
-//                         borderRadius: BorderRadius.circular(8),
-//                         child: Image.asset(
-//                           'lib/assets/22c7ca7468778df234aab7d17ed03d05c804b058.png',
-//                           width: 40,
-//                           height: 50,
-//                           fit: BoxFit.cover,
-//                         ),
-//                       ),
-//                       const SizedBox(width: 8),
-//                       GestureDetector(
-//                         onTap: () {
-
-//                         },
-//                         child: const Text(
-//                           'New Villa added',
-//                           style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   const Text(
-//                     '6 min ago',
-//                     style: TextStyle(color: Colors.grey),
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Container(
-//               width: 330,
-//               height: 50,
-//               padding: const EdgeInsets.all(8.0),
-//               decoration: BoxDecoration(
-//                   border: Border.all(color: Colors.black),
-//                   borderRadius: BorderRadius.circular(6)),
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       ClipRRect(
-//                         borderRadius: BorderRadius.circular(8),
-//                         child: Image.asset(
-//                           'lib/assets/22c7ca7468778df234aab7d17ed03d05c804b058.png',
-//                           width: 40,
-//                           height: 52,
-//                           fit: BoxFit.cover,
-//                         ),
-//                       ),
-//                       const SizedBox(width: 8),
-//                       GestureDetector(
-//                         onTap: () {
-//                           // Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfile()));
-//                         },
-//                         child: const Text(
-//                           'New Villa added',
-//                           style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   const Text(
-//                     '6 min ago',
-//                     style: TextStyle(color: Colors.grey),
-//                   )
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -128,6 +14,8 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   List<NotificationModel> notifications = [];
   bool isLoading = true;
+  bool isSelectionMode = false;
+  Set<String> selectedNotifications = {};
   String? errorMessage;
 
   @override
@@ -141,6 +29,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     setState(() {
       isLoading = true;
       errorMessage = null;
+      isSelectionMode = false;
+      selectedNotifications.clear();
     });
 
     try {
@@ -157,10 +47,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         },
       );
 
-      print(
-          'Response status code for getall notifications ${response.statusCode}');
-      print(
-          'Response bodyyyyyyyyyyyy for getall notifications ${response.body}');
+      print('Response status code for notifications: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -185,21 +73,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Future<void> markAsRead(String notificationId) async {
     try {
       final response = await http.put(
-        Uri.parse(
-            'http://31.97.206.144:9174/api/notifications/read/$notificationId'),
+        Uri.parse('http://31.97.206.144:9174/api/notifications/read/$notificationId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${SharedPrefHelper.getToken()}',
         },
       );
 
-      print(
-          'Response status code for reaaaaaaaaaaadddddddddd notifications ${response.statusCode}');
-      print(
-          'Response bodyyyyyyyyyyyy for readddddddddddd notifications ${response.body}');
+      print('Mark as read response: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        // Update local state
         setState(() {
           final index = notifications.indexWhere((n) => n.id == notificationId);
           if (index != -1) {
@@ -214,48 +97,78 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
-  // Delete notification
-  Future<void> deleteNotification(String notificationId) async {
+  // BULK DELETE NOTIFICATIONS - Single or Multiple
+  Future<void> deleteNotificationsBulk(List<String> notificationIds) async {
+    if (notificationIds.isEmpty) return;
+
     try {
+      print('Deleting notifications: $notificationIds');
+      
       final response = await http.delete(
-        Uri.parse(
-            'http://31.97.206.144:9174/api/notifications/$notificationId'),
+        Uri.parse('http://31.97.206.144:9174/api/notifications/bulk-delete'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${SharedPrefHelper.getToken()}',
         },
+        body: json.encode({
+          'notificationIds': notificationIds,
+        }),
       );
 
-      print(
-          'Response status code for deeeeeeeeleeeeeteeeeee notifications ${response.statusCode}');
-      print(
-          'Response bodyyyyyyyyyyyy for deleteeee notifications ${response.body}');
+      print('Delete bulk response status: ${response.statusCode}');
+      print('Delete bulk response body: ${response.body}');
 
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
         setState(() {
-          notifications.removeWhere((n) => n.id == notificationId);
+          // Remove deleted notifications from list
+          notifications.removeWhere((n) => notificationIds.contains(n.id));
+          selectedNotifications.clear();
+          if (selectedNotifications.isEmpty) {
+            isSelectionMode = false;
+          }
         });
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Notification deleted')),
+          SnackBar(
+            content: Text(
+              notificationIds.length == 1
+                  ? 'Notification deleted'
+                  : '${notificationIds.length} notifications deleted',
+            ),
+            backgroundColor: Colors.green,
+          ),
         );
       } else {
-        throw Exception('Failed to delete notification');
+        throw Exception('Failed to delete notifications');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete: $e')),
+        SnackBar(
+          content: Text('Failed to delete: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
-  // Show delete confirmation dialog
-  Future<void> showDeleteConfirmation(String notificationId) async {
+  // Delete single notification
+  Future<void> deleteSingleNotification(String notificationId) async {
+    await deleteNotificationsBulk([notificationId]);
+  }
+
+  // Delete multiple selected notifications
+  Future<void> deleteSelectedNotifications() async {
+    if (selectedNotifications.isEmpty) return;
+    
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Notification'),
-        content:
-            const Text('Are you sure you want to delete this notification?'),
+        title: const Text('Delete Notifications'),
+        content: Text(
+          'Are you sure you want to delete ${selectedNotifications.length} notification${selectedNotifications.length > 1 ? 's' : ''}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -270,8 +183,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
 
     if (confirmed == true) {
-      await deleteNotification(notificationId);
+      await deleteNotificationsBulk(selectedNotifications.toList());
     }
+  }
+
+  // Toggle selection mode
+  void toggleSelectionMode() {
+    setState(() {
+      isSelectionMode = !isSelectionMode;
+      if (!isSelectionMode) {
+        selectedNotifications.clear();
+      }
+    });
+  }
+
+  // Toggle notification selection
+  void toggleNotificationSelection(String notificationId) {
+    setState(() {
+      if (selectedNotifications.contains(notificationId)) {
+        selectedNotifications.remove(notificationId);
+      } else {
+        selectedNotifications.add(notificationId);
+      }
+      
+      if (selectedNotifications.isEmpty) {
+        isSelectionMode = false;
+      }
+    });
+  }
+
+  // Select/Deselect all notifications
+  void toggleSelectAll() {
+    setState(() {
+      if (selectedNotifications.length == notifications.length) {
+        selectedNotifications.clear();
+      } else {
+        selectedNotifications = notifications.map((n) => n.id).toSet();
+      }
+    });
   }
 
   String getTimeAgo(DateTime dateTime) {
@@ -293,21 +242,59 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Notifications',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: isSelectionMode
+            ? Text(
+                '${selectedNotifications.length} selected',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              )
+            : const Text(
+                'Notifications',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
         centerTitle: true,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: isSelectionMode 
+              ? toggleSelectionMode 
+              : () => Navigator.of(context).pop(),
+          icon: Icon(isSelectionMode ? Icons.close : Icons.arrow_back_ios),
         ),
         actions: [
-          if (notifications.isNotEmpty)
-            IconButton(
-              onPressed: fetchNotifications,
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh',
+          if (isSelectionMode)
+            Row(
+              children: [
+                IconButton(
+                  onPressed: toggleSelectAll,
+                  icon: Icon(
+                    selectedNotifications.length == notifications.length
+                        ? Icons.deselect
+                        : Icons.select_all,
+                  ),
+                  tooltip: selectedNotifications.length == notifications.length
+                      ? 'Deselect all'
+                      : 'Select all',
+                ),
+                if (selectedNotifications.isNotEmpty)
+                  IconButton(
+                    onPressed: deleteSelectedNotifications,
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    tooltip: 'Delete selected',
+                  ),
+              ],
+            )
+          else if (notifications.isNotEmpty)
+            Row(
+              children: [
+                IconButton(
+                  onPressed: toggleSelectionMode,
+                  icon: const Icon(Icons.checklist),
+                  tooltip: 'Select multiple',
+                ),
+                IconButton(
+                  onPressed: fetchNotifications,
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh',
+                ),
+              ],
             ),
         ],
       ),
@@ -352,9 +339,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         itemCount: notifications.length,
                         itemBuilder: (context, index) {
                           final notification = notifications[index];
+                          final isSelected = selectedNotifications.contains(notification.id);
+
                           return Dismissible(
                             key: Key(notification.id),
-                            direction: DismissDirection.endToStart,
+                            direction: isSelectionMode 
+                                ? DismissDirection.none 
+                                : DismissDirection.endToStart,
                             background: Container(
                               alignment: Alignment.centerRight,
                               padding: const EdgeInsets.only(right: 20),
@@ -363,10 +354,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 color: Colors.red,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child:
-                                  const Icon(Icons.delete, color: Colors.white),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
                             confirmDismiss: (direction) async {
+                              if (isSelectionMode) return false;
+                              
                               return await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
@@ -389,29 +381,59 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               );
                             },
                             onDismissed: (direction) {
-                              deleteNotification(notification.id);
+                              deleteSingleNotification(notification.id);
                             },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4.0),
+                            child: GestureDetector(
+                              onTap: isSelectionMode
+                                  ? () => toggleNotificationSelection(notification.id)
+                                  : () {
+                                      if (!notification.isRead) {
+                                        markAsRead(notification.id);
+                                      }
+                                    },
+                              onLongPress: () {
+                                if (!isSelectionMode) {
+                                  toggleSelectionMode();
+                                  toggleNotificationSelection(notification.id);
+                                }
+                              },
                               child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4.0),
                                 padding: const EdgeInsets.all(12.0),
                                 decoration: BoxDecoration(
-                                  color: notification.isRead
-                                      ? Colors.white
-                                      : Colors.blue.shade50,
+                                  color: isSelected
+                                      ? Colors.blue.shade100
+                                      : notification.isRead
+                                          ? Colors.white
+                                          : Colors.blue.shade50,
                                   border: Border.all(
-                                    color: notification.isRead
-                                        ? Colors.grey.shade300
-                                        : Colors.blue.shade200,
+                                    color: isSelected
+                                        ? Colors.blue
+                                        : notification.isRead
+                                            ? Colors.grey.shade300
+                                            : Colors.blue.shade200,
+                                    width: isSelected ? 2 : 1,
                                   ),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
                                   children: [
+                                    if (isSelectionMode)
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 8.0),
+                                        child: Icon(
+                                          isSelected
+                                              ? Icons.check_circle
+                                              : Icons.radio_button_unchecked,
+                                          color: isSelected
+                                              ? Colors.blue
+                                              : Colors.grey,
+                                        ),
+                                      ),
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: notification.image != null
+                                      child: notification.image != null &&
+                                              notification.image!.isNotEmpty
                                           ? Image.network(
                                               notification.image!,
                                               width: 50,
@@ -439,41 +461,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          if (!notification.isRead) {
-                                            markAsRead(notification.id);
-                                          }
-                                        },
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              notification.title,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: notification.isRead
-                                                    ? FontWeight.normal
-                                                    : FontWeight.bold,
-                                                fontSize: 15,
-                                              ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            notification.title,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: notification.isRead
+                                                  ? FontWeight.normal
+                                                  : FontWeight.bold,
+                                              fontSize: 15,
                                             ),
-                                            if (notification.message !=
-                                                null) ...[
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                notification.message!,
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade700,
-                                                  fontSize: 13,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (notification.message !=
+                                              null) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              notification.message!,
+                                              style: TextStyle(
+                                                color: Colors.grey.shade700,
+                                                fontSize: 13,
                                               ),
-                                            ],
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ],
-                                        ),
+                                        ],
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -486,17 +501,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                           style: const TextStyle(
                                               color: Colors.grey, fontSize: 12),
                                         ),
-                                        const SizedBox(height: 4),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline,
-                                              size: 20),
-                                          color: Colors.grey,
-                                          onPressed: () =>
-                                              showDeleteConfirmation(
-                                                  notification.id),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                        ),
+                                        if (!isSelectionMode) ...[
+                                          const SizedBox(height: 4),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete_outline,
+                                                size: 20),
+                                            color: Colors.grey,
+                                            onPressed: () => showDeleteConfirmation(
+                                                notification.id),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ],
@@ -508,6 +524,31 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ),
                     ),
     );
+  }
+
+  // Show delete confirmation for single notification
+  Future<void> showDeleteConfirmation(String notificationId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Notification'),
+        content: const Text('Are you sure you want to delete this notification?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await deleteSingleNotification(notificationId);
+    }
   }
 }
 

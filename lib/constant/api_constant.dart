@@ -2,12 +2,14 @@
 
 class ApiConstants {
   // Base URL
-  static const String baseUrl = 'https://estatehouz-backend.onrender.com';
+  // static const String baseUrl = 'https://estatehouz-backend.onrender.com';
+
+  static const String baseUrl = 'http://31.97.206.144:9174';
 
   // API Endpoints
   static const String sendOtp = '/api/auth/send-otp';
   static const String verifyOtp = '/api/auth/verify-otp';
-    static const String verifyOtpWithFirebase = 'https://estatehouz-backend.onrender.com/api/auth/verify-firebase-otp';
+    static const String verifyOtpWithFirebase = '$baseUrl/api/auth/verify-firebase-otp';
   static const String resendOtp = '/api/auth/resend-otp';
   static const String googleSignIn = '$baseUrl/api/auth/google-signin';
   static const String updateProfile = '/api/auth/update-profile/:userId';

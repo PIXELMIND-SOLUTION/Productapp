@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:product_app/Provider/location/location_provider.dart';
 import 'package:product_app/Provider/profile/profile_provider.dart';
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
+import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/profile/edit_profile.dart';
 import 'package:product_app/utils/call_utils.dart';
@@ -20,6 +21,8 @@ import 'package:product_app/views/nearesthouses/nearest_houses.dart';
 import 'package:product_app/views/search/filter_screen.dart';
 import 'package:product_app/views/search/search_screen.dart';
 import 'package:product_app/views/widget/pms.dart';
+import 'package:product_app/views/widgets/app_back_control.dart';
+import 'package:product_app/views/widgets/debouncer.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +41,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool isLoadingCategories = true;
   String? currentAddress;
   bool isLoadingAddress = false;
+  String? _selectedIndustry;
+bool _showCompanyFilters = false;
+final List<String> _industryOptions = [
+  'App Development',
+  'Web Development',
+  'Digital Marketing',
+];
   
   // Location and Network States
   bool _isLocationPermissionDenied = false;
@@ -55,6 +65,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   static const String CACHED_LONGITUDE = 'cached_longitude';
   static const String CACHED_ADDRESS = 'cached_address';
   static const String LOCATION_TIMESTAMP = 'location_timestamp';
+
+  final TextEditingController _searchController = TextEditingController();
+final FocusNode _searchFocusNode = FocusNode();
+late Debouncer _searchDebouncer;
+String _searchQuery = '';
+bool _isSearching = false;
   
   // Cache expiry (24 hours in milliseconds)
   static const int CACHE_EXPIRY = 24 * 60 * 60 * 1000;
@@ -76,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
+
   List<Map<String, dynamic>> nearestProducts = [];
   bool isLoadingNearestProducts = true;
 
@@ -94,6 +111,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     
     _animationController.forward();
 
+      _searchDebouncer = Debouncer(milliseconds: 500);
+
+        _searchController.addListener(_onSearchChanged);
+
+
+
     final userId = SharedPrefHelper.getUserId();
     if (userId != null) {
       Future.microtask(() {
@@ -106,11 +129,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _initializeLocationAndData();
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
+
+  void _onSearchChanged() {
+  final query = _searchController.text.trim();
+  
+  setState(() {
+    _isSearching = query.isNotEmpty;
+  });
+  
+  _searchDebouncer.run(() {
+    if (mounted) {
+      setState(() {
+        _searchQuery = query;
+      });
+      fetchNearestProducts(); // Re-fetch with search query
+    }
+  });
+}
+
+@override
+void dispose() {
+  _animationController.dispose();
+  _searchController.dispose();
+  _searchFocusNode.dispose();
+  _searchDebouncer.dispose();
+  super.dispose();
+}
 
   Future<void> _initializeLocationAndData() async {
     setState(() {
@@ -381,9 +425,14 @@ Future<void> fetchNearestProducts() async {
 
   try {
     // Build URL with optional category filter
-    String url = 'https://estatehouz-backend.onrender.com/api/nearest/user/$userId';
+    String url = '${ApiConstants.baseUrl}/api/nearest/user/$userId';
     if (_selectedCategoryId != null && _selectedCategoryId!.isNotEmpty) {
       url += '/$_selectedCategoryId';
+    }
+
+
+        if (_searchQuery.isNotEmpty) {
+      url += '?search=${Uri.encodeComponent(_searchQuery)}';
     }
 
     print('Fetching from URL: $url'); // Debug print
@@ -520,17 +569,23 @@ Future<void> fetchNearestProducts() async {
             }
 
             // SAFE IMAGE URL HANDLING
-            String imageUrl = "";
-            if (product.containsKey('images') && product['images'] != null) {
-              final images = product['images'];
-              if (images is List && images.isNotEmpty) {
-                final firstImage = images.first;
-                if (firstImage != null) {
-                  imageUrl = firstImage.toString();
-                }
-              }
-            }
+// SAFE IMAGE URL HANDLING
+String imageUrl = "";
+List<String> imageList = [];   // ← ADD THIS
 
+if (product.containsKey('images') && product['images'] != null) {
+  final images = product['images'];
+  if (images is List && images.isNotEmpty) {
+    for (var img in images) {
+      if (img != null && img.toString().startsWith('http')) {
+        imageList.add(img.toString());   // ← COLLECT ALL
+      }
+    }
+    if (imageList.isNotEmpty) {
+      imageUrl = imageList.first;
+    }
+  }
+}
             // SAFE CATEGORY HANDLING
             String categoryName = "Property";
             if (product.containsKey('category') && product['category'] != null) {
@@ -582,6 +637,7 @@ Future<void> fetchNearestProducts() async {
             return {
               "id": id,
               "imageUrl": imageUrl,
+               "images": imageList,
               "tag": categoryName,
               "title": name,
               "location": address,
@@ -593,15 +649,19 @@ Future<void> fetchNearestProducts() async {
               // NEW: Add contact and user info
               "contact": contact,
               "user": user,
+              "attributes": attributes,
             };
           }).toList();
 
           isLoadingNearestProducts = false;
         });
+
       } else {
         setState(() {
           nearestProducts = [];
           isLoadingNearestProducts = false;
+                    _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
+
         });
       }
     } else {
@@ -609,6 +669,8 @@ Future<void> fetchNearestProducts() async {
       setState(() {
         nearestProducts = [];
         isLoadingNearestProducts = false;
+                _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
+
       });
     }
   } catch (e) {
@@ -619,6 +681,8 @@ Future<void> fetchNearestProducts() async {
     setState(() {
       nearestProducts = [];
       isLoadingNearestProducts = false;
+            _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
+
     });
   }
 }
@@ -627,7 +691,7 @@ Future<void> fetchNearestProducts() async {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://estatehouz-backend.onrender.com/api/auth/getall-categories'),
+            '${ApiConstants.baseUrl}/api/auth/getall-categories'),
       );
 
       if (response.statusCode == 200) {
@@ -870,12 +934,13 @@ Future<void> fetchNearestProducts() async {
     return _buildHomeScreen();
   }
 
-  Widget _buildHomeScreen() {
-    final List<Map<String, dynamic>> displayProducts = nearestProducts.isNotEmpty ? nearestProducts : [];
-    
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
+Widget _buildHomeScreen() {
+  final List<Map<String, dynamic>> displayProducts = nearestProducts.isNotEmpty ? nearestProducts : [];
+  
+  return Scaffold(
+    backgroundColor: const Color(0xFFF8F9FA),
+    body: AppBackControl(
+      child: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: SingleChildScrollView(
@@ -891,10 +956,19 @@ Future<void> fetchNearestProducts() async {
                   
                   const SizedBox(height: 16),
                   
-                  // Search Bar
-                  _SearchBar(),
-                  
-                  const SizedBox(height: 16),
+                  // Search Bar - FIXED: Now with controller and callbacks
+                  _SearchBar(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    onChanged: (value) {
+                      // onChanged is already handled by _onSearchChanged via listener
+                      // This is just a placeholder
+                    },
+                    onSubmitted: (value) {
+                      // Optional: handle search submit
+                      print('Search submitted: $value');
+                    },
+                  ),
                   
                   // Banner Card
                   _BannerCard(),
@@ -929,9 +1003,104 @@ Future<void> fetchNearestProducts() async {
                     ),
                   ),
                   
-                  const SizedBox(height: 20),
+                  // After categories container
+const SizedBox(height: 20),
+
+// Company Industry Filter - Show only when companies category is selected
+// Company Industry Filter - Show only when companies category is selected
+if (_selectedCategoryName?.toLowerCase() == 'companies') ...[
+  Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    decoration: BoxDecoration(
+      color: Colors.blue.shade50,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.blue.shade200),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.business, size: 18, color: Colors.blue.shade700),
+            const SizedBox(width: 8),
+            const Text(
+              'Filter by Industry',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            if (_selectedIndustry != null)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedIndustry = null;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.clear, size: 12),
+                      SizedBox(width: 2),
+                      Text('Clear', style: TextStyle(fontSize: 11)),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        
+        // Industry chips - USING _industryOptions HERE
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _industryOptions.map((industry) {
+            final isSelected = _selectedIndustry == industry;
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (_selectedIndustry == industry) {
+                    _selectedIndustry = null;
+                  } else {
+                    _selectedIndustry = industry;
+                  }
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.blue : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? Colors.blue : Colors.grey.shade300,
+                  ),
+                ),
+                child: Text(
+                  industry,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    ),
+  ),
+  const SizedBox(height: 20),
+],
                   
-                  // Section Header with optional category filter indicator
+                  // Section Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -957,67 +1126,132 @@ Future<void> fetchNearestProducts() async {
                     ],
                   ),
                   
-                  const SizedBox(height: 12),
-                  
-                  // Properties List with skeleton loading
-                  isLoadingNearestProducts
-                      ? _buildSkeletonLoader()
-                      : displayProducts.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(40.0),
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                      Icons.house_outlined,
-                                      size: 60,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      _selectedCategoryName != null
-                                          ? "No $_selectedCategoryName properties found"
-                                          : "No Properties Found",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    if (_selectedCategoryId != null) ...[
-                                      const SizedBox(height: 12),
-                                      TextButton(
-                                        onPressed: _clearCategoryFilter,
-                                        child: const Text('Clear Filter'),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: displayProducts.length,
-                              itemBuilder: (context, index) {
-                                final property = displayProducts[index];
-                                return _PropertyListCard(
-                                  key: ValueKey(property['id']),
-                                  property: property,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NearestHouseDetail(
+  // After section header
+const SizedBox(height: 12),
 
-                                           productId: property['id'],
+// Search Results Count
+if (_isSearching)
+  Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+      'Searching for "$_searchQuery"...',
+      style: TextStyle(
+        fontSize: 13,
+        color: Colors.grey.shade600,
+        fontStyle: FontStyle.italic,
+      ),
+    ),
+  ),
 
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+// Properties List
+isLoadingNearestProducts
+    ? _buildSkeletonLoader()
+    : () {
+        // Filter products based on selected industry
+        List<Map<String, dynamic>> filteredProducts = displayProducts;
+        
+        if (_selectedIndustry != null && _selectedCategoryName?.toLowerCase() == 'companies') {
+          filteredProducts = displayProducts.where((product) {
+            final attributes = product['attributes'] as Map<String, dynamic>?;
+            if (attributes == null) return false;
+            
+            // Check industry field
+            final industry = attributes['industry']?.toString() ?? '';
+            if (industry == _selectedIndustry) return true;
+            
+            // Check businessType as fallback
+            final businessType = attributes['businessType']?.toString() ?? '';
+            if (businessType == _selectedIndustry) return true;
+            
+            return false;
+          }).toList();
+        }
+        
+        if (filteredProducts.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Column(
+                children: [
+                  Icon(
+                    _selectedIndustry != null ? Icons.business_center : Icons.house_outlined,
+                    size: 60,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _selectedIndustry != null
+                        ? 'No $_selectedIndustry companies found'
+                        : (_isSearching
+                            ? 'No results found for "$_searchQuery"'
+                            : (_selectedCategoryName != null
+                                ? "No $_selectedCategoryName properties found"
+                                : "No Properties Found")),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_selectedIndustry != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndustry = null;
+                        });
+                      },
+                      child: const Text('Clear Industry Filter'),
+                    ),
+                  ] else if (_isSearching) ...[
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                          _isSearching = false;
+                        });
+                        fetchNearestProducts();
+                      },
+                      child: const Text('Clear Search'),
+                    ),
+                  ] else if (_selectedCategoryId != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: _clearCategoryFilter,
+                      child: const Text('Clear Filter'),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+        
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: filteredProducts.length,
+          itemBuilder: (context, index) {
+            final property = filteredProducts[index];
+            return _PropertyListCard(
+              key: ValueKey(property['id']),
+              property: property,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NearestHouseDetail(
+                      productId: property['id'],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      }(),
                   
                   const SizedBox(height: 20),
                 ],
@@ -1026,8 +1260,9 @@ Future<void> fetchNearestProducts() async {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSkeletonLoader() {
     return ListView.builder(
@@ -1166,7 +1401,7 @@ Future<void> fetchNearestProducts() async {
         Expanded(
           child: Consumer<ProfileProvider>(
             builder: (context, profileProvider, _) {
-              final userName = profileProvider.name ?? 'User';
+              final userName = profileProvider.name ?? 'Go to Profile';
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1253,6 +1488,23 @@ Future<void> fetchNearestProducts() async {
 
 // ── Search Bar ────────────────────────────────────────────────────────────────
 class _SearchBar extends StatelessWidget {
+  final VoidCallback? onTap;
+  final bool readOnly;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final Function(String)? onSubmitted;
+  final Function(String)? onChanged;
+
+  const _SearchBar({
+    super.key,
+    this.onTap,
+    this.readOnly = false,
+    this.controller,
+    this.focusNode,
+    this.onSubmitted,
+    this.onChanged,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1262,17 +1514,29 @@ class _SearchBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextField(
-        readOnly: true,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SearchScreen()),
-          );
-        },
+        controller: controller,
+        focusNode: focusNode,
+        readOnly: readOnly,
+        onTap: onTap,
+        onSubmitted: onSubmitted,
+        onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: "Search",
+          hintText: "Search properties, locations...",
           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-          prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+          prefixIcon: Icon(
+            Icons.search, 
+            color: const Color.fromARGB(255, 58, 58, 58), 
+            size: 20
+          ),
+          suffixIcon: controller != null && controller!.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.clear, size: 18, color: Colors.grey.shade400),
+                  onPressed: () {
+                    controller!.clear();
+                    if (onChanged != null) onChanged!('');
+                  },
+                )
+              : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
@@ -1514,6 +1778,626 @@ class _AllCategoryRow extends StatelessWidget {
 // ── Property Card ─────────────────────────────────────────────────────────────
 // ── Property Card ─────────────────────────────────────────────────────────────
 // ── Property Card ─────────────────────────────────────────────────────────────
+// class _PropertyListCard extends StatelessWidget {
+//   final Map<String, dynamic> property;
+//   final VoidCallback onTap;
+
+//   const _PropertyListCard({
+//     super.key,
+//     required this.property,
+//     required this.onTap,
+//   });
+
+//   // Helper method to get the best available phone number
+//   String _getAgentPhone() {
+//     // Try to get from contact object first
+//     if (property.containsKey('contact') && property['contact'] != null) {
+//       final contact = property['contact'] as Map<String, dynamic>;
+//       if (contact.containsKey('callNumber') && contact['callNumber'] != null) {
+//         return contact['callNumber'].toString().replaceAll('+', '');
+//       }
+//       if (contact.containsKey('whatsappNumber') && contact['whatsappNumber'] != null) {
+//         return contact['whatsappNumber'].toString().replaceAll('+', '');
+//       }
+//     }
+    
+//     // Then try from user object
+//     if (property.containsKey('user') && property['user'] != null) {
+//       final user = property['user'] as Map<String, dynamic>;
+//       if (user.containsKey('mobile') && user['mobile'] != null) {
+//         return user['mobile'].toString().replaceAll('+', '');
+//       }
+//     }
+    
+//     // Default fallback
+//     return '919961593179';
+//   }
+
+//   // Helper method to get agent name
+//   String _getAgentName() {
+//     if (property.containsKey('user') && property['user'] != null) {
+//       final user = property['user'] as Map<String, dynamic>;
+//       if (user.containsKey('name') && user['name'] != null) {
+//         return user['name'].toString();
+//       }
+//     }
+//     return "Property Agent";
+//   }
+
+//   // Helper method to get the primary display name/title
+// String _getPrimaryTitle() {
+//   // Look for "title" first (since that's what you're storing in the map)
+//   if (property.containsKey('title') && property['title'] != null) {
+//     final title = property['title'].toString();
+//     if (title.isNotEmpty) {
+//       return title;
+//     }
+//   }
+  
+//   // Fallback to "name" just in case
+//   if (property.containsKey('name') && property['name'] != null) {
+//     final name = property['name'].toString();
+//     if (name.isNotEmpty) {
+//       return name;
+//     }
+//   }
+  
+//   return 'Listing';
+// }
+//   // Helper method to get secondary information/description
+//   String _getSecondaryInfo() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+//     final attributes = property.containsKey('attributes') 
+//         ? property['attributes'] as Map<String, dynamic> 
+//         : null;
+
+//     if (attributes == null) return '';
+
+//     List<String> info = [];
+
+//     switch (category) {
+//       case 'companies':
+//         if (attributes.containsKey('businessType')) {
+//           info.add(attributes['businessType'].toString());
+//         }
+//         if (attributes.containsKey('industry')) {
+//           info.add(attributes['industry'].toString());
+//         }
+//         if (attributes.containsKey('services')) {
+//           final services = attributes['services'];
+//           if (services is List) {
+//             info.addAll(services.cast<String>());
+//           } else {
+//             info.add(services.toString());
+//           }
+//         }
+//         break;
+
+//       case 'gold shops':
+//         if (attributes.containsKey('services')) {
+//           final services = attributes['services'];
+//           if (services is List) {
+//             info.addAll(services.cast<String>());
+//           } else {
+//             info.add(services.toString());
+//           }
+//         }
+//         if (attributes.containsKey('certified') && attributes['certified'] == true) {
+//           info.add("BIS Certified");
+//         }
+//         if (attributes.containsKey('hallmarkAvailable') && attributes['hallmarkAvailable'] == true) {
+//           info.add("Hallmark");
+//         }
+//         break;
+
+//       case 'villa':
+//       case 'apartment':
+//       case 'farmhouse':
+//         // For properties, we'll show bedroom/bathroom info later
+//         break;
+
+//       default:
+//         // For unknown categories, show any relevant text fields
+//         final textFields = ['type', 'service', 'category', 'description'];
+//         for (var field in textFields) {
+//           if (attributes.containsKey(field) && attributes[field] != null) {
+//             info.add(attributes[field].toString());
+//             break;
+//           }
+//         }
+//         break;
+//     }
+
+//     return info.isNotEmpty ? info.join(' • ') : '';
+//   }
+
+//   // Helper method to check if this is a property type (has bedrooms/bathrooms)
+//   bool _isPropertyType() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+//     final propertyTypes = ['villa', 'apartment', 'farmhouse', 'house', 'flat', 'land'];
+    
+//     return propertyTypes.any((type) => category.contains(type));
+//   }
+
+//   // Helper method to get property stats (bed/bath/area)
+//   Map<String, String> _getPropertyStats() {
+//     final attributes = property.containsKey('attributes') 
+//         ? property['attributes'] as Map<String, dynamic> 
+//         : null;
+
+//     if (attributes == null) {
+//       return {'bed': 'N/A', 'bath': 'N/A', 'area': 'N/A'};
+//     }
+
+//     String bed = "N/A";
+//     String bath = "N/A";
+//     String area = "N/A";
+
+//     // Get bedrooms
+//     if (attributes.containsKey('bedrooms')) {
+//       final bedrooms = attributes['bedrooms'];
+//       if (bedrooms is num) {
+//         bed = "${bedrooms.toStringAsFixed(0)} Bed";
+//       } else if (bedrooms is String) {
+//         bed = "$bedrooms Bed";
+//       } else if (bedrooms != null) {
+//         bed = "$bedrooms Bed";
+//       }
+//     }
+
+//     // Get bathrooms
+//     if (attributes.containsKey('bathrooms')) {
+//       final bathrooms = attributes['bathrooms'];
+//       if (bathrooms is num) {
+//         bath = "${bathrooms.toStringAsFixed(0)} Bath";
+//       } else if (bathrooms is String) {
+//         bath = "$bathrooms Bath";
+//       } else if (bathrooms != null) {
+//         bath = "$bathrooms Bath";
+//       }
+//     }
+
+//     // Get area
+//     if (attributes.containsKey('sqft')) {
+//       final sqft = attributes['sqft'];
+//       if (sqft is num) {
+//         area = "${sqft.toStringAsFixed(0)} sqft";
+//       } else if (sqft is String) {
+//         area = "$sqft sqft";
+//       } else if (sqft != null) {
+//         area = "$sqft sqft";
+//       }
+//     } else if (attributes.containsKey('landSize')) {
+//       final unit = attributes.containsKey('unit') ? attributes['unit']?.toString() ?? '' : '';
+//       final landSize = attributes['landSize'];
+//       if (landSize is num) {
+//         area = "${landSize.toStringAsFixed(1)} $unit";
+//       } else if (landSize is String) {
+//         area = "$landSize $unit";
+//       } else if (landSize != null) {
+//         area = "$landSize $unit";
+//       }
+//     }
+
+//     return {'bed': bed, 'bath': bath, 'area': area};
+//   }
+
+//   // Helper method to get price
+//   String _getPrice() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+//     final attributes = property.containsKey('attributes') 
+//         ? property['attributes'] as Map<String, dynamic> 
+//         : null;
+
+//     // Don't show price for companies and gold shops
+//     if (category.contains('companies') || category.contains('gold')) {
+//       return '';
+//     }
+
+//     if (attributes != null && attributes.containsKey('price')) {
+//       final priceValue = attributes['price'];
+//       if (priceValue is num) {
+//         return "₹${priceValue.toStringAsFixed(0)}";
+//       } else if (priceValue is String) {
+//         return "₹$priceValue";
+//       } else if (priceValue != null) {
+//         return "₹$priceValue";
+//       }
+//     }
+
+//     return '';
+//   }
+
+//   // Helper method to get category-specific icon
+//   IconData _getCategoryIcon() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+    
+//     if (category.contains('companies')) {
+//       return Icons.business;
+//     } else if (category.contains('gold')) {
+//       return Icons.diamond;
+//     } else if (category.contains('villa') || category.contains('house')) {
+//       return Icons.house;
+//     } else if (category.contains('apartment')) {
+//       return Icons.apartment;
+//     } else if (category.contains('hotel')) {
+//       return Icons.hotel;
+//     } else if (category.contains('land') || category.contains('farm')) {
+//       return Icons.landscape;
+//     }
+    
+//     return Icons.image_not_supported;
+//   }
+
+//   // Helper method to get category color
+//   Color _getCategoryColor() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+    
+//     if (category.contains('companies')) {
+//       return Colors.blue;
+//     } else if (category.contains('gold')) {
+//       return Colors.amber;
+//     } else if (category.contains('villa') || category.contains('house')) {
+//       return const Color(0xFFE33629);
+//     } else if (category.contains('apartment')) {
+//       return Colors.green;
+//     } else if (category.contains('hotel')) {
+//       return Colors.purple;
+//     } else if (category.contains('land') || category.contains('farm')) {
+//       return Colors.orange;
+//     }
+    
+//     return const Color(0xFFE33629);
+//   }
+
+//   // Helper method to get custom WhatsApp message based on category
+//   String _getWhatsAppMessage() {
+//     final category = property['tag']?.toString().toLowerCase() ?? '';
+//     final title = _getPrimaryTitle();
+    
+//     if (category.contains('companies')) {
+//       return "Hi, I'm interested in your business services at $title. Can you provide more details about your services and pricing?";
+//     } else if (category.contains('gold')) {
+//       return "Hi, I'm interested in your products at $title. Can you share current gold rates, offers, and available designs?";
+//     } else if (category.contains('hotel')) {
+//       return "Hi, I'm interested in booking at $title. Can you share room availability, rates, and amenities?";
+//     } else if (category.contains('villa') || category.contains('apartment') || category.contains('house')) {
+//       return "Hi, I'm interested in the property at $title. Can you provide more details and schedule a visit?";
+//     }
+    
+//     return "Hi, I'm interested in your listing. Can you provide more details?";
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final isProperty = _isPropertyType();
+//     final stats = _getPropertyStats();
+//     final price = _getPrice();
+//     final primaryTitle = _getPrimaryTitle();
+//     final secondaryInfo = _getSecondaryInfo();
+//     final categoryColor = _getCategoryColor();
+//     final categoryIcon = _getCategoryIcon();
+//     final whatsAppMessage = _getWhatsAppMessage();
+    
+//     return Consumer<WishlistProvider>(
+//       builder: (context, wishlistProvider, child) {
+//         final isInWishlist = wishlistProvider.isInWishlist(property['id']);
+//         final agentPhone = _getAgentPhone();
+//         final agentName = _getAgentName();
+
+//         return GestureDetector(
+//           onTap: onTap,
+//           child: Container(
+//             margin: const EdgeInsets.only(bottom: 16),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(16),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withOpacity(0.07),
+//                   blurRadius: 12,
+//                   offset: const Offset(0, 4),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // Image Section
+//                 Stack(
+//                   children: [
+//                     ClipRRect(
+//                       borderRadius: const BorderRadius.vertical(
+//                         top: Radius.circular(16),
+//                       ),
+//                       child: SizedBox(
+//                         height: 180,
+//                         width: double.infinity,
+//                         child: property['imageUrl'].toString().startsWith('http')
+//                             ? Image.network(
+//                                 property['imageUrl'],
+//                                 fit: BoxFit.cover,
+//                                 errorBuilder: (context, error, stackTrace) {
+//                                   return Container(
+//                                     color: Colors.grey.shade300,
+//                                     child: Center(
+//                                       child: Icon(
+//                                         categoryIcon,
+//                                         size: 50,
+//                                         color: Colors.grey.shade500,
+//                                       ),
+//                                     ),
+//                                   );
+//                                 },
+//                               )
+//                             : Container(
+//                                 color: Colors.grey.shade300,
+//                                 child: Center(
+//                                   child: Icon(
+//                                     categoryIcon,
+//                                     size: 50,
+//                                     color: Colors.grey.shade500,
+//                                   ),
+//                                 ),
+//                               ),
+//                       ),
+//                     ),
+                    
+//                     // Category Badge
+//     Positioned(
+//   top: 10,
+//   left: 10,
+//   child: Container(
+//     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//     decoration: BoxDecoration(
+//       color: categoryColor,
+//       borderRadius: BorderRadius.circular(12),
+//     ),
+//     child: Text(
+//       // Fix: Access the nested category name
+//       property['category'] != null && property['category'] is Map
+//           ? (property['category']['name']?.toString() ?? 'Listing')
+//           : (property['tag'] ?? 'Listing'),
+//       style: const TextStyle(
+//         fontSize: 10,
+//         color: Colors.white,
+//         fontWeight: FontWeight.w600,
+//       ),
+//     ),
+//   ),
+// ),
+                    
+//                     // Favorite Button
+//                     Positioned(
+//                       top: 10,
+//                       right: 10,
+//                       child: GestureDetector(
+//                         onTap: () async {
+//                           final success = await wishlistProvider.toggleWishlist(property['id']);
+//                           if (context.mounted) {
+//                             ScaffoldMessenger.of(context).showSnackBar(
+//                               SnackBar(
+//                                 backgroundColor: success ? Colors.green : Colors.red,
+//                                 content: Text(
+//                                   success
+//                                       ? (isInWishlist
+//                                           ? 'Removed from wishlist'
+//                                           : 'Added to wishlist')
+//                                       : (wishlistProvider.errorMessage ?? 'Failed to update wishlist'),
+//                                 ),
+//                                 duration: const Duration(seconds: 2),
+//                               ),
+//                             );
+//                           }
+//                         },
+//                         child: Container(
+//                           width: 32,
+//                           height: 32,
+//                           decoration: const BoxDecoration(
+//                             color: Colors.white,
+//                             shape: BoxShape.circle,
+//                           ),
+//                           child: Icon(
+//                             isInWishlist ? Icons.favorite : Icons.favorite_border,
+//                             size: 16,
+//                             color: isInWishlist
+//                                 ? Colors.red
+//                                 : Colors.grey.shade500,
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+
+//                 Padding(
+//                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       // Primary Title
+//                       Text(
+//                         primaryTitle,
+//                         style: const TextStyle(
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.w700,
+//                           color: Colors.black87,
+//                         ),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+
+//                       // Secondary Information
+//                       if (secondaryInfo.isNotEmpty) ...[
+//                         const SizedBox(height: 4),
+//                         Text(
+//                           secondaryInfo,
+//                           style: TextStyle(
+//                             fontSize: 12,
+//                             color: Colors.grey.shade600,
+//                           ),
+//                           maxLines: 2,
+//                           overflow: TextOverflow.ellipsis,
+//                         ),
+//                       ],
+
+//                       // Location
+//                       if (property['location'] != "Unknown") ...[
+//                         const SizedBox(height: 4),
+//                         Row(
+//                           children: [
+//                             Icon(
+//                               Icons.location_on,
+//                               size: 14,
+//                               color: Colors.grey.shade500,
+//                             ),
+//                             const SizedBox(width: 4),
+//                             Expanded(
+//                               child: Text(
+//                                 property['location'],
+//                                 style: TextStyle(
+//                                   fontSize: 11,
+//                                   color: Colors.grey.shade600,
+//                                 ),
+//                                 maxLines: 1,
+//                                 overflow: TextOverflow.ellipsis,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+
+//                       // Price (for property types only)
+//                       if (price.isNotEmpty) ...[
+//                         const SizedBox(height: 8),
+//                         Text(
+//                           price,
+//                           style: const TextStyle(
+//                             fontSize: 16,
+//                             fontWeight: FontWeight.w700,
+//                             color: Color(0xFFE33629),
+//                           ),
+//                         ),
+//                       ],
+
+//                       // Property Stats (for property types only)
+//                       if (isProperty && 
+//                           (stats['bed'] != "N/A" || 
+//                            stats['bath'] != "N/A" || 
+//                            stats['area'] != "N/A")) ...[
+//                         const SizedBox(height: 8),
+//                         Row(
+//                           children: [
+//                             if (stats['bed'] != "N/A")
+//                               _StatChip(
+//                                 imagePath: 'assets/images/bed.png',
+//                                 label: stats['bed']!,
+//                               ),
+//                             if (stats['bed'] != "N/A" && 
+//                                 (stats['bath'] != "N/A" || stats['area'] != "N/A"))
+//                               const SizedBox(width: 12),
+                            
+//                             if (stats['bath'] != "N/A")
+//                               _StatChip(
+//                                 imagePath: 'assets/images/bath.png',
+//                                 label: stats['bath']!,
+//                               ),
+//                             if (stats['bath'] != "N/A" && stats['area'] != "N/A")
+//                               const SizedBox(width: 12),
+                            
+//                             if (stats['area'] != "N/A")
+//                               _StatChip(
+//                                 imagePath: 'assets/images/sqft.png',
+//                                 label: stats['area']!,
+//                               ),
+//                           ],
+//                         ),
+//                       ],
+
+//                       const SizedBox(height: 12),
+//                       Divider(color: Colors.grey.shade200, height: 1),
+//                       const SizedBox(height: 10),
+
+//                       // Action Buttons Row
+//                       Row(
+//                         children: [
+//                           // Call Button
+//                           _CallButton(onTap: () {
+//                             CallUtils.showCallOptions(
+//                               context: context,
+//                               phoneNumber: agentPhone,
+//                               name: '',
+//                               showMessage: true,
+//                               showWhatsApp: true,
+//                             );
+//                           }),
+                          
+//                           // WhatsApp Button
+//                           const SizedBox(width: 12),
+//                           _ActionButton(
+//                             imagePath: 'assets/images/whatsapp.png',
+//                             label: "Whatsapp",
+//                             onTap: () {
+//                               WhatsAppUtils.shareProperty(
+//                                 context: context,
+//                                 propertyTitle: primaryTitle,
+//                                 propertyLocation: property['location'],
+//                                 propertyPrice: price.isNotEmpty ? price : 'Contact for details',
+//                                 agentPhone: "+91$agentPhone",
+//                               );
+//                             },
+//                           ),
+                          
+//                           const Spacer(),
+                          
+//                           // Location Button
+//                           if (property['location'] != "Unknown")
+//                             _ActionButton(
+//                               imagePath: 'assets/images/location.png',
+//                               label: "Location",
+//                               onTap: () {
+//                                 LocationUtils.openMap(
+//                                   context: context,
+//                                   latitude: 28.6139,
+//                                   longitude: 77.2090,
+//                                   address: property['location'],
+//                                   label: primaryTitle,
+//                                 );
+//                               },
+//                             ),
+//                         ],
+//                       ),
+
+//                       const SizedBox(height: 12),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class _PropertyListCard extends StatelessWidget {
   final Map<String, dynamic> property;
   final VoidCallback onTap;
@@ -1524,8 +2408,7 @@ class _PropertyListCard extends StatelessWidget {
     required this.onTap,
   });
 
-  // Helper method to get the best available phone number
-  String _getAgentPhone() {
+   String _getAgentPhone() {
     // Try to get from contact object first
     if (property.containsKey('contact') && property['contact'] != null) {
       final contact = property['contact'] as Map<String, dynamic>;
@@ -1804,6 +2687,7 @@ String _getPrimaryTitle() {
     return "Hi, I'm interested in your listing. Can you provide more details?";
   }
 
+
   @override
   Widget build(BuildContext context) {
     final isProperty = _isPropertyType();
@@ -1815,6 +2699,36 @@ String _getPrimaryTitle() {
     final categoryIcon = _getCategoryIcon();
     final whatsAppMessage = _getWhatsAppMessage();
     
+    // Get all images - handle both single image and image list
+    List<String> images = [];
+    if (property['imageUrl'] != null && property['imageUrl'].toString().isNotEmpty) {
+      images.add(property['imageUrl'].toString());
+    }
+
+          print("ppppppppppppppppppp${images.length}");
+
+
+    // If there's an 'images' list in the property, add those too
+    if (property.containsKey('images') && property['images'] is List) {
+      final imageList = property['images'] as List;
+      for (var img in imageList) {
+        if (img != null && img.toString().isNotEmpty) {
+          final imgUrl = img.toString();
+          if (!images.contains(imgUrl)) {
+            images.add(imgUrl);
+          }
+        }
+      }
+    }
+    
+    // Remove duplicates and empty strings
+    images = images.where((img) => img.startsWith('http')).toSet().toList();
+    
+    // If no images, add a placeholder
+    if (images.isEmpty) {
+      images = ['']; // Will trigger error builder
+    }
+
     return Consumer<WishlistProvider>(
       builder: (context, wishlistProvider, child) {
         final isInWishlist = wishlistProvider.isInWishlist(property['id']);
@@ -1839,69 +2753,48 @@ String _getPrimaryTitle() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image Section
+                // Image Section with Carousel
                 Stack(
                   children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                      child: SizedBox(
-                        height: 180,
-                        width: double.infinity,
-                        child: property['imageUrl'].toString().startsWith('http')
-                            ? Image.network(
-                                property['imageUrl'],
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey.shade300,
-                                    child: Center(
-                                      child: Icon(
-                                        categoryIcon,
-                                        size: 50,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              )
-                            : Container(
-                                color: Colors.grey.shade300,
-                                child: Center(
-                                  child: Icon(
-                                    categoryIcon,
-                                    size: 50,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
+                    // Image Carousel
+                    SizedBox(
+                      height: 180,
+                      width: double.infinity,
+                      child: images.length > 1
+                          ? _ImageCarousel(
+                              images: images,
+                              categoryIcon: categoryIcon,
+                            )
+                          : ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
                               ),
-                      ),
+                              child: _buildSingleImage(images.first, categoryIcon),
+                            ),
                     ),
                     
                     // Category Badge
-    Positioned(
-  top: 10,
-  left: 10,
-  child: Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: categoryColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Text(
-      // Fix: Access the nested category name
-      property['category'] != null && property['category'] is Map
-          ? (property['category']['name']?.toString() ?? 'Listing')
-          : (property['tag'] ?? 'Listing'),
-      style: const TextStyle(
-        fontSize: 10,
-        color: Colors.white,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-  ),
-),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: categoryColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          property['category'] != null && property['category'] is Map
+                              ? (property['category']['name']?.toString() ?? 'Listing')
+                              : (property['tag'] ?? 'Listing'),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                     
                     // Favorite Button
                     Positioned(
@@ -1943,9 +2836,43 @@ String _getPrimaryTitle() {
                         ),
                       ),
                     ),
+
+                    // Image Counter (if multiple images)
+                    if (images.length > 1)
+                      Positioned(
+                        bottom: 10,
+                        right: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.photo_library,
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${images.length}',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
 
+                // Rest of your existing card content...
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
                   child: Column(
@@ -2003,7 +2930,7 @@ String _getPrimaryTitle() {
                         ),
                       ],
 
-                      // Price (for property types only)
+                      // Price
                       if (price.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
@@ -2016,7 +2943,7 @@ String _getPrimaryTitle() {
                         ),
                       ],
 
-                      // Property Stats (for property types only)
+                      // Property Stats
                       if (isProperty && 
                           (stats['bed'] != "N/A" || 
                            stats['bath'] != "N/A" || 
@@ -2057,7 +2984,6 @@ String _getPrimaryTitle() {
                       // Action Buttons Row
                       Row(
                         children: [
-                          // Call Button
                           _CallButton(onTap: () {
                             CallUtils.showCallOptions(
                               context: context,
@@ -2068,7 +2994,6 @@ String _getPrimaryTitle() {
                             );
                           }),
                           
-                          // WhatsApp Button
                           const SizedBox(width: 12),
                           _ActionButton(
                             imagePath: 'assets/images/whatsapp.png',
@@ -2086,7 +3011,6 @@ String _getPrimaryTitle() {
                           
                           const Spacer(),
                           
-                          // Location Button
                           if (property['location'] != "Unknown")
                             _ActionButton(
                               imagePath: 'assets/images/location.png',
@@ -2113,6 +3037,238 @@ String _getPrimaryTitle() {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSingleImage(String imageUrl, IconData categoryIcon) {
+    return imageUrl.startsWith('http')
+        ? Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: 180,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey.shade300,
+                child: Center(
+                  child: Icon(
+                    categoryIcon,
+                    size: 50,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              );
+            },
+          )
+        : Container(
+            color: Colors.grey.shade300,
+            child: Center(
+              child: Icon(
+                categoryIcon,
+                size: 50,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          );
+  }
+}
+
+// ── Image Carousel Widget ─────────────────────────────────────────────────────
+class _ImageCarousel extends StatefulWidget {
+  final List<String> images;
+  final IconData categoryIcon;
+
+  const _ImageCarousel({
+    required this.images,
+    required this.categoryIcon,
+  });
+
+  @override
+  State<_ImageCarousel> createState() => _ImageCarouselState();
+}
+
+class _ImageCarouselState extends State<_ImageCarousel> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  Timer? _autoScrollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    if (widget.images.length <= 1) return;
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!mounted) return;
+      final nextPage = (_currentPage + 1) % widget.images.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // PageView for images
+        PageView.builder(
+          controller: _pageController,
+          itemCount: widget.images.length,
+          onPageChanged: (index) {
+            setState(() {
+              _currentPage = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            final imageUrl = widget.images[index];
+            return ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              child: imageUrl.startsWith('http')
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: 180,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade300,
+                          child: Center(
+                            child: Icon(
+                              widget.categoryIcon,
+                              size: 50,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      color: Colors.grey.shade300,
+                      child: Center(
+                        child: Icon(
+                          widget.categoryIcon,
+                          size: 50,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ),
+            );
+          },
+        ),
+
+        // Left arrow
+        if (widget.images.length > 1)
+          Positioned(
+            left: 8,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  _autoScrollTimer?.cancel();
+                  final prevPage = _currentPage > 0
+                      ? _currentPage - 1
+                      : widget.images.length - 1;
+                  _pageController.animateToPage(
+                    prevPage,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  _startAutoScroll(); // restart timer after manual swipe
+                },
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.chevron_left,
+                    size: 20,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+        // Right arrow
+        if (widget.images.length > 1)
+          Positioned(
+            right: 8,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  _autoScrollTimer?.cancel();
+                  final nextPage =
+                      (_currentPage + 1) % widget.images.length;
+                  _pageController.animateToPage(
+                    nextPage,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  _startAutoScroll(); // restart timer after manual swipe
+                },
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+        // Page indicator dots
+        if (widget.images.length > 1)
+          Positioned(
+            bottom: 8,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.images.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: _currentPage == index ? 16 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: _currentPage == index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

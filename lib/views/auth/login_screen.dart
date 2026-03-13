@@ -316,6 +316,7 @@ import 'package:flutter/material.dart';
 import 'package:product_app/Provider/auth/login_provider.dart';
 import 'package:product_app/views/auth/otp_screen.dart';
 import 'package:product_app/views/home/navbar_screen.dart';
+import 'package:product_app/views/splash/logo_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
@@ -396,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>NavbarScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogoScreen()));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

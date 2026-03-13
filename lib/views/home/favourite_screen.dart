@@ -4,6 +4,7 @@ import 'package:product_app/utils/call_utils.dart';
 import 'package:product_app/utils/whatsapp_utils.dart';
 import 'package:product_app/utils/location_utils.dart';
 import 'package:product_app/views/Details/nearest_house_detail.dart';
+import 'package:product_app/views/widgets/app_back_control.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -136,30 +137,32 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: Consumer<WishlistProvider>(
-                builder: (context, wishlistProvider, child) {
-                  if (wishlistProvider.isLoading && wishlistProvider.wishlistItems.isEmpty) {
-                    return _buildLoadingState();
-                  }
-
-                  if (wishlistProvider.errorMessage != null && wishlistProvider.wishlistItems.isEmpty) {
-                    return _buildErrorState(wishlistProvider);
-                  }
-
-                  if (wishlistProvider.wishlistItems.isEmpty) {
-                    return _buildEmptyState();
-                  }
-
-                  return _buildWishlistContent(wishlistProvider);
-                },
+      body: AppBackControl(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: Consumer<WishlistProvider>(
+                  builder: (context, wishlistProvider, child) {
+                    if (wishlistProvider.isLoading && wishlistProvider.wishlistItems.isEmpty) {
+                      return _buildLoadingState();
+                    }
+        
+                    if (wishlistProvider.errorMessage != null && wishlistProvider.wishlistItems.isEmpty) {
+                      return _buildErrorState(wishlistProvider);
+                    }
+        
+                    if (wishlistProvider.wishlistItems.isEmpty) {
+                      return _buildEmptyState();
+                    }
+        
+                    return _buildWishlistContent(wishlistProvider);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
