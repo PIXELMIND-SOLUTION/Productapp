@@ -6093,11 +6093,11 @@ class _PropertyImageHeader extends StatelessWidget {
           right: 14,
           child: Column(
             children: [
-              _CircleIconButton(
-                icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-                onTap: onFavoriteTap,
-              ),
-              const SizedBox(height: 12),
+              // _CircleIconButton(
+              //   icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+              //   onTap: onFavoriteTap,
+              // ),
+              // const SizedBox(height: 12),
               _CircleIconButton(
                 icon: Icons.share,
                 onTap: onShareTap,

@@ -72,6 +72,8 @@ class WishlistService {
       // Replace :userid with actual userId
       final url = ApiConstants.getwishlisturl.replaceAll(':userid', userId);
 
+      print("lllllllllllllllllll$url");
+
       final response = await http.get(
         Uri.parse(url),
         headers: ApiConstants.getAuthHeaders(token),

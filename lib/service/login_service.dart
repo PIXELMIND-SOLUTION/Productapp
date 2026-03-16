@@ -90,6 +90,8 @@ class AuthService {
   // Send OTP (for your existing backend)
   Future<OtpResponse> sendOtp(String mobile) async {
     try {
+            print("llllllllllllllllllllllllllllllllllll$mobile");
+
       final response = await http.post(
         Uri.parse(ApiConstants.sendOtp),
         headers: ApiConstants.headers,
@@ -97,6 +99,8 @@ class AuthService {
       ).timeout(const Duration(seconds: 30));
 
       final data = jsonDecode(response.body);
+
+      print("llllllllllllllllllllllllllllllllllll${response.body}");
 
       if (response.statusCode == 200) {
         return OtpResponse.fromJson(data);
@@ -199,6 +203,7 @@ print("pppppppppppppppppp$mobile");
     String? email,
     String? name,
     String? profileImage,
+    String? phoneNumber
   }) async {
     try {
       final response = await http.post(
@@ -210,12 +215,16 @@ print("pppppppppppppppppp$mobile");
           'email': email,
           'name': name,
           'profileImage': profileImage,
+          'phoneNumber': phoneNumber
         }),
       ).timeout(const Duration(seconds: 30));
 
       final data = jsonDecode(response.body);
+      print("rrrrrrrrrrrrrrrrrrrrr$phoneNumber");
 
-      if (response.statusCode == 200) {
+      print("rrrrrrrrrrrrrrrrrrrrr${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return GoogleSignInResponse.fromJson(data);
       } else {
         throw Exception(data['message'] ?? 'Google Sign-In failed');

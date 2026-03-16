@@ -84,7 +84,6 @@ class FirebaseAuthService {
         return null;
       }
 
-      print('Google user selected: ${googleUser.email}');
 
       // Get authentication details
       final GoogleSignInAuthentication googleAuth =
@@ -98,7 +97,7 @@ class FirebaseAuthService {
         idToken: googleAuth.idToken,
       );
 
-      print('Signing in to Firebase with Google credential');
+      print('Signing in to Firebase with Google credential${credential.idToken}');
 
       // Sign in to Firebase
       final UserCredential userCredential =

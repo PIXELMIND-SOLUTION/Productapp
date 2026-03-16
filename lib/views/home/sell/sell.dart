@@ -161,14 +161,14 @@ class _SellScreenState extends State<SellScreen> {
       {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
     ],
     'companies': [
-         {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
+        //  {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
       {'key': 'industry', 'label': 'Industry', 'type': 'dropdown', 'options': 'industry', 'isRequired': true},
       {'key': 'foundedYear', 'label': 'Founded Year', 'type': 'number', 'hint': 'e.g., 2020'},
       {'key': 'services', 'label': 'Services Offered', 'type': 'text', 'hint': 'e.g., App Development, UI/UX Design, Cloud Solutions', 'isRequired': true},
       {'key': 'technologies', 'label': 'Technologies', 'type': 'text', 'hint': 'e.g., Flutter, React, Node.js, Python'},
       {'key': 'clients', 'label': 'Notable Clients', 'type': 'text', 'hint': 'e.g., Startup Name, Enterprise Name'},
-      {'key': 'officeSpace', 'label': 'Office Space (sq.ft)', 'type': 'number', 'hint': 'e.g., 1500'},
-      {'key': 'meetingRooms', 'label': 'Meeting Rooms', 'type': 'number', 'hint': 'e.g., 2'},
+      // {'key': 'officeSpace', 'label': 'Office Space (sq.ft)', 'type': 'number', 'hint': 'e.g., 1500'},
+      // {'key': 'meetingRooms', 'label': 'Meeting Rooms', 'type': 'number', 'hint': 'e.g., 2'},
       // {'key': 'amenities', 'label': 'Amenities', 'type': 'multiselect', 'options': 'amenities'},
       // {'key': 'wifi', 'label': 'WiFi Available', 'type': 'boolean'},
       // {'key': 'parking', 'label': 'Parking Available', 'type': 'boolean'},
@@ -176,8 +176,8 @@ class _SellScreenState extends State<SellScreen> {
       // {'key': 'powerBackup', 'label': 'Power Backup', 'type': 'boolean'},
       {'key': 'workingHours', 'label': 'Working Hours', 'type': 'text', 'hint': 'e.g., 10:00 AM - 07:00 PM'},
       {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
-      {'key': 'remoteWork', 'label': 'Remote Work Options', 'type': 'boolean'},
-      {'key': 'hiring', 'label': 'Currently Hiring', 'type': 'boolean'},
+      // {'key': 'remoteWork', 'label': 'Remote Work Options', 'type': 'boolean'},
+      // {'key': 'hiring', 'label': 'Currently Hiring', 'type': 'boolean'},
     ],
   };
 
@@ -2425,7 +2425,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
       case 'gold shops':
         return 'Sri Lakshmi Gold Palace - BIS Certified';
       case 'companies':
-        return 'TechInnovate Solutions - App Development Startup';
+        return 'Pixelmindsolutions - App Development';
       default:
         return 'Luxurious Property';
     }

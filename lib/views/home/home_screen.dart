@@ -20,6 +20,7 @@ import 'package:product_app/views/location/location_screen.dart';
 import 'package:product_app/views/nearesthouses/nearest_houses.dart';
 import 'package:product_app/views/search/filter_screen.dart';
 import 'package:product_app/views/search/search_screen.dart';
+import 'package:product_app/views/widget/banner_carousel.dart';
 import 'package:product_app/views/widget/pms.dart';
 import 'package:product_app/views/widgets/app_back_control.dart';
 import 'package:product_app/views/widgets/debouncer.dart';
@@ -971,7 +972,11 @@ Widget _buildHomeScreen() {
                   ),
                   
                   // Banner Card
-                  _BannerCard(),
+                  // _BannerCard(),
+                                    const SizedBox(height: 20),
+
+                            const BannerCarousel(),
+
                   
                   const SizedBox(height: 20),
                   
@@ -1512,6 +1517,7 @@ class _SearchBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color.fromARGB(255, 196, 196, 196))
       ),
       child: TextField(
         controller: controller,
@@ -1521,7 +1527,7 @@ class _SearchBar extends StatelessWidget {
         onSubmitted: onSubmitted,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: "Search properties, locations...",
+          hintText: "Search listings...",
           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
           prefixIcon: Icon(
             Icons.search, 
@@ -2774,27 +2780,27 @@ String _getPrimaryTitle() {
                     ),
                     
                     // Category Badge
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: categoryColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          property['category'] != null && property['category'] is Map
-                              ? (property['category']['name']?.toString() ?? 'Listing')
-                              : (property['tag'] ?? 'Listing'),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Positioned(
+                    //   top: 10,
+                    //   left: 10,
+                    //   child: Container(
+                    //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    //     decoration: BoxDecoration(
+                    //       color: categoryColor,
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //     child: Text(
+                    //       property['category'] != null && property['category'] is Map
+                    //           ? (property['category']['name']?.toString() ?? 'Listing')
+                    //           : (property['tag'] ?? 'Listing'),
+                    //       style: const TextStyle(
+                    //         fontSize: 10,
+                    //         color: Colors.white,
+                    //         fontWeight: FontWeight.w600,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     
                     // Favorite Button
                     Positioned(

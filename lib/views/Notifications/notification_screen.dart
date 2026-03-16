@@ -104,7 +104,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     try {
       print('Deleting notifications: $notificationIds');
       
-      final response = await http.delete(
+      final response = await http.post(
         Uri.parse('http://31.97.206.144:9174/api/notifications/bulk-delete'),
         headers: {
           'Content-Type': 'application/json',

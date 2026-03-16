@@ -7,8 +7,8 @@ class ApiConstants {
   static const String baseUrl = 'http://31.97.206.144:9174';
 
   // API Endpoints
-  static const String sendOtp = '/api/auth/send-otp';
-  static const String verifyOtp = '/api/auth/verify-otp';
+  static const String sendOtp = '$baseUrl/api/auth/send-otp';
+  static const String verifyOtp = '$baseUrl/api/auth/verify-otp';
     static const String verifyOtpWithFirebase = '$baseUrl/api/auth/verify-firebase-otp';
   static const String resendOtp = '/api/auth/resend-otp';
   static const String googleSignIn = '$baseUrl/api/auth/google-signin';
@@ -18,13 +18,14 @@ class ApiConstants {
   static const String getwishlist = '/api/wishlist/:userid';
   static const String createListing = '/api/create/:subCategoryId';
   static const String listProduct ='/api/getallProducts';
+  static const String updatelocationurl  = '$baseUrl/api/auth/update-location/:userId';
 
   // Full URLs
   static String get sendOtpUrl => '$baseUrl$sendOtp';
   static String get verifyOtpUrl => '$baseUrl$verifyOtp';
   static String get resendOtpUrl => '$baseUrl$resendOtp';
   static String get updateProfileurl => '$baseUrl$updateProfile';
-  static String get updatelocationurl => '$baseUrl$livelocation';
+  // static String get updatelocationurl => '$baseUrl$livelocation';
   static String get wishlisturl => '$baseUrl$wishlist';
   static String get getwishlisturl => '$baseUrl$getwishlist';
   static String get createlistUrl => '$baseUrl$createListing';
