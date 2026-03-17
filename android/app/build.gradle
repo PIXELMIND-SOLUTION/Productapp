@@ -24,7 +24,7 @@ android {
     defaultConfig {
         applicationId = "com.product.product_app"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
