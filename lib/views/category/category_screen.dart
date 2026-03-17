@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/views/Listing/listing_screen.dart';
 import 'package:product_app/views/category/category_listing_screen.dart';
@@ -50,8 +51,7 @@ class _CategoryScreenState extends State<CategoryScreen>
 
     try {
       final response = await http.get(
-        Uri.parse(
-            'https://estatehouz-backend.onrender.com/api/auth/getall-categories'),
+        Uri.parse('${ApiConstants.baseUrl}/api/auth/getall-categories'),
       );
 
       if (response.statusCode == 200) {
@@ -91,20 +91,20 @@ class _CategoryScreenState extends State<CategoryScreen>
 
 // In CategoryScreen.dart, update the _navigateToListing method:
 
-void _navigateToListing(String categoryId, String categoryName) {
-  setState(() {
-    selectedCategoryId = categoryId;
-  });
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => CategoryListingScreen(
-        categoryId: categoryId,
-        categoryName: categoryName,
+  void _navigateToListing(String categoryId, String categoryName) {
+    setState(() {
+      selectedCategoryId = categoryId;
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryListingScreen(
+          categoryId: categoryId,
+          categoryName: categoryName,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
