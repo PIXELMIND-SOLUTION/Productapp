@@ -37,30 +37,31 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> categories = [];
   bool isLoadingCategories = true;
   String? currentAddress;
   bool isLoadingAddress = false;
   String? _selectedIndustry;
-bool _showCompanyFilters = false;
-final List<String> _industryOptions = [
-  'App Development',
-  'Web Development',
-  'Digital Marketing',
-];
-  
+  bool _showCompanyFilters = false;
+  final List<String> _industryOptions = [
+    'App Development',
+    'Web Development',
+    'Digital Marketing',
+  ];
+
   // Location and Network States
   bool _isLocationPermissionDenied = false;
   bool _isLocationServicesDisabled = false;
   bool _hasNetworkError = false;
   bool _isLoadingLocation = true;
   bool _isInitialized = false;
-  
+
   int selectedIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   // Location cache keys
   static const String CACHED_LATITUDE = 'cached_latitude';
   static const String CACHED_LONGITUDE = 'cached_longitude';
@@ -68,11 +69,11 @@ final List<String> _industryOptions = [
   static const String LOCATION_TIMESTAMP = 'location_timestamp';
 
   final TextEditingController _searchController = TextEditingController();
-final FocusNode _searchFocusNode = FocusNode();
-late Debouncer _searchDebouncer;
-String _searchQuery = '';
-bool _isSearching = false;
-  
+  final FocusNode _searchFocusNode = FocusNode();
+  late Debouncer _searchDebouncer;
+  String _searchQuery = '';
+  bool _isSearching = false;
+
   // Cache expiry (24 hours in milliseconds)
   static const int CACHE_EXPIRY = 24 * 60 * 60 * 1000;
 
@@ -93,69 +94,66 @@ bool _isSearching = false;
     }
   }
 
-
   List<Map<String, dynamic>> nearestProducts = [];
   bool isLoadingNearestProducts = true;
 
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-    
+
     _animationController.forward();
 
-      _searchDebouncer = Debouncer(milliseconds: 500);
+    _searchDebouncer = Debouncer(milliseconds: 500);
 
-        _searchController.addListener(_onSearchChanged);
-
-
+    _searchController.addListener(_onSearchChanged);
 
     final userId = SharedPrefHelper.getUserId();
     if (userId != null) {
       Future.microtask(() {
-        Provider.of<ProfileProvider>(context, listen: false).fetchProfile(userId);
+        Provider.of<ProfileProvider>(context, listen: false)
+            .fetchProfile(userId);
         Provider.of<WishlistProvider>(context, listen: false).fetchWishlist();
       });
     }
-    
+
     fetchCategories();
     _initializeLocationAndData();
   }
 
-
   void _onSearchChanged() {
-  final query = _searchController.text.trim();
-  
-  setState(() {
-    _isSearching = query.isNotEmpty;
-  });
-  
-  _searchDebouncer.run(() {
-    if (mounted) {
-      setState(() {
-        _searchQuery = query;
-      });
-      fetchNearestProducts(); // Re-fetch with search query
-    }
-  });
-}
+    final query = _searchController.text.trim();
 
-@override
-void dispose() {
-  _animationController.dispose();
-  _searchController.dispose();
-  _searchFocusNode.dispose();
-  _searchDebouncer.dispose();
-  super.dispose();
-}
+    setState(() {
+      _isSearching = query.isNotEmpty;
+    });
+
+    _searchDebouncer.run(() {
+      if (mounted) {
+        setState(() {
+          _searchQuery = query;
+        });
+        fetchNearestProducts(); // Re-fetch with search query
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    _searchDebouncer.dispose();
+    super.dispose();
+  }
 
   Future<void> _initializeLocationAndData() async {
     setState(() {
@@ -178,7 +176,7 @@ void dispose() {
 
     // Try to load cached location
     bool locationLoaded = await _loadCachedLocation();
-    
+
     if (locationLoaded) {
       // Use cached location
       setState(() {
@@ -195,27 +193,31 @@ void dispose() {
   Future<bool> _loadCachedLocation() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Check if cache exists and is not expired
       double? cachedLat = prefs.getDouble(CACHED_LATITUDE);
       double? cachedLng = prefs.getDouble(CACHED_LONGITUDE);
       String? cachedAddr = prefs.getString(CACHED_ADDRESS);
       int? timestamp = prefs.getInt(LOCATION_TIMESTAMP);
-      
-      if (cachedLat != null && cachedLng != null && cachedAddr != null && timestamp != null) {
+
+      if (cachedLat != null &&
+          cachedLng != null &&
+          cachedAddr != null &&
+          timestamp != null) {
         // Check if cache is expired
         if (DateTime.now().millisecondsSinceEpoch - timestamp < CACHE_EXPIRY) {
           // Use cached location
-          final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+          final locationProvider =
+              Provider.of<LocationProvider>(context, listen: false);
           locationProvider.setManualLocation(
             latitude: cachedLat,
             longitude: cachedLng,
           );
-          
+
           setState(() {
             currentAddress = cachedAddr;
           });
-          
+
           return true;
         }
       }
@@ -226,13 +228,15 @@ void dispose() {
     }
   }
 
-  Future<void> _cacheLocation(double latitude, double longitude, String address) async {
+  Future<void> _cacheLocation(
+      double latitude, double longitude, String address) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setDouble(CACHED_LATITUDE, latitude);
       await prefs.setDouble(CACHED_LONGITUDE, longitude);
       await prefs.setString(CACHED_ADDRESS, address);
-      await prefs.setInt(LOCATION_TIMESTAMP, DateTime.now().millisecondsSinceEpoch);
+      await prefs.setInt(
+          LOCATION_TIMESTAMP, DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
       print('Error caching location: $e');
     }
@@ -294,7 +298,8 @@ void dispose() {
 
   Future<void> _fetchCurrentLocation() async {
     try {
-      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      final locationProvider =
+          Provider.of<LocationProvider>(context, listen: false);
 
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -309,7 +314,7 @@ void dispose() {
       await _getAddressFromCoordinates(position.latitude, position.longitude);
     } catch (e) {
       print('Error fetching location: $e');
-      
+
       if (e.toString().contains('timeout')) {
         setState(() {
           _hasNetworkError = true;
@@ -319,7 +324,7 @@ void dispose() {
           _isLocationPermissionDenied = true;
         });
       }
-      
+
       setState(() {
         _isLoadingLocation = false;
         _isInitialized = true;
@@ -328,9 +333,11 @@ void dispose() {
     }
   }
 
-  Future<void> _getAddressFromCoordinates(double latitude, double longitude) async {
+  Future<void> _getAddressFromCoordinates(
+      double latitude, double longitude) async {
     try {
-      List<geocoding.Placemark> placemarks = await geocoding.placemarkFromCoordinates(
+      List<geocoding.Placemark> placemarks =
+          await geocoding.placemarkFromCoordinates(
         latitude,
         longitude,
       );
@@ -341,17 +348,17 @@ void dispose() {
           place.locality,
           place.administrativeArea,
         ].where((e) => e != null && e.isNotEmpty).take(2).join(', ');
-        
+
         setState(() {
           currentAddress = address;
           _isLoadingLocation = false;
           _isInitialized = true;
           isLoadingAddress = false;
         });
-        
+
         // Cache the location
         await _cacheLocation(latitude, longitude, address);
-        
+
         await fetchNearestProducts();
       }
     } catch (e) {
@@ -390,10 +397,11 @@ void dispose() {
         currentAddress = result['address'] as String?;
       });
 
-      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      final locationProvider =
+          Provider.of<LocationProvider>(context, listen: false);
       final latitude = result['latitude'] as double;
       final longitude = result['longitude'] as double;
-      
+
       locationProvider.setManualLocation(
         latitude: latitude,
         longitude: longitude,
@@ -404,295 +412,300 @@ void dispose() {
 
       await fetchNearestProducts();
     }
-    
+
     setState(() {
       isLoadingAddress = false;
     });
   }
 
-Future<void> fetchNearestProducts() async {
-  final userId = SharedPrefHelper.getUserId();
+  Future<void> fetchNearestProducts() async {
+    final userId = SharedPrefHelper.getUserId();
 
-  if (userId == null) {
+    if (userId == null) {
+      setState(() {
+        isLoadingNearestProducts = false;
+      });
+      return;
+    }
+
     setState(() {
-      isLoadingNearestProducts = false;
+      isLoadingNearestProducts = true;
     });
-    return;
-  }
 
-  setState(() {
-    isLoadingNearestProducts = true;
-  });
-
-  try {
-    // Build URL with optional category filter
-    String url = '${ApiConstants.baseUrl}/api/nearest/user/$userId';
-    if (_selectedCategoryId != null && _selectedCategoryId!.isNotEmpty) {
-      url += '/$_selectedCategoryId';
-    }
-
-
-        if (_searchQuery.isNotEmpty) {
-      url += '?search=${Uri.encodeComponent(_searchQuery)}';
-    }
-
-    print('Fetching from URL: $url'); // Debug print
-
-    final response = await http.get(
-      Uri.parse(url),
-    );
-
-    print('Response status: ${response.statusCode}'); // Debug print
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-
-      if (data['success'] == true && data['products'] != null) {
-        final List products = data['products'];
-
-        setState(() {
-          nearestProducts = products.map<Map<String, dynamic>>((item) {
-            // SAFE CASTING: Handle any type of item safely
-            Map<String, dynamic> product = {};
-            
-            if (item is Map) {
-              // Convert all keys to String safely
-              try {
-                product = Map<String, dynamic>.from(item);
-              } catch (e) {
-                print('Error converting item to Map: $e');
-                // Fallback: create a new map by iterating
-                final Map<String, dynamic> tempMap = {};
-                item.forEach((key, value) {
-                  tempMap[key.toString()] = value;
-                });
-                product = tempMap;
-              }
-            } else {
-              print('Item is not a Map: ${item.runtimeType}');
-              product = {};
-            }
-
-            // SAFE ATTRIBUTES HANDLING
-            Map<String, dynamic> attributes = {};
-            if (product.containsKey('attributes') && product['attributes'] != null) {
-              final attrs = product['attributes'];
-              if (attrs is Map) {
-                try {
-                  attributes = Map<String, dynamic>.from(attrs);
-                } catch (e) {
-                  print('Error converting attributes: $e');
-                  // Safe fallback
-                  final Map<String, dynamic> tempAttrs = {};
-                  attrs.forEach((key, value) {
-                    tempAttrs[key.toString()] = value;
-                  });
-                  attributes = tempAttrs;
-                }
-              }
-            }
-
-            // SAFE CONTACT HANDLING - NEW
-            Map<String, dynamic> contact = {};
-            if (product.containsKey('contact') && product['contact'] != null) {
-              final cont = product['contact'];
-              if (cont is Map) {
-                try {
-                  contact = Map<String, dynamic>.from(cont);
-                } catch (e) {
-                  print('Error converting contact: $e');
-                }
-              }
-            }
-
-            // SAFE BEDROOMS HANDLING
-            String bed = "N/A";
-            if (attributes.containsKey('bedrooms')) {
-              final bedrooms = attributes['bedrooms'];
-              if (bedrooms is num) {
-                bed = "${bedrooms.toStringAsFixed(0)} Bed";
-              } else if (bedrooms is String) {
-                bed = "$bedrooms Bed";
-              } else if (bedrooms != null) {
-                bed = "$bedrooms Bed";
-              }
-            }
-
-            // SAFE BATHROOMS HANDLING
-            String bath = "N/A";
-            if (attributes.containsKey('bathrooms')) {
-              final bathrooms = attributes['bathrooms'];
-              if (bathrooms is num) {
-                bath = "${bathrooms.toStringAsFixed(0)} Bath";
-              } else if (bathrooms is String) {
-                bath = "$bathrooms Bath";
-              } else if (bathrooms != null) {
-                bath = "$bathrooms Bath";
-              }
-            }
-
-            // SAFE AREA HANDLING
-            String area = "N/A";
-            if (attributes.containsKey('sqft')) {
-              final sqft = attributes['sqft'];
-              if (sqft is num) {
-                area = "${sqft.toStringAsFixed(0)} sqft";
-              } else if (sqft is String) {
-                area = "$sqft sqft";
-              } else if (sqft != null) {
-                area = "$sqft sqft";
-              }
-            } else if (attributes.containsKey('landSize')) {
-              final unit = attributes.containsKey('unit') ? attributes['unit']?.toString() ?? '' : '';
-              if (unit.toLowerCase() == 'acres') {
-                final landSize = attributes['landSize'];
-                if (landSize is num) {
-                  area = "${landSize.toStringAsFixed(1)} acres";
-                } else if (landSize is String) {
-                  area = "$landSize acres";
-                } else if (landSize != null) {
-                  area = "$landSize acres";
-                }
-              }
-            }
-
-            // SAFE PRICE HANDLING
-            String price = "Price N/A";
-            if (attributes.containsKey('price')) {
-              final priceValue = attributes['price'];
-              if (priceValue is num) {
-                price = "₹${priceValue.toStringAsFixed(0)}";
-              } else if (priceValue is String) {
-                price = "₹$priceValue";
-              } else if (priceValue != null) {
-                price = "₹$priceValue";
-              }
-            }
-
-            // SAFE IMAGE URL HANDLING
-// SAFE IMAGE URL HANDLING
-String imageUrl = "";
-List<String> imageList = [];   // ← ADD THIS
-
-if (product.containsKey('images') && product['images'] != null) {
-  final images = product['images'];
-  if (images is List && images.isNotEmpty) {
-    for (var img in images) {
-      if (img != null && img.toString().startsWith('http')) {
-        imageList.add(img.toString());   // ← COLLECT ALL
+    try {
+      // Build URL with optional category filter
+      String url = '${ApiConstants.baseUrl}/api/nearest/user/$userId';
+      if (_selectedCategoryId != null && _selectedCategoryId!.isNotEmpty) {
+        url += '/$_selectedCategoryId';
       }
-    }
-    if (imageList.isNotEmpty) {
-      imageUrl = imageList.first;
-    }
-  }
-}
-            // SAFE CATEGORY HANDLING
-            String categoryName = "Property";
-            if (product.containsKey('category') && product['category'] != null) {
-              final category = product['category'];
-              if (category is Map) {
-                if (category.containsKey('name') && category['name'] != null) {
-                  categoryName = category['name'].toString();
-                }
-              }
-            }
 
-            // SAFE USER HANDLING - to get agent info
-            Map<String, dynamic> user = {};
-            if (product.containsKey('user') && product['user'] != null) {
-              final usr = product['user'];
-              if (usr is Map) {
+      if (_searchQuery.isNotEmpty) {
+        url += '?search=${Uri.encodeComponent(_searchQuery)}';
+      }
+
+      print('Fetching from URL: $url'); // Debug print
+
+      final response = await http.get(
+        Uri.parse(url),
+      );
+
+      print('Response status: ${response.statusCode}'); // Debug print
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data['success'] == true && data['products'] != null) {
+          final List products = data['products'];
+
+          setState(() {
+            nearestProducts = products.map<Map<String, dynamic>>((item) {
+              // SAFE CASTING: Handle any type of item safely
+              Map<String, dynamic> product = {};
+
+              if (item is Map) {
+                // Convert all keys to String safely
                 try {
-                  user = Map<String, dynamic>.from(usr);
+                  product = Map<String, dynamic>.from(item);
                 } catch (e) {
-                  print('Error converting user: $e');
+                  print('Error converting item to Map: $e');
+                  // Fallback: create a new map by iterating
+                  final Map<String, dynamic> tempMap = {};
+                  item.forEach((key, value) {
+                    tempMap[key.toString()] = value;
+                  });
+                  product = tempMap;
+                }
+              } else {
+                print('Item is not a Map: ${item.runtimeType}');
+                product = {};
+              }
+
+              // SAFE ATTRIBUTES HANDLING
+              Map<String, dynamic> attributes = {};
+              if (product.containsKey('attributes') &&
+                  product['attributes'] != null) {
+                final attrs = product['attributes'];
+                if (attrs is Map) {
+                  try {
+                    attributes = Map<String, dynamic>.from(attrs);
+                  } catch (e) {
+                    print('Error converting attributes: $e');
+                    // Safe fallback
+                    final Map<String, dynamic> tempAttrs = {};
+                    attrs.forEach((key, value) {
+                      tempAttrs[key.toString()] = value;
+                    });
+                    attributes = tempAttrs;
+                  }
                 }
               }
-            }
 
-            // SAFE ID HANDLING
-            String id = "";
-            if (product.containsKey('_id') && product['_id'] != null) {
-              id = product['_id'].toString();
-            }
+              // SAFE CONTACT HANDLING - NEW
+              Map<String, dynamic> contact = {};
+              if (product.containsKey('contact') &&
+                  product['contact'] != null) {
+                final cont = product['contact'];
+                if (cont is Map) {
+                  try {
+                    contact = Map<String, dynamic>.from(cont);
+                  } catch (e) {
+                    print('Error converting contact: $e');
+                  }
+                }
+              }
 
-            // SAFE NAME HANDLING
-            String name = "Unnamed";
-            if (product.containsKey('name') && product['name'] != null) {
-              name = product['name'].toString();
-            }
+              // SAFE BEDROOMS HANDLING
+              String bed = "N/A";
+              if (attributes.containsKey('bedrooms')) {
+                final bedrooms = attributes['bedrooms'];
+                if (bedrooms is num) {
+                  bed = "${bedrooms.toStringAsFixed(0)} Bed";
+                } else if (bedrooms is String) {
+                  bed = "$bedrooms Bed";
+                } else if (bedrooms != null) {
+                  bed = "$bedrooms Bed";
+                }
+              }
 
-            // SAFE ADDRESS HANDLING
-            String address = "Unknown";
-            if (product.containsKey('address') && product['address'] != null) {
-              address = product['address'].toString();
-            }
+              // SAFE BATHROOMS HANDLING
+              String bath = "N/A";
+              if (attributes.containsKey('bathrooms')) {
+                final bathrooms = attributes['bathrooms'];
+                if (bathrooms is num) {
+                  bath = "${bathrooms.toStringAsFixed(0)} Bath";
+                } else if (bathrooms is String) {
+                  bath = "$bathrooms Bath";
+                } else if (bathrooms != null) {
+                  bath = "$bathrooms Bath";
+                }
+              }
 
-            // SAFE DESCRIPTION HANDLING
-            String description = "";
-            if (product.containsKey('description') && product['description'] != null) {
-              description = product['description'].toString();
-            }
+              // SAFE AREA HANDLING
+              String area = "N/A";
+              if (attributes.containsKey('sqft')) {
+                final sqft = attributes['sqft'];
+                if (sqft is num) {
+                  area = "${sqft.toStringAsFixed(0)} sqft";
+                } else if (sqft is String) {
+                  area = "$sqft sqft";
+                } else if (sqft != null) {
+                  area = "$sqft sqft";
+                }
+              } else if (attributes.containsKey('landSize')) {
+                final unit = attributes.containsKey('unit')
+                    ? attributes['unit']?.toString() ?? ''
+                    : '';
+                if (unit.toLowerCase() == 'acres') {
+                  final landSize = attributes['landSize'];
+                  if (landSize is num) {
+                    area = "${landSize.toStringAsFixed(1)} acres";
+                  } else if (landSize is String) {
+                    area = "$landSize acres";
+                  } else if (landSize != null) {
+                    area = "$landSize acres";
+                  }
+                }
+              }
 
-            return {
-              "id": id,
-              "imageUrl": imageUrl,
-               "images": imageList,
-              "tag": categoryName,
-              "title": name,
-              "location": address,
-              "price": price,
-              "bed": bed,
-              "bath": bath,
-              "area": area,
-              "description": description,
-              // NEW: Add contact and user info
-              "contact": contact,
-              "user": user,
-              "attributes": attributes,
-            };
-          }).toList();
+              // SAFE PRICE HANDLING
+              String price = "Price N/A";
+              if (attributes.containsKey('price')) {
+                final priceValue = attributes['price'];
+                if (priceValue is num) {
+                  price = "₹${priceValue.toStringAsFixed(0)}";
+                } else if (priceValue is String) {
+                  price = "₹$priceValue";
+                } else if (priceValue != null) {
+                  price = "₹$priceValue";
+                }
+              }
 
-          isLoadingNearestProducts = false;
-        });
+              // SAFE IMAGE URL HANDLING
+// SAFE IMAGE URL HANDLING
+              String imageUrl = "";
+              List<String> imageList = []; // ← ADD THIS
 
+              if (product.containsKey('images') && product['images'] != null) {
+                final images = product['images'];
+                if (images is List && images.isNotEmpty) {
+                  for (var img in images) {
+                    if (img != null && img.toString().startsWith('http')) {
+                      imageList.add(img.toString()); // ← COLLECT ALL
+                    }
+                  }
+                  if (imageList.isNotEmpty) {
+                    imageUrl = imageList.first;
+                  }
+                }
+              }
+              // SAFE CATEGORY HANDLING
+              String categoryName = "Property";
+              if (product.containsKey('category') &&
+                  product['category'] != null) {
+                final category = product['category'];
+                if (category is Map) {
+                  if (category.containsKey('name') &&
+                      category['name'] != null) {
+                    categoryName = category['name'].toString();
+                  }
+                }
+              }
+
+              // SAFE USER HANDLING - to get agent info
+              Map<String, dynamic> user = {};
+              if (product.containsKey('user') && product['user'] != null) {
+                final usr = product['user'];
+                if (usr is Map) {
+                  try {
+                    user = Map<String, dynamic>.from(usr);
+                  } catch (e) {
+                    print('Error converting user: $e');
+                  }
+                }
+              }
+
+              // SAFE ID HANDLING
+              String id = "";
+              if (product.containsKey('_id') && product['_id'] != null) {
+                id = product['_id'].toString();
+              }
+
+              // SAFE NAME HANDLING
+              String name = "Unnamed";
+              if (product.containsKey('name') && product['name'] != null) {
+                name = product['name'].toString();
+              }
+
+              // SAFE ADDRESS HANDLING
+              String address = "Unknown";
+              if (product.containsKey('address') &&
+                  product['address'] != null) {
+                address = product['address'].toString();
+              }
+
+              // SAFE DESCRIPTION HANDLING
+              String description = "";
+              if (product.containsKey('description') &&
+                  product['description'] != null) {
+                description = product['description'].toString();
+              }
+
+              return {
+                "id": id,
+                "imageUrl": imageUrl,
+                "images": imageList,
+                "tag": categoryName,
+                "title": name,
+                "location": address,
+                "price": price,
+                "bed": bed,
+                "bath": bath,
+                "area": area,
+                "description": description,
+                // NEW: Add contact and user info
+                "contact": contact,
+                "user": user,
+                "attributes": attributes,
+              };
+            }).toList();
+
+            isLoadingNearestProducts = false;
+          });
+        } else {
+          setState(() {
+            nearestProducts = [];
+            isLoadingNearestProducts = false;
+            _showCompanyFilters =
+                (_selectedCategoryName?.toLowerCase() == 'companies');
+          });
+        }
       } else {
+        print('Error response: ${response.body}');
         setState(() {
           nearestProducts = [];
           isLoadingNearestProducts = false;
-                    _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
-
+          _showCompanyFilters =
+              (_selectedCategoryName?.toLowerCase() == 'companies');
         });
       }
-    } else {
-      print('Error response: ${response.body}');
+    } catch (e) {
+      print("Error fetching nearest products: $e");
+      print("Error type: ${e.runtimeType}"); // Debug print
+      print("Stack trace: ${StackTrace.current}"); // Debug print
+
       setState(() {
         nearestProducts = [];
         isLoadingNearestProducts = false;
-                _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
-
+        _showCompanyFilters =
+            (_selectedCategoryName?.toLowerCase() == 'companies');
       });
     }
-  } catch (e) {
-    print("Error fetching nearest products: $e");
-    print("Error type: ${e.runtimeType}"); // Debug print
-    print("Stack trace: ${StackTrace.current}"); // Debug print
-
-    setState(() {
-      nearestProducts = [];
-      isLoadingNearestProducts = false;
-            _showCompanyFilters = (_selectedCategoryName?.toLowerCase() == 'companies');
-
-    });
   }
-}
 
   Future<void> fetchCategories() async {
     try {
       final response = await http.get(
-        Uri.parse(
-            '${ApiConstants.baseUrl}/api/auth/getall-categories'),
+        Uri.parse('${ApiConstants.baseUrl}/api/auth/getall-categories'),
       );
 
       if (response.statusCode == 200) {
@@ -702,10 +715,10 @@ if (product.containsKey('images') && product['images'] != null) {
           setState(() {
             categories = List<Map<String, dynamic>>.from(
               data['categories'].map((category) => {
-                'id': category['_id'],
-                'name': category['name'],
-                'image': category['image'],
-              }),
+                    'id': category['_id'],
+                    'name': category['name'],
+                    'image': category['image'],
+                  }),
             );
 
             isLoadingCategories = false;
@@ -935,339 +948,371 @@ if (product.containsKey('images') && product['images'] != null) {
     return _buildHomeScreen();
   }
 
-Widget _buildHomeScreen() {
-  final List<Map<String, dynamic>> displayProducts = nearestProducts.isNotEmpty ? nearestProducts : [];
-  
-  return Scaffold(
-    backgroundColor: const Color(0xFFF8F9FA),
-    body: AppBackControl(
-      child: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  
-                  // Custom App Bar
-                  _buildCustomAppBar(),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Search Bar - FIXED: Now with controller and callbacks
-                  _SearchBar(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    onChanged: (value) {
-                      // onChanged is already handled by _onSearchChanged via listener
-                      // This is just a placeholder
-                    },
-                    onSubmitted: (value) {
-                      // Optional: handle search submit
-                      print('Search submitted: $value');
-                    },
-                  ),
-                  
-                  // Banner Card
-                  // _BannerCard(),
-                                    const SizedBox(height: 20),
+  Widget _buildHomeScreen() {
+    final List<Map<String, dynamic>> displayProducts =
+        nearestProducts.isNotEmpty ? nearestProducts : [];
 
-                            const BannerCarousel(),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: AppBackControl(
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
 
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Categories Container
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 2,
-                        color: const Color.fromARGB(255, 216, 209, 187),
-                      ),
-                      borderRadius: BorderRadius.circular(8),
+                    // Custom App Bar
+                    _buildCustomAppBar(),
+
+                    const SizedBox(height: 16),
+
+                    // Search Bar - FIXED: Now with controller and callbacks
+                    _SearchBar(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      onChanged: (value) {
+                        // onChanged is already handled by _onSearchChanged via listener
+                        // This is just a placeholder
+                      },
+                      onSubmitted: (value) {
+                        // Optional: handle search submit
+                        print('Search submitted: $value');
+                      },
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          _buildCategoriesRow(),
-                          const SizedBox(height: 6),
-                          _AllCategoryRow(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const CategoryScreen()),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  // After categories container
-const SizedBox(height: 20),
 
-// Company Industry Filter - Show only when companies category is selected
-// Company Industry Filter - Show only when companies category is selected
-if (_selectedCategoryName?.toLowerCase() == 'companies') ...[
-  Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-    decoration: BoxDecoration(
-      color: Colors.blue.shade50,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.blue.shade200),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.business, size: 18, color: Colors.blue.shade700),
-            const SizedBox(width: 8),
-            const Text(
-              'Filter by Industry',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const Spacer(),
-            if (_selectedIndustry != null)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedIndustry = null;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.clear, size: 12),
-                      SizedBox(width: 2),
-                      Text('Clear', style: TextStyle(fontSize: 11)),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        
-        // Industry chips - USING _industryOptions HERE
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _industryOptions.map((industry) {
-            final isSelected = _selectedIndustry == industry;
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (_selectedIndustry == industry) {
-                    _selectedIndustry = null;
-                  } else {
-                    _selectedIndustry = industry;
-                  }
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.blue : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.grey.shade300,
-                  ),
-                ),
-                child: Text(
-                  industry,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    ),
-  ),
-  const SizedBox(height: 20),
-],
-                  
-                  // Section Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _SectionHeader(
-                          title: _selectedCategoryName != null 
-                              ? "$_selectedCategoryName" 
-                              : "Listing",
-                          onSeeAll: () {
-                            if (_selectedCategoryId != null) {
-                              _clearCategoryFilter();
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => NearestHouses()),
-                              );
-                            }
-                          },
-                          showClearFilter: _selectedCategoryId != null,
-                          onClearFilter: _clearCategoryFilter,
+                    // Banner Card
+                    // _BannerCard(),
+                    const SizedBox(height: 20),
+
+                    const BannerCarousel(),
+
+                    const SizedBox(height: 20),
+
+                    // Categories Container
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 2,
+                          color: const Color.fromARGB(255, 216, 209, 187),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            _buildCategoriesRow(),
+                            const SizedBox(height: 6),
+                            _AllCategoryRow(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CategoryScreen()),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+
+                    // After categories container
+                    const SizedBox(height: 20),
+
+// Company Industry Filter - Show only when companies category is selected
+// Company Industry Filter - Show only when companies category is selected
+                    if (_selectedCategoryName?.toLowerCase() ==
+                        'companies') ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.business,
+                                    size: 18, color: Colors.blue.shade700),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Filter by Industry',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (_selectedIndustry != null)
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedIndustry = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(Icons.clear, size: 12),
+                                          SizedBox(width: 2),
+                                          Text('Clear',
+                                              style: TextStyle(fontSize: 11)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Industry chips - USING _industryOptions HERE
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _industryOptions.map((industry) {
+                                final isSelected =
+                                    _selectedIndustry == industry;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (_selectedIndustry == industry) {
+                                        _selectedIndustry = null;
+                                      } else {
+                                        _selectedIndustry = industry;
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? Colors.blue
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? Colors.blue
+                                            : Colors.grey.shade300,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      industry,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                     ],
-                  ),
-                  
-  // After section header
-const SizedBox(height: 12),
+
+                    // Section Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _SectionHeader(
+                            title: _selectedCategoryName != null
+                                ? "$_selectedCategoryName"
+                                : "Listing",
+                            onSeeAll: () {
+                              if (_selectedCategoryId != null) {
+                                _clearCategoryFilter();
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => NearestHouses()),
+                                );
+                              }
+                            },
+                            showClearFilter: _selectedCategoryId != null,
+                            onClearFilter: _clearCategoryFilter,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // After section header
+                    const SizedBox(height: 12),
 
 // Search Results Count
-if (_isSearching)
-  Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(
-      'Searching for "$_searchQuery"...',
-      style: TextStyle(
-        fontSize: 13,
-        color: Colors.grey.shade600,
-        fontStyle: FontStyle.italic,
-      ),
-    ),
-  ),
+                    if (_isSearching)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          'Searching for "$_searchQuery"...',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
 
 // Properties List
-isLoadingNearestProducts
-    ? _buildSkeletonLoader()
-    : () {
-        // Filter products based on selected industry
-        List<Map<String, dynamic>> filteredProducts = displayProducts;
-        
-        if (_selectedIndustry != null && _selectedCategoryName?.toLowerCase() == 'companies') {
-          filteredProducts = displayProducts.where((product) {
-            final attributes = product['attributes'] as Map<String, dynamic>?;
-            if (attributes == null) return false;
-            
-            // Check industry field
-            final industry = attributes['industry']?.toString() ?? '';
-            if (industry == _selectedIndustry) return true;
-            
-            // Check businessType as fallback
-            final businessType = attributes['businessType']?.toString() ?? '';
-            if (businessType == _selectedIndustry) return true;
-            
-            return false;
-          }).toList();
-        }
-        
-        if (filteredProducts.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Column(
-                children: [
-                  Icon(
-                    _selectedIndustry != null ? Icons.business_center : Icons.house_outlined,
-                    size: 60,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _selectedIndustry != null
-                        ? 'No $_selectedIndustry companies found'
-                        : (_isSearching
-                            ? 'No results found for "$_searchQuery"'
-                            : (_selectedCategoryName != null
-                                ? "No $_selectedCategoryName properties found"
-                                : "No Properties Found")),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (_selectedIndustry != null) ...[
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndustry = null;
-                        });
-                      },
-                      child: const Text('Clear Industry Filter'),
-                    ),
-                  ] else if (_isSearching) ...[
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                          _isSearching = false;
-                        });
-                        fetchNearestProducts();
-                      },
-                      child: const Text('Clear Search'),
-                    ),
-                  ] else if (_selectedCategoryId != null) ...[
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: _clearCategoryFilter,
-                      child: const Text('Clear Filter'),
-                    ),
+                    isLoadingNearestProducts
+                        ? _buildSkeletonLoader()
+                        : () {
+                            // Filter products based on selected industry
+                            List<Map<String, dynamic>> filteredProducts =
+                                displayProducts;
+
+                            if (_selectedIndustry != null &&
+                                _selectedCategoryName?.toLowerCase() ==
+                                    'companies') {
+                              filteredProducts =
+                                  displayProducts.where((product) {
+                                final attributes = product['attributes']
+                                    as Map<String, dynamic>?;
+                                if (attributes == null) return false;
+
+                                // Check industry field
+                                final industry =
+                                    attributes['industry']?.toString() ?? '';
+                                if (industry == _selectedIndustry) return true;
+
+                                // Check businessType as fallback
+                                final businessType =
+                                    attributes['businessType']?.toString() ??
+                                        '';
+                                if (businessType == _selectedIndustry)
+                                  return true;
+
+                                return false;
+                              }).toList();
+                            }
+
+                            if (filteredProducts.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(40.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        _selectedIndustry != null
+                                            ? Icons.business_center
+                                            : Icons.house_outlined,
+                                        size: 60,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        _selectedIndustry != null
+                                            ? 'No $_selectedIndustry companies found'
+                                            : (_isSearching
+                                                ? 'No results found for "$_searchQuery"'
+                                                : (_selectedCategoryName != null
+                                                    ? "No $_selectedCategoryName properties found"
+                                                    : "No Properties Found")),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      if (_selectedIndustry != null) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedIndustry = null;
+                                            });
+                                          },
+                                          child: const Text(
+                                              'Clear Industry Filter'),
+                                        ),
+                                      ] else if (_isSearching) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            setState(() {
+                                              _searchQuery = '';
+                                              _isSearching = false;
+                                            });
+                                            fetchNearestProducts();
+                                          },
+                                          child: const Text('Clear Search'),
+                                        ),
+                                      ] else if (_selectedCategoryId !=
+                                          null) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: _clearCategoryFilter,
+                                          child: const Text('Clear Filter'),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: filteredProducts.length,
+                              itemBuilder: (context, index) {
+                                final property = filteredProducts[index];
+                                return _PropertyListCard(
+                                  key: ValueKey(property['id']),
+                                  property: property,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            NearestHouseDetail(
+                                          productId: property['id'],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          }(),
+
+                    const SizedBox(height: 20),
                   ],
-                ],
-              ),
-            ),
-          );
-        }
-        
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: filteredProducts.length,
-          itemBuilder: (context, index) {
-            final property = filteredProducts[index];
-            return _PropertyListCard(
-              key: ValueKey(property['id']),
-              property: property,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NearestHouseDetail(
-                      productId: property['id'],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      }(),
-                  
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSkeletonLoader() {
     return ListView.builder(
@@ -1401,7 +1446,7 @@ isLoadingNearestProducts
           },
         ),
         const SizedBox(width: 12),
-        
+
         // Greeting and Name
         Expanded(
           child: Consumer<ProfileProvider>(
@@ -1430,7 +1475,7 @@ isLoadingNearestProducts
             },
           ),
         ),
-        const PixelmindLogoButton(), 
+        const PixelmindLogoButton(),
         // Location Icon
         IconButton(
           icon: const Icon(Icons.location_on),
@@ -1443,7 +1488,8 @@ isLoadingNearestProducts
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const NotificationScreen()),
             );
           },
         ),
@@ -1460,7 +1506,7 @@ isLoadingNearestProducts
     }
 
     final displayCategories = categories.take(4).toList();
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: displayCategories.map((cat) {
@@ -1515,10 +1561,9 @@ class _SearchBar extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color.fromARGB(255, 196, 196, 196))
-      ),
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color.fromARGB(255, 196, 196, 196))),
       child: TextField(
         controller: controller,
         focusNode: focusNode,
@@ -1529,14 +1574,12 @@ class _SearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: "Search listings...",
           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-          prefixIcon: Icon(
-            Icons.search, 
-            color: const Color.fromARGB(255, 58, 58, 58), 
-            size: 20
-          ),
+          prefixIcon: Icon(Icons.search,
+              color: const Color.fromARGB(255, 58, 58, 58), size: 20),
           suffixIcon: controller != null && controller!.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, size: 18, color: Colors.grey.shade400),
+                  icon:
+                      Icon(Icons.clear, size: 18, color: Colors.grey.shade400),
                   onPressed: () {
                     controller!.clear();
                     if (onChanged != null) onChanged!('');
@@ -1585,7 +1628,7 @@ class _SectionHeader extends StatelessWidget {
   final VoidCallback? onClearFilter;
 
   const _SectionHeader({
-    required this.title, 
+    required this.title,
     required this.onSeeAll,
     this.showClearFilter = false,
     this.onClearFilter,
@@ -1614,7 +1657,8 @@ class _SectionHeader extends StatelessWidget {
               GestureDetector(
                 onTap: onClearFilter,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
@@ -1690,7 +1734,7 @@ class _CategoryItem extends StatelessWidget {
                       end: Alignment.bottomRight,
                     )
                   : const LinearGradient(
-                            colors: [
+                      colors: [
                         Color(0xFFE33629),
                         Color(0xFF9D0D0D),
                       ],
@@ -1719,7 +1763,8 @@ class _CategoryItem extends StatelessWidget {
                     errorBuilder: (_, __, ___) {
                       return Icon(
                         Icons.category,
-                        color: isSelected ? const Color(0xFFE33629) : Colors.grey,
+                        color:
+                            isSelected ? const Color(0xFFE33629) : Colors.grey,
                         size: 20,
                       );
                     },
@@ -1768,11 +1813,14 @@ class _AllCategoryRow extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>CategoryScreen()));
-              },
-              child: const Icon(Icons.chevron_right, size: 18, color: Colors.black54)
-              ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CategoryScreen()));
+                },
+                child: const Icon(Icons.chevron_right,
+                    size: 18, color: Colors.black54)),
           ],
         ),
       ),
@@ -1806,7 +1854,7 @@ class _AllCategoryRow extends StatelessWidget {
 //         return contact['whatsappNumber'].toString().replaceAll('+', '');
 //       }
 //     }
-    
+
 //     // Then try from user object
 //     if (property.containsKey('user') && property['user'] != null) {
 //       final user = property['user'] as Map<String, dynamic>;
@@ -1814,7 +1862,7 @@ class _AllCategoryRow extends StatelessWidget {
 //         return user['mobile'].toString().replaceAll('+', '');
 //       }
 //     }
-    
+
 //     // Default fallback
 //     return '919961593179';
 //   }
@@ -1839,7 +1887,7 @@ class _AllCategoryRow extends StatelessWidget {
 //       return title;
 //     }
 //   }
-  
+
 //   // Fallback to "name" just in case
 //   if (property.containsKey('name') && property['name'] != null) {
 //     final name = property['name'].toString();
@@ -1847,14 +1895,14 @@ class _AllCategoryRow extends StatelessWidget {
 //       return name;
 //     }
 //   }
-  
+
 //   return 'Listing';
 // }
 //   // Helper method to get secondary information/description
 //   String _getSecondaryInfo() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
-//     final attributes = property.containsKey('attributes') 
-//         ? property['attributes'] as Map<String, dynamic> 
+//     final attributes = property.containsKey('attributes')
+//         ? property['attributes'] as Map<String, dynamic>
 //         : null;
 
 //     if (attributes == null) return '';
@@ -1921,14 +1969,14 @@ class _AllCategoryRow extends StatelessWidget {
 //   bool _isPropertyType() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
 //     final propertyTypes = ['villa', 'apartment', 'farmhouse', 'house', 'flat', 'land'];
-    
+
 //     return propertyTypes.any((type) => category.contains(type));
 //   }
 
 //   // Helper method to get property stats (bed/bath/area)
 //   Map<String, String> _getPropertyStats() {
-//     final attributes = property.containsKey('attributes') 
-//         ? property['attributes'] as Map<String, dynamic> 
+//     final attributes = property.containsKey('attributes')
+//         ? property['attributes'] as Map<String, dynamic>
 //         : null;
 
 //     if (attributes == null) {
@@ -1991,8 +2039,8 @@ class _AllCategoryRow extends StatelessWidget {
 //   // Helper method to get price
 //   String _getPrice() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
-//     final attributes = property.containsKey('attributes') 
-//         ? property['attributes'] as Map<String, dynamic> 
+//     final attributes = property.containsKey('attributes')
+//         ? property['attributes'] as Map<String, dynamic>
 //         : null;
 
 //     // Don't show price for companies and gold shops
@@ -2017,7 +2065,7 @@ class _AllCategoryRow extends StatelessWidget {
 //   // Helper method to get category-specific icon
 //   IconData _getCategoryIcon() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
-    
+
 //     if (category.contains('companies')) {
 //       return Icons.business;
 //     } else if (category.contains('gold')) {
@@ -2031,14 +2079,14 @@ class _AllCategoryRow extends StatelessWidget {
 //     } else if (category.contains('land') || category.contains('farm')) {
 //       return Icons.landscape;
 //     }
-    
+
 //     return Icons.image_not_supported;
 //   }
 
 //   // Helper method to get category color
 //   Color _getCategoryColor() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
-    
+
 //     if (category.contains('companies')) {
 //       return Colors.blue;
 //     } else if (category.contains('gold')) {
@@ -2052,7 +2100,7 @@ class _AllCategoryRow extends StatelessWidget {
 //     } else if (category.contains('land') || category.contains('farm')) {
 //       return Colors.orange;
 //     }
-    
+
 //     return const Color(0xFFE33629);
 //   }
 
@@ -2060,7 +2108,7 @@ class _AllCategoryRow extends StatelessWidget {
 //   String _getWhatsAppMessage() {
 //     final category = property['tag']?.toString().toLowerCase() ?? '';
 //     final title = _getPrimaryTitle();
-    
+
 //     if (category.contains('companies')) {
 //       return "Hi, I'm interested in your business services at $title. Can you provide more details about your services and pricing?";
 //     } else if (category.contains('gold')) {
@@ -2070,7 +2118,7 @@ class _AllCategoryRow extends StatelessWidget {
 //     } else if (category.contains('villa') || category.contains('apartment') || category.contains('house')) {
 //       return "Hi, I'm interested in the property at $title. Can you provide more details and schedule a visit?";
 //     }
-    
+
 //     return "Hi, I'm interested in your listing. Can you provide more details?";
 //   }
 
@@ -2084,7 +2132,7 @@ class _AllCategoryRow extends StatelessWidget {
 //     final categoryColor = _getCategoryColor();
 //     final categoryIcon = _getCategoryIcon();
 //     final whatsAppMessage = _getWhatsAppMessage();
-    
+
 //     return Consumer<WishlistProvider>(
 //       builder: (context, wishlistProvider, child) {
 //         final isInWishlist = wishlistProvider.isInWishlist(property['id']);
@@ -2148,7 +2196,7 @@ class _AllCategoryRow extends StatelessWidget {
 //                               ),
 //                       ),
 //                     ),
-                    
+
 //                     // Category Badge
 //     Positioned(
 //   top: 10,
@@ -2172,7 +2220,7 @@ class _AllCategoryRow extends StatelessWidget {
 //     ),
 //   ),
 // ),
-                    
+
 //                     // Favorite Button
 //                     Positioned(
 //                       top: 10,
@@ -2287,9 +2335,9 @@ class _AllCategoryRow extends StatelessWidget {
 //                       ],
 
 //                       // Property Stats (for property types only)
-//                       if (isProperty && 
-//                           (stats['bed'] != "N/A" || 
-//                            stats['bath'] != "N/A" || 
+//                       if (isProperty &&
+//                           (stats['bed'] != "N/A" ||
+//                            stats['bath'] != "N/A" ||
 //                            stats['area'] != "N/A")) ...[
 //                         const SizedBox(height: 8),
 //                         Row(
@@ -2299,10 +2347,10 @@ class _AllCategoryRow extends StatelessWidget {
 //                                 imagePath: 'assets/images/bed.png',
 //                                 label: stats['bed']!,
 //                               ),
-//                             if (stats['bed'] != "N/A" && 
+//                             if (stats['bed'] != "N/A" &&
 //                                 (stats['bath'] != "N/A" || stats['area'] != "N/A"))
 //                               const SizedBox(width: 12),
-                            
+
 //                             if (stats['bath'] != "N/A")
 //                               _StatChip(
 //                                 imagePath: 'assets/images/bath.png',
@@ -2310,7 +2358,7 @@ class _AllCategoryRow extends StatelessWidget {
 //                               ),
 //                             if (stats['bath'] != "N/A" && stats['area'] != "N/A")
 //                               const SizedBox(width: 12),
-                            
+
 //                             if (stats['area'] != "N/A")
 //                               _StatChip(
 //                                 imagePath: 'assets/images/sqft.png',
@@ -2337,7 +2385,7 @@ class _AllCategoryRow extends StatelessWidget {
 //                               showWhatsApp: true,
 //                             );
 //                           }),
-                          
+
 //                           // WhatsApp Button
 //                           const SizedBox(width: 12),
 //                           _ActionButton(
@@ -2353,9 +2401,9 @@ class _AllCategoryRow extends StatelessWidget {
 //                               );
 //                             },
 //                           ),
-                          
+
 //                           const Spacer(),
-                          
+
 //                           // Location Button
 //                           if (property['location'] != "Unknown")
 //                             _ActionButton(
@@ -2387,23 +2435,6 @@ class _AllCategoryRow extends StatelessWidget {
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class _PropertyListCard extends StatelessWidget {
   final Map<String, dynamic> property;
   final VoidCallback onTap;
@@ -2414,18 +2445,19 @@ class _PropertyListCard extends StatelessWidget {
     required this.onTap,
   });
 
-   String _getAgentPhone() {
+  String _getAgentPhone() {
     // Try to get from contact object first
     if (property.containsKey('contact') && property['contact'] != null) {
       final contact = property['contact'] as Map<String, dynamic>;
       if (contact.containsKey('callNumber') && contact['callNumber'] != null) {
         return contact['callNumber'].toString().replaceAll('+', '');
       }
-      if (contact.containsKey('whatsappNumber') && contact['whatsappNumber'] != null) {
+      if (contact.containsKey('whatsappNumber') &&
+          contact['whatsappNumber'] != null) {
         return contact['whatsappNumber'].toString().replaceAll('+', '');
       }
     }
-    
+
     // Then try from user object
     if (property.containsKey('user') && property['user'] != null) {
       final user = property['user'] as Map<String, dynamic>;
@@ -2433,7 +2465,7 @@ class _PropertyListCard extends StatelessWidget {
         return user['mobile'].toString().replaceAll('+', '');
       }
     }
-    
+
     // Default fallback
     return '919961593179';
   }
@@ -2450,30 +2482,31 @@ class _PropertyListCard extends StatelessWidget {
   }
 
   // Helper method to get the primary display name/title
-String _getPrimaryTitle() {
-  // Look for "title" first (since that's what you're storing in the map)
-  if (property.containsKey('title') && property['title'] != null) {
-    final title = property['title'].toString();
-    if (title.isNotEmpty) {
-      return title;
+  String _getPrimaryTitle() {
+    // Look for "title" first (since that's what you're storing in the map)
+    if (property.containsKey('title') && property['title'] != null) {
+      final title = property['title'].toString();
+      if (title.isNotEmpty) {
+        return title;
+      }
     }
-  }
-  
-  // Fallback to "name" just in case
-  if (property.containsKey('name') && property['name'] != null) {
-    final name = property['name'].toString();
-    if (name.isNotEmpty) {
-      return name;
+
+    // Fallback to "name" just in case
+    if (property.containsKey('name') && property['name'] != null) {
+      final name = property['name'].toString();
+      if (name.isNotEmpty) {
+        return name;
+      }
     }
+
+    return 'Listing';
   }
-  
-  return 'Listing';
-}
+
   // Helper method to get secondary information/description
   String _getSecondaryInfo() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
-    final attributes = property.containsKey('attributes') 
-        ? property['attributes'] as Map<String, dynamic> 
+    final attributes = property.containsKey('attributes')
+        ? property['attributes'] as Map<String, dynamic>
         : null;
 
     if (attributes == null) return '';
@@ -2507,10 +2540,12 @@ String _getPrimaryTitle() {
             info.add(services.toString());
           }
         }
-        if (attributes.containsKey('certified') && attributes['certified'] == true) {
+        if (attributes.containsKey('certified') &&
+            attributes['certified'] == true) {
           info.add("BIS Certified");
         }
-        if (attributes.containsKey('hallmarkAvailable') && attributes['hallmarkAvailable'] == true) {
+        if (attributes.containsKey('hallmarkAvailable') &&
+            attributes['hallmarkAvailable'] == true) {
           info.add("Hallmark");
         }
         break;
@@ -2539,15 +2574,22 @@ String _getPrimaryTitle() {
   // Helper method to check if this is a property type (has bedrooms/bathrooms)
   bool _isPropertyType() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
-    final propertyTypes = ['villa', 'apartment', 'farmhouse', 'house', 'flat', 'land'];
-    
+    final propertyTypes = [
+      'villa',
+      'apartment',
+      'farmhouse',
+      'house',
+      'flat',
+      'land'
+    ];
+
     return propertyTypes.any((type) => category.contains(type));
   }
 
   // Helper method to get property stats (bed/bath/area)
   Map<String, String> _getPropertyStats() {
-    final attributes = property.containsKey('attributes') 
-        ? property['attributes'] as Map<String, dynamic> 
+    final attributes = property.containsKey('attributes')
+        ? property['attributes'] as Map<String, dynamic>
         : null;
 
     if (attributes == null) {
@@ -2593,7 +2635,9 @@ String _getPrimaryTitle() {
         area = "$sqft sqft";
       }
     } else if (attributes.containsKey('landSize')) {
-      final unit = attributes.containsKey('unit') ? attributes['unit']?.toString() ?? '' : '';
+      final unit = attributes.containsKey('unit')
+          ? attributes['unit']?.toString() ?? ''
+          : '';
       final landSize = attributes['landSize'];
       if (landSize is num) {
         area = "${landSize.toStringAsFixed(1)} $unit";
@@ -2610,8 +2654,8 @@ String _getPrimaryTitle() {
   // Helper method to get price
   String _getPrice() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
-    final attributes = property.containsKey('attributes') 
-        ? property['attributes'] as Map<String, dynamic> 
+    final attributes = property.containsKey('attributes')
+        ? property['attributes'] as Map<String, dynamic>
         : null;
 
     // Don't show price for companies and gold shops
@@ -2636,7 +2680,7 @@ String _getPrimaryTitle() {
   // Helper method to get category-specific icon
   IconData _getCategoryIcon() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
-    
+
     if (category.contains('companies')) {
       return Icons.business;
     } else if (category.contains('gold')) {
@@ -2650,14 +2694,14 @@ String _getPrimaryTitle() {
     } else if (category.contains('land') || category.contains('farm')) {
       return Icons.landscape;
     }
-    
+
     return Icons.image_not_supported;
   }
 
   // Helper method to get category color
   Color _getCategoryColor() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
-    
+
     if (category.contains('companies')) {
       return Colors.blue;
     } else if (category.contains('gold')) {
@@ -2671,7 +2715,7 @@ String _getPrimaryTitle() {
     } else if (category.contains('land') || category.contains('farm')) {
       return Colors.orange;
     }
-    
+
     return const Color(0xFFE33629);
   }
 
@@ -2679,20 +2723,21 @@ String _getPrimaryTitle() {
   String _getWhatsAppMessage() {
     final category = property['tag']?.toString().toLowerCase() ?? '';
     final title = _getPrimaryTitle();
-    
+
     if (category.contains('companies')) {
       return "Hi, I'm interested in your business services at $title. Can you provide more details about your services and pricing?";
     } else if (category.contains('gold')) {
       return "Hi, I'm interested in your products at $title. Can you share current gold rates, offers, and available designs?";
     } else if (category.contains('hotel')) {
       return "Hi, I'm interested in booking at $title. Can you share room availability, rates, and amenities?";
-    } else if (category.contains('villa') || category.contains('apartment') || category.contains('house')) {
+    } else if (category.contains('villa') ||
+        category.contains('apartment') ||
+        category.contains('house')) {
       return "Hi, I'm interested in the property at $title. Can you provide more details and schedule a visit?";
     }
-    
+
     return "Hi, I'm interested in your listing. Can you provide more details?";
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -2704,15 +2749,15 @@ String _getPrimaryTitle() {
     final categoryColor = _getCategoryColor();
     final categoryIcon = _getCategoryIcon();
     final whatsAppMessage = _getWhatsAppMessage();
-    
+
     // Get all images - handle both single image and image list
     List<String> images = [];
-    if (property['imageUrl'] != null && property['imageUrl'].toString().isNotEmpty) {
+    if (property['imageUrl'] != null &&
+        property['imageUrl'].toString().isNotEmpty) {
       images.add(property['imageUrl'].toString());
     }
 
-          print("ppppppppppppppppppp${images.length}");
-
+    print("ppppppppppppppppppp${images.length}");
 
     // If there's an 'images' list in the property, add those too
     if (property.containsKey('images') && property['images'] is List) {
@@ -2726,10 +2771,10 @@ String _getPrimaryTitle() {
         }
       }
     }
-    
+
     // Remove duplicates and empty strings
     images = images.where((img) => img.startsWith('http')).toSet().toList();
-    
+
     // If no images, add a placeholder
     if (images.isEmpty) {
       images = ['']; // Will trigger error builder
@@ -2775,10 +2820,11 @@ String _getPrimaryTitle() {
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16),
                               ),
-                              child: _buildSingleImage(images.first, categoryIcon),
+                              child:
+                                  _buildSingleImage(images.first, categoryIcon),
                             ),
                     ),
-                    
+
                     // Category Badge
                     // Positioned(
                     //   top: 10,
@@ -2801,24 +2847,27 @@ String _getPrimaryTitle() {
                     //     ),
                     //   ),
                     // ),
-                    
+
                     // Favorite Button
                     Positioned(
                       top: 10,
                       right: 10,
                       child: GestureDetector(
                         onTap: () async {
-                          final success = await wishlistProvider.toggleWishlist(property['id']);
+                          final success = await wishlistProvider
+                              .toggleWishlist(property['id']);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                backgroundColor: success ? Colors.green : Colors.red,
+                                backgroundColor:
+                                    success ? Colors.green : Colors.red,
                                 content: Text(
                                   success
                                       ? (isInWishlist
                                           ? 'Removed from wishlist'
                                           : 'Added to wishlist')
-                                      : (wishlistProvider.errorMessage ?? 'Failed to update wishlist'),
+                                      : (wishlistProvider.errorMessage ??
+                                          'Failed to update wishlist'),
                                 ),
                                 duration: const Duration(seconds: 2),
                               ),
@@ -2833,7 +2882,9 @@ String _getPrimaryTitle() {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            isInWishlist ? Icons.favorite : Icons.favorite_border,
+                            isInWishlist
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 16,
                             color: isInWishlist
                                 ? Colors.red
@@ -2849,7 +2900,8 @@ String _getPrimaryTitle() {
                         bottom: 10,
                         right: 10,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.6),
                             borderRadius: BorderRadius.circular(12),
@@ -2950,10 +3002,10 @@ String _getPrimaryTitle() {
                       ],
 
                       // Property Stats
-                      if (isProperty && 
-                          (stats['bed'] != "N/A" || 
-                           stats['bath'] != "N/A" || 
-                           stats['area'] != "N/A")) ...[
+                      if (isProperty &&
+                          (stats['bed'] != "N/A" ||
+                              stats['bath'] != "N/A" ||
+                              stats['area'] != "N/A")) ...[
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -2962,18 +3014,18 @@ String _getPrimaryTitle() {
                                 imagePath: 'assets/images/bed.png',
                                 label: stats['bed']!,
                               ),
-                            if (stats['bed'] != "N/A" && 
-                                (stats['bath'] != "N/A" || stats['area'] != "N/A"))
+                            if (stats['bed'] != "N/A" &&
+                                (stats['bath'] != "N/A" ||
+                                    stats['area'] != "N/A"))
                               const SizedBox(width: 12),
-                            
                             if (stats['bath'] != "N/A")
                               _StatChip(
                                 imagePath: 'assets/images/bath.png',
                                 label: stats['bath']!,
                               ),
-                            if (stats['bath'] != "N/A" && stats['area'] != "N/A")
+                            if (stats['bath'] != "N/A" &&
+                                stats['area'] != "N/A")
                               const SizedBox(width: 12),
-                            
                             if (stats['area'] != "N/A")
                               _StatChip(
                                 imagePath: 'assets/images/sqft.png',
@@ -2999,7 +3051,6 @@ String _getPrimaryTitle() {
                               showWhatsApp: true,
                             );
                           }),
-                          
                           const SizedBox(width: 12),
                           _ActionButton(
                             imagePath: 'assets/images/whatsapp.png',
@@ -3009,14 +3060,15 @@ String _getPrimaryTitle() {
                                 context: context,
                                 propertyTitle: primaryTitle,
                                 propertyLocation: property['location'],
-                                propertyPrice: price.isNotEmpty ? price : 'Contact for details',
+                                propertyPrice: price.isNotEmpty
+                                    ? price
+                                    : 'Contact for details',
                                 agentPhone: "+91$agentPhone",
+                                categoryName: property['tag'] ?? 'Listing',
                               );
                             },
                           ),
-                          
                           const Spacer(),
-                          
                           if (property['location'] != "Unknown")
                             _ActionButton(
                               imagePath: 'assets/images/location.png',
@@ -3223,8 +3275,7 @@ class _ImageCarouselState extends State<_ImageCarousel> {
               child: GestureDetector(
                 onTap: () {
                   _autoScrollTimer?.cancel();
-                  final nextPage =
-                      (_currentPage + 1) % widget.images.length;
+                  final nextPage = (_currentPage + 1) % widget.images.length;
                   _pageController.animateToPage(
                     nextPage,
                     duration: const Duration(milliseconds: 300),

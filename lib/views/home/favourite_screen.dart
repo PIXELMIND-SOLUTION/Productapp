@@ -42,7 +42,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   // Helper method to safely parse contact data
   Map<String, dynamic>? _parseContact(dynamic contactData) {
     if (contactData == null) return null;
-    
+
     if (contactData is Map) {
       return Map<String, dynamic>.from(contactData);
     } else if (contactData is String) {
@@ -64,15 +64,17 @@ class _FavouriteScreenState extends State<FavouriteScreen>
     if (item.containsKey('contact') && item['contact'] != null) {
       final contact = _parseContact(item['contact']);
       if (contact != null) {
-        if (contact.containsKey('callNumber') && contact['callNumber'] != null) {
+        if (contact.containsKey('callNumber') &&
+            contact['callNumber'] != null) {
           return contact['callNumber'].toString().replaceAll('+', '');
         }
-        if (contact.containsKey('whatsappNumber') && contact['whatsappNumber'] != null) {
+        if (contact.containsKey('whatsappNumber') &&
+            contact['whatsappNumber'] != null) {
           return contact['whatsappNumber'].toString().replaceAll('+', '');
         }
       }
     }
-    
+
     // Then try from user object
     if (item.containsKey('user') && item['user'] != null) {
       if (item['user'] is Map) {
@@ -82,7 +84,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
         }
       }
     }
-    
+
     // Default fallback
     return "919961593179";
   }
@@ -105,11 +107,13 @@ class _FavouriteScreenState extends State<FavouriteScreen>
     // Try to get from contact object first
     if (item.containsKey('contact') && item['contact'] != null) {
       final contact = _parseContact(item['contact']);
-      if (contact != null && contact.containsKey('email') && contact['email'] != null) {
+      if (contact != null &&
+          contact.containsKey('email') &&
+          contact['email'] != null) {
         return contact['email'].toString();
       }
     }
-    
+
     // Then try from user object
     if (item.containsKey('user') && item['user'] != null) {
       if (item['user'] is Map) {
@@ -126,7 +130,9 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   String? _getAgentWebsite(Map<String, dynamic> item) {
     if (item.containsKey('contact') && item['contact'] != null) {
       final contact = _parseContact(item['contact']);
-      if (contact != null && contact.containsKey('website') && contact['website'] != null) {
+      if (contact != null &&
+          contact.containsKey('website') &&
+          contact['website'] != null) {
         return contact['website'].toString();
       }
     }
@@ -145,18 +151,20 @@ class _FavouriteScreenState extends State<FavouriteScreen>
               Expanded(
                 child: Consumer<WishlistProvider>(
                   builder: (context, wishlistProvider, child) {
-                    if (wishlistProvider.isLoading && wishlistProvider.wishlistItems.isEmpty) {
+                    if (wishlistProvider.isLoading &&
+                        wishlistProvider.wishlistItems.isEmpty) {
                       return _buildLoadingState();
                     }
-        
-                    if (wishlistProvider.errorMessage != null && wishlistProvider.wishlistItems.isEmpty) {
+
+                    if (wishlistProvider.errorMessage != null &&
+                        wishlistProvider.wishlistItems.isEmpty) {
                       return _buildErrorState(wishlistProvider);
                     }
-        
+
                     if (wishlistProvider.wishlistItems.isEmpty) {
                       return _buildEmptyState();
                     }
-        
+
                     return _buildWishlistContent(wishlistProvider);
                   },
                 ),
@@ -443,7 +451,8 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   }
 
   // Helper method to safely extract value from nested maps
-  dynamic _safeGet(Map<String, dynamic> map, List<String> keys, {dynamic defaultValue}) {
+  dynamic _safeGet(Map<String, dynamic> map, List<String> keys,
+      {dynamic defaultValue}) {
     dynamic value = map;
     for (String key in keys) {
       if (value == null || value is! Map || !value.containsKey(key)) {
@@ -457,7 +466,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   // Helper method to format price
   String _formatPrice(dynamic price) {
     if (price == null) return '';
-    
+
     if (price is num) {
       if (price >= 10000000) {
         return '₹${(price / 10000000).toStringAsFixed(2)} Cr';
@@ -477,7 +486,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   // Helper method to safely parse attributes
   Map<String, dynamic> _parseAttributes(dynamic attributesData) {
     if (attributesData == null) return {};
-    
+
     if (attributesData is Map) {
       return Map<String, dynamic>.from(attributesData);
     } else if (attributesData is String) {
@@ -495,7 +504,6 @@ class _FavouriteScreenState extends State<FavouriteScreen>
 
   Widget _buildPropertyCard(
       dynamic item, WishlistProvider wishlistProvider, int index) {
-    
     // Safely convert item to Map
     Map<String, dynamic> productMap;
     if (item is Map) {
@@ -503,26 +511,27 @@ class _FavouriteScreenState extends State<FavouriteScreen>
     } else {
       productMap = {};
     }
-    
+
     // Safely extract product data with null checks
     final productId = productMap['_id']?.toString() ?? '';
     final productName = productMap['name']?.toString() ?? 'Unnamed Property';
     final productType = productMap['type']?.toString() ?? '';
     final productAddress = productMap['address']?.toString() ?? '';
-    final productDescription = productMap['description']?.toString() ?? 
+    final productDescription = productMap['description']?.toString() ??
         'Beautiful property located in prime area with modern amenities and peaceful surroundings.';
-    
+
     // Get contact information dynamically
     final agentPhone = _getAgentPhone(productMap);
     final agentName = _getAgentName(productMap);
     final agentEmail = _getAgentEmail(productMap);
     final agentWebsite = _getAgentWebsite(productMap);
-    
+
     // Safely extract price
     String formattedPrice = '';
     if (productMap.containsKey('price') && productMap['price'] != null) {
       formattedPrice = _formatPrice(productMap['price']);
-    } else if (productMap.containsKey('attributes') && productMap['attributes'] != null) {
+    } else if (productMap.containsKey('attributes') &&
+        productMap['attributes'] != null) {
       final attributes = _parseAttributes(productMap['attributes']);
       if (attributes.containsKey('price')) {
         formattedPrice = _formatPrice(attributes['price']);
@@ -610,7 +619,8 @@ class _FavouriteScreenState extends State<FavouriteScreen>
     double? longitude;
     if (productMap.containsKey('location') && productMap['location'] is Map) {
       final location = productMap['location'] as Map;
-      if (location.containsKey('coordinates') && location['coordinates'] is List) {
+      if (location.containsKey('coordinates') &&
+          location['coordinates'] is List) {
         final coordinates = location['coordinates'] as List;
         if (coordinates.length >= 2) {
           longitude = coordinates[0]?.toDouble();
@@ -689,51 +699,55 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                     child: SizedBox(
                       height: 180,
                       width: double.infinity,
-                      child: images.isNotEmpty && images.first.startsWith('http')
-                          ? Image.network(
-                              images.first,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
+                      child:
+                          images.isNotEmpty && images.first.startsWith('http')
+                              ? Image.network(
+                                  images.first,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey.shade300,
+                                      child: const Center(
+                                        child: Icon(Icons.image_not_supported,
+                                            size: 50, color: Colors.grey),
+                                      ),
+                                    );
+                                  },
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey.shade200,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(
                                   color: Colors.grey.shade300,
-                                  child: const Center(
-                                    child: Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image_not_supported,
+                                        size: 50,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Container(
-                                  color: Colors.grey.shade200,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              color: Colors.grey.shade300,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image_not_supported,
-                                    size: 50,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ],
-                              ),
-                            ),
+                                ),
                     ),
                   ),
-                  
+
                   // Type Badge - Only show if type exists
                   if (productType.isNotEmpty)
                     Positioned(
                       top: 10,
                       left: 10,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(4),
@@ -748,7 +762,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                         ),
                       ),
                     ),
-                  
+
                   // Favorite Button
                   Positioned(
                     top: 10,
@@ -762,7 +776,8 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                backgroundColor: success ? Colors.green : Colors.red,
+                                backgroundColor:
+                                    success ? Colors.green : Colors.red,
                                 content: Text(
                                   success
                                       ? 'Removed from wishlist'
@@ -788,7 +803,8 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                                 padding: EdgeInsets.all(8.0),
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE33629)),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(0xFFE33629)),
                                 ),
                               )
                             : const Icon(
@@ -827,7 +843,8 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                             width: 14,
                             height: 14,
                             errorBuilder: (_, __, ___) {
-                              return const Icon(Icons.location_on, size: 14, color: Colors.grey);
+                              return const Icon(Icons.location_on,
+                                  size: 14, color: Colors.grey);
                             },
                           ),
                           const SizedBox(width: 4),
@@ -870,9 +887,9 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                               imagePath: 'assets/images/bed.png',
                               label: bed,
                             ),
-                          if (bed.isNotEmpty && (bath.isNotEmpty || area.isNotEmpty))
+                          if (bed.isNotEmpty &&
+                              (bath.isNotEmpty || area.isNotEmpty))
                             const SizedBox(width: 12),
-                          
                           if (bath.isNotEmpty)
                             _StatChip(
                               imagePath: 'assets/images/bath.png',
@@ -880,7 +897,6 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                             ),
                           if (bath.isNotEmpty && area.isNotEmpty)
                             const SizedBox(width: 12),
-                          
                           if (area.isNotEmpty)
                             _StatChip(
                               imagePath: 'assets/images/sqft.png',
@@ -909,7 +925,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                           },
                         ),
                         const SizedBox(width: 12),
-                        
+
                         // WhatsApp Button - Using dynamic agent phone
                         _ActionButton(
                           imagePath: 'assets/images/whatsapp.png',
@@ -917,17 +933,19 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                           onTap: () {
                             WhatsAppUtils.shareProperty(
                               context: context,
-                              propertyTitle: productName,
-                              propertyLocation: productAddress.isNotEmpty ? productAddress : 'Location available',
-                              propertyPrice: formattedPrice.isNotEmpty ? formattedPrice : 'Price on Request',
-                              agentPhone: agentPhone,
+                              propertyTitle: house['title'],
+                              propertyLocation: house['location'],
+                              propertyPrice: house['price'],
+                              agentPhone: "+91$agentPhone",
+                              categoryName: house['tag'], // ✅ ADD THIS
                             );
                           },
                         ),
                         const Spacer(),
-                        
+
                         // Location Button - Only show if coordinates or address exists
-                        if (latitude != null && longitude != null || productAddress.isNotEmpty)
+                        if (latitude != null && longitude != null ||
+                            productAddress.isNotEmpty)
                           _ActionButton(
                             imagePath: 'assets/images/location.png',
                             label: "Location",
@@ -937,7 +955,9 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                                   context: context,
                                   latitude: latitude!,
                                   longitude: longitude!,
-                                  address: productAddress.isNotEmpty ? productAddress : 'Property Location',
+                                  address: productAddress.isNotEmpty
+                                      ? productAddress
+                                      : 'Property Location',
                                   label: productName,
                                 );
                               } else if (productAddress.isNotEmpty) {
@@ -955,7 +975,7 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                     ),
 
                     const SizedBox(height: 12),
-                    
+
                     /// View Details Button
                     SizedBox(
                       width: double.infinity,

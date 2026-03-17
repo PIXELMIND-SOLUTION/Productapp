@@ -18,7 +18,7 @@
 //   List<Map<String, dynamic>> houseList = [];
 //   bool isLoading = true;
 //   String? errorMessage;
-  
+
 //   // Default agent phone number - will be replaced with actual agent number from API
 //   final String defaultAgentPhone = "919961593179";
 
@@ -137,11 +137,11 @@
 //       'area': area.isNotEmpty ? area : null,
 //       'latitude': latitude,
 //       'longitude': longitude,
-//       'description': product['description']?.toString() ?? 
+//       'description': product['description']?.toString() ??
 //           'Beautiful property located in prime area with modern amenities and peaceful surroundings.',
 //       'user': userData,
-//       'category': product['category'] is Map 
-//           ? Map<String, dynamic>.from(product['category']) 
+//       'category': product['category'] is Map
+//           ? Map<String, dynamic>.from(product['category'])
 //           : null,
 //       'attributes': attributes,
 //       'isApproved': product['isApproved'] ?? false,
@@ -187,7 +187,7 @@
 
 //   String _formatPrice(dynamic price) {
 //     if (price == null) return '';
-    
+
 //     if (price is num) {
 //       if (price >= 10000000) {
 //         return '₹${(price / 10000000).toStringAsFixed(2)} Cr';
@@ -430,7 +430,7 @@
 //                           ),
 //                   ),
 //                 ),
-                
+
 //                 // Type Badge
 //                 Positioned(
 //                   top: 10,
@@ -538,7 +538,7 @@
 //                         ),
 //                       if (house['beds'] != null && (house['baths'] != null || house['area'] != null))
 //                         const SizedBox(width: 12),
-                      
+
 //                       if (house['baths'] != null)
 //                         _StatChip(
 //                           imagePath: 'assets/images/bath.png',
@@ -546,7 +546,7 @@
 //                         ),
 //                       if (house['baths'] != null && house['area'] != null)
 //                         const SizedBox(width: 12),
-                      
+
 //                       if (house['area'] != null)
 //                         _StatChip(
 //                           imagePath: 'assets/images/sqft.png',
@@ -588,7 +588,7 @@
 //                       },
 //                     ),
 //                     const Spacer(),
-                    
+
 //                     /// Location Button - Only show if coordinates exist
 //                     if (hasLocation)
 //                       _ActionButton(
@@ -778,20 +778,6 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:product_app/constant/api_constant.dart';
@@ -810,17 +796,18 @@ class NearestHouses extends StatefulWidget {
   State<NearestHouses> createState() => _NearestHousesState();
 }
 
-class _NearestHousesState extends State<NearestHouses> with SingleTickerProviderStateMixin {
+class _NearestHousesState extends State<NearestHouses>
+    with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> houseList = [];
   List<Map<String, dynamic>> categories = [];
   bool isLoading = true;
   bool isLoadingCategories = true;
   String? errorMessage;
-  
+
   // Selected category for filtering
   String? _selectedCategoryId;
   String? _selectedCategoryName;
-  
+
   // Default agent phone number
   final String defaultAgentPhone = "919961593179";
 
@@ -830,18 +817,18 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-    
+
     _animationController.forward();
-    
+
     fetchCategories();
     fetchNearestProducts();
   }
@@ -865,10 +852,10 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
           setState(() {
             categories = List<Map<String, dynamic>>.from(
               data['categories'].map((category) => {
-                'id': category['_id'],
-                'name': category['name'],
-                'image': category['image'],
-              }),
+                    'id': category['_id'],
+                    'name': category['name'],
+                    'image': category['image'],
+                  }),
             );
             isLoadingCategories = false;
           });
@@ -999,7 +986,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
           ? product['images'][0].toString()
           : '',
       'images': product['images'] is List ? List.from(product['images']) : [],
-      'tag': categoryData?['name']?.toString() ?? (product['name']?.toString() ?? 'For Sale'),
+      'tag': categoryData?['name']?.toString() ??
+          (product['name']?.toString() ?? 'For Sale'),
       'title': product['name']?.toString() ?? 'Unnamed Property',
       'location': product['address']?.toString() ?? 'Unknown',
       'price': price.isNotEmpty ? price : 'Price on Request',
@@ -1008,7 +996,7 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
       'area': area.isNotEmpty ? area : null,
       'latitude': latitude,
       'longitude': longitude,
-      'description': product['description']?.toString() ?? 
+      'description': product['description']?.toString() ??
           'Beautiful property located in prime area with modern amenities.',
       'user': userData,
       'category': categoryData,
@@ -1047,7 +1035,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
       final sqft = attributes['sqft'];
       if (sqft is num) return '${sqft.toStringAsFixed(0)} sqft';
       if (sqft is String) return '$sqft sqft';
-    } else if (attributes.containsKey('landSize') && attributes['unit'] == 'acres') {
+    } else if (attributes.containsKey('landSize') &&
+        attributes['unit'] == 'acres') {
       final landSize = attributes['landSize'];
       if (landSize is num) return '${landSize.toStringAsFixed(1)} acres';
       if (landSize is String) return '$landSize acres';
@@ -1057,7 +1046,7 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
 
   String _formatPrice(dynamic price) {
     if (price == null) return '';
-    
+
     if (price is num) {
       if (price >= 10000000) {
         return '₹${(price / 10000000).toStringAsFixed(2)} Cr';
@@ -1074,17 +1063,19 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
     return '';
   }
 
-  String _getAgentPhone(Map<String, dynamic>? userData, Map<String, dynamic>? contact) {
+  String _getAgentPhone(
+      Map<String, dynamic>? userData, Map<String, dynamic>? contact) {
     // Try contact first
     if (contact != null) {
       if (contact.containsKey('callNumber') && contact['callNumber'] != null) {
         return contact['callNumber'].toString().replaceAll('+', '');
       }
-      if (contact.containsKey('whatsappNumber') && contact['whatsappNumber'] != null) {
+      if (contact.containsKey('whatsappNumber') &&
+          contact['whatsappNumber'] != null) {
         return contact['whatsappNumber'].toString().replaceAll('+', '');
       }
     }
-    
+
     // Then try user
     if (userData != null && userData['mobile'] != null) {
       return userData['mobile'].toString().replaceAll('+', '');
@@ -1129,12 +1120,13 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
               shape: BoxShape.circle,
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: const Icon(Icons.arrow_back, size: 18, color: Colors.black87),
+            child:
+                const Icon(Icons.arrow_back, size: 18, color: Colors.black87),
           ),
         ),
         title: Text(
-          _selectedCategoryName != null 
-              ? "$_selectedCategoryName" 
+          _selectedCategoryName != null
+              ? "$_selectedCategoryName"
               : "Nearest Properties",
           style: const TextStyle(
             fontSize: 16,
@@ -1180,15 +1172,13 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                             image: category['image'],
                             isSelected: _selectedCategoryId == category['id'],
                             onTap: () => _filterByCategory(
-                              category['id'], 
-                              category['name']
-                            ),
+                                category['id'], category['name']),
                           ),
                         );
                       },
                     ),
             ),
-            
+
             // Properties List
             Expanded(
               child: isLoading
@@ -1287,17 +1277,19 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                     ),
                     const SizedBox(height: 8),
                     Row(
-                      children: List.generate(3, (_) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Container(
-                          width: 60,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      )),
+                      children: List.generate(
+                          3,
+                          (_) => Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: Container(
+                                  width: 60,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              )),
                     ),
                   ],
                 ),
@@ -1336,7 +1328,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE33629),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1399,7 +1392,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFFE33629),
                   side: const BorderSide(color: Color(0xFFE33629)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               )
             else
@@ -1410,7 +1404,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFFE33629),
                   side: const BorderSide(color: Color(0xFFE33629)),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),
           ],
@@ -1421,7 +1416,9 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
 
   Widget _buildPropertyCard(Map<String, dynamic> house) {
     final agentPhone = _getAgentPhone(house['user'], house['contact']);
-    final hasStats = house['beds'] != null || house['baths'] != null || house['area'] != null;
+    final hasStats = house['beds'] != null ||
+        house['baths'] != null ||
+        house['area'] != null;
     final hasLocation = house['latitude'] != null && house['longitude'] != null;
     final categoryColor = _getCategoryColor(house['tag']?.toString() ?? '');
     final categoryIcon = _getCategoryIcon(house['tag']?.toString() ?? '');
@@ -1501,13 +1498,14 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                           ),
                   ),
                 ),
-                
+
                 // Type Badge
                 Positioned(
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: categoryColor,
                       borderRadius: BorderRadius.circular(12),
@@ -1529,7 +1527,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
@@ -1580,7 +1579,8 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                 /// Location
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade500),
+                    Icon(Icons.location_on_outlined,
+                        size: 14, color: Colors.grey.shade500),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -1607,9 +1607,9 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                           imagePath: 'assets/images/bed.png',
                           label: house['beds'],
                         ),
-                      if (house['beds'] != null && (house['baths'] != null || house['area'] != null))
+                      if (house['beds'] != null &&
+                          (house['baths'] != null || house['area'] != null))
                         const SizedBox(width: 12),
-                      
                       if (house['baths'] != null)
                         _StatChip(
                           imagePath: 'assets/images/bath.png',
@@ -1617,7 +1617,6 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                         ),
                       if (house['baths'] != null && house['area'] != null)
                         const SizedBox(width: 12),
-                      
                       if (house['area'] != null)
                         _StatChip(
                           imagePath: 'assets/images/sqft.png',
@@ -1655,11 +1654,11 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
                           propertyLocation: house['location'],
                           propertyPrice: house['price'],
                           agentPhone: "+91$agentPhone",
+                          categoryName: house['tag'], // ✅ ADD THIS
                         );
                       },
                     ),
                     const Spacer(),
-                    
                     if (hasLocation)
                       _ActionButton(
                         imagePath: 'assets/images/location.png',
@@ -1720,7 +1719,7 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
 
   Color _getCategoryColor(String category) {
     final cat = category.toLowerCase();
-    
+
     if (cat.contains('companies') || cat.contains('business')) {
       return Colors.blue;
     } else if (cat.contains('gold') || cat.contains('jewel')) {
@@ -1731,18 +1730,20 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
       return Colors.green;
     } else if (cat.contains('hotel') || cat.contains('restaurant')) {
       return Colors.purple;
-    } else if (cat.contains('land') || cat.contains('farm') || cat.contains('plot')) {
+    } else if (cat.contains('land') ||
+        cat.contains('farm') ||
+        cat.contains('plot')) {
       return Colors.orange;
     } else if (cat.contains('shop') || cat.contains('store')) {
       return Colors.teal;
     }
-    
+
     return const Color(0xFFE33629);
   }
 
   IconData _getCategoryIcon(String category) {
     final cat = category.toLowerCase();
-    
+
     if (cat.contains('companies') || cat.contains('business')) {
       return Icons.business;
     } else if (cat.contains('gold') || cat.contains('jewel')) {
@@ -1753,12 +1754,14 @@ class _NearestHousesState extends State<NearestHouses> with SingleTickerProvider
       return Icons.apartment;
     } else if (cat.contains('hotel') || cat.contains('restaurant')) {
       return Icons.hotel;
-    } else if (cat.contains('land') || cat.contains('farm') || cat.contains('plot')) {
+    } else if (cat.contains('land') ||
+        cat.contains('farm') ||
+        cat.contains('plot')) {
       return Icons.landscape;
     } else if (cat.contains('shop') || cat.contains('store')) {
       return Icons.store;
     }
-    
+
     return Icons.image_not_supported;
   }
 }
@@ -1818,11 +1821,15 @@ class _CategoryItem extends StatelessWidget {
                   padding: const EdgeInsets.all(6),
                   child: Image.network(
                     image,
-                    color: isSelected ? const Color(0xFFE33629) : Colors.grey.shade600,
+                    color: isSelected
+                        ? const Color(0xFFE33629)
+                        : Colors.grey.shade600,
                     errorBuilder: (_, __, ___) {
                       return Icon(
                         Icons.category,
-                        color: isSelected ? const Color(0xFFE33629) : Colors.grey.shade600,
+                        color: isSelected
+                            ? const Color(0xFFE33629)
+                            : Colors.grey.shade600,
                         size: 20,
                       );
                     },
