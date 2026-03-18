@@ -64,8 +64,6 @@
 //     }
 //   }
 
-
-
 //     Future<bool> fetchProfile(String userId) async {
 //     _isLoading = true;
 //     _errorMessage = null;
@@ -149,20 +147,6 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // lib/providers/profile_provider.dart
 
 import 'dart:io';
@@ -189,23 +173,23 @@ class ProfileProvider with ChangeNotifier {
   String? get mobile => _profileData?['mobile'];
 
   /// Update user profile
-  Future<bool> updateProfile({
-    required String userId,  // Added userId parameter
-    required String name,
-    required String email,
-    File? profileImage,
-  }) async {
+  Future<bool> updateProfile(
+      {required String userId, // Added userId parameter
+      required String name,
+      required String email,
+      File? profileImage,
+      String? mobile}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       final result = await _profileService.updateProfile(
-        userId: userId,  // Pass userId to service
-        name: name,
-        email: email,
-        profileImage: profileImage,
-      );
+          userId: userId, // Pass userId to service
+          name: name,
+          email: email,
+          profileImage: profileImage,
+          mobile: mobile);
 
       print('userId: $userId');
       print('name: $name');

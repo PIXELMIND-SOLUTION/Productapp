@@ -60,6 +60,7 @@ dependencies:
   flutter_dotenv: ^6.0.0
   flutter_local_notifications: ^20.1.0
   carousel_slider: ^5.1.2
+  country_code_picker: ^3.4.1
   
 
 dev_dependencies:

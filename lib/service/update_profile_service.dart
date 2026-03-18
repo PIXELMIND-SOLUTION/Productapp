@@ -105,9 +105,6 @@
 //     }
 //   }
 
-
-
-
 //     Future<Map<String, dynamic>> getProfile(String userId) async {
 //     try {
 //       final token = SharedPrefHelper.getUserId();
@@ -169,20 +166,6 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // lib/services/profile_service.dart
 
 import 'dart:io';
@@ -192,12 +175,12 @@ import 'package:product_app/helper/helper_function.dart';
 import 'dart:convert';
 
 class ProfileService {
-  Future<Map<String, dynamic>> updateProfile({
-    required String userId,  // Added userId parameter
-    required String name,
-    required String email,
-    File? profileImage,
-  }) async {
+  Future<Map<String, dynamic>> updateProfile(
+      {required String userId, // Added userId parameter
+      required String name,
+      required String email,
+      File? profileImage,
+      String? mobile}) async {
     try {
       // Get token from shared preferences
       final token = SharedPrefHelper.getToken();
@@ -227,6 +210,10 @@ class ProfileService {
       // Add form fields
       request.fields['name'] = name;
       request.fields['email'] = email;
+      print("ooooooooooooooooooooooooo$mobile");
+      if (mobile != null) {
+        request.fields['mobile'] = mobile;
+      }
 
       // Add profile image if provided
       if (profileImage != null) {
@@ -294,7 +281,8 @@ class ProfileService {
 
   Future<Map<String, dynamic>> getProfile(String userId) async {
     try {
-      final token = SharedPrefHelper.getToken();  // Changed from getUserId() to getToken()
+      final token =
+          SharedPrefHelper.getToken(); // Changed from getUserId() to getToken()
 
       if (token == null || token.isEmpty) {
         return {
