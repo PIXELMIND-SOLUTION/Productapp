@@ -4,6 +4,7 @@
 // import 'package:product_app/helper/helper_function.dart';
 // import 'package:product_app/views/auth/login_screen.dart';
 // import 'package:product_app/views/home/navbar_screen.dart';
+// import 'package:product_app/views/splash/amoders_loading.dart';
 // import 'package:provider/provider.dart';
 // import 'package:geocoding/geocoding.dart' as geocoding;
 // import 'package:url_launcher/url_launcher.dart';
@@ -60,10 +61,12 @@
 //   Future<void> _initialize() async {
 //     await Future.delayed(const Duration(seconds: 1));
 //     final bool hasValidSession = SharedPrefHelper.hasValidSession();
-//     print("lllllllllllllllllllllllllllllllllll$hasValidSession");
+//     print("User logged in: $hasValidSession");
+
 //     setState(() {
 //       _isLoggedIn = hasValidSession;
 //     });
+
 //     if (_isLoggedIn) {
 //       await _initializeLocation();
 //     } else {
@@ -85,20 +88,10 @@
 //       final locationProvider =
 //           Provider.of<LocationProvider>(context, listen: false);
 
+//       // First load saved location
 //       await locationProvider.loadSavedLocation();
 
-//       if (locationProvider.currentPosition != null) {
-//         _currentAddress = await _getAddressFromCoordinates(
-//           locationProvider.latitude!,
-//           locationProvider.longitude!,
-//         );
-//         setState(() {
-//           _isLocationLoading = false;
-//           _isInitialized = true;
-//         });
-//         return;
-//       }
-
+//       // Check permission
 //       bool hasPermission = await locationProvider.checkPermission();
 
 //       if (!hasPermission) {
@@ -110,16 +103,27 @@
 //         return;
 //       }
 
+//       // Get current location
 //       await locationProvider.getCurrentLocation();
-//               await locationProvider.updateLocationToServer();
-
 
 //       if (locationProvider.currentPosition != null) {
+//         // Get address from coordinates
 //         _currentAddress = await _getAddressFromCoordinates(
 //           locationProvider.latitude!,
 //           locationProvider.longitude!,
 //         );
-//         // await locationProvider.updateLocationToServer();
+
+//         // Update location to server - IMPORTANT: Add small delay to ensure everything is set
+//         await Future.delayed(const Duration(milliseconds: 500));
+//         final success = await locationProvider.updateLocationToServer();
+
+//         if (!success) {
+//           print(
+//               "Failed to update location to server: ${locationProvider.errorMessage}");
+//         } else {
+//           print("Location updated successfully to server");
+//         }
+
 //         setState(() {
 //           _isLocationLoading = false;
 //           _isInitialized = true;
@@ -133,6 +137,7 @@
 //         });
 //       }
 //     } catch (e) {
+//       print("Error in _initializeLocation: $e");
 //       setState(() {
 //         _errorMessage = e.toString();
 //         _isLocationLoading = false;
@@ -167,7 +172,8 @@
 //     if (_isLoggedIn) {
 //       Navigator.pushReplacement(
 //         context,
-//         MaterialPageRoute(builder: (context) => const NavbarScreen(initialIndex: 0,)),
+//         MaterialPageRoute(
+//             builder: (context) => const NavbarScreen(initialIndex: 0)),
 //       );
 //     } else {
 //       Navigator.pushReplacement(
@@ -215,7 +221,6 @@
 //       backgroundColor: Colors.white,
 //       body: Column(
 //         children: [
-//           /// Animated logo
 //           Expanded(
 //             child: Center(
 //               child: FadeTransition(
@@ -238,11 +243,8 @@
 //               ),
 //             ),
 //           ),
-
-//           /// Bottom section
 //           Column(
 //             children: [
-//               // Status message area
 //               if (_isLoggedIn) ...[
 //                 if (_isLocationLoading)
 //                   _buildLoadingStatus()
@@ -253,14 +255,10 @@
 //               ] else ...[
 //                 _buildWelcomeStatus(),
 //               ],
-
-//               // Action button
 //               Padding(
 //                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
 //                 child: _buildActionButton(),
 //               ),
-
-//               // ── PMS Credit ────────────────────────────────────────────────
 //               Padding(
 //                 padding: const EdgeInsets.only(bottom: 10),
 //                 child: Column(
@@ -281,30 +279,30 @@
 //                           label: 'Website',
 //                           icon: Icons.language_rounded,
 //                           color: const Color(0xFF7C3AED),
-//                           onTap: () => _launch('https://www.pixelmindsolutions.com'),
+//                           onTap: () =>
+//                               _launch('https://www.pixelmindsolutions.com'),
 //                         ),
 //                         _dot(),
 //                         _PMSLink(
 //                           label: 'Instagram',
 //                           icon: Icons.camera_alt_rounded,
 //                           color: const Color(0xFFE1306C),
-//                           onTap: () => _launch('https://www.instagram.com/pixelmindsolutions?igsh=MThuZmJwbHh4dXQzcA=='),
+//                           onTap: () => _launch(
+//                               'https://www.instagram.com/pixelmindsolutions?igsh=MThuZmJwbHh4dXQzcA=='),
 //                         ),
 //                         _dot(),
 //                         _PMSLink(
 //                           label: 'Facebook',
 //                           icon: Icons.facebook_rounded,
 //                           color: const Color(0xFF1877F2),
-//                           onTap: () => _launch('https://www.facebook.com/share/1NVMnQVMni/'),
+//                           onTap: () => _launch(
+//                               'https://www.facebook.com/share/1NVMnQVMni/'),
 //                         ),
 //                       ],
 //                     ),
 //                   ],
 //                 ),
 //               ),
-//               // ─────────────────────────────────────────────────────────────
-
-//               // City skyline
 //               Image.asset(
 //                 'assets/images/splash2.png',
 //                 width: double.infinity,
@@ -325,19 +323,17 @@
 
 //   Widget _dot() => Padding(
 //         padding: const EdgeInsets.symmetric(horizontal: 6),
-//         child: Text('·', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+//         child: Text('·',
+//             style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
 //       );
 
 //   Widget _buildLoadingStatus() {
 //     return Container(
-//       margin: const EdgeInsets.only(bottom: 20),
-//       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+//       margin: EdgeInsets.only(bottom: 20),
+//       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
 //       child: Column(
 //         children: [
-//           const CircularProgressIndicator(
-//             strokeWidth: 2,
-//             valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE33629)),
-//           ),
+//           const AmodersLoading(),
 //           const SizedBox(height: 12),
 //           Text(
 //             "Getting your location...",
@@ -454,7 +450,6 @@
 //   }
 // }
 
-// // ── Tiny link button ──────────────────────────────────────────────────────────
 // class _PMSLink extends StatelessWidget {
 //   final String label;
 //   final IconData icon;
@@ -492,21 +487,6 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:product_app/Provider/location/location_provider.dart';
@@ -531,7 +511,9 @@ class _LogoScreenState extends State<LogoScreen>
   late Animation<Offset> _positionAnimation;
   late Animation<double> _fadeAnimation;
 
-  bool _isLoggedIn = false;
+  // Tri-state: null = still checking, true = logged in, false = not logged in
+  bool? _isLoggedIn;
+
   bool _isLocationLoading = true;
   bool _locationPermissionDenied = false;
   String? _currentAddress;
@@ -571,12 +553,12 @@ class _LogoScreenState extends State<LogoScreen>
     await Future.delayed(const Duration(seconds: 1));
     final bool hasValidSession = SharedPrefHelper.hasValidSession();
     print("User logged in: $hasValidSession");
-    
+
     setState(() {
       _isLoggedIn = hasValidSession;
     });
-    
-    if (_isLoggedIn) {
+
+    if (_isLoggedIn == true) {
       await _initializeLocation();
     } else {
       setState(() {
@@ -621,21 +603,28 @@ class _LogoScreenState extends State<LogoScreen>
           locationProvider.latitude!,
           locationProvider.longitude!,
         );
-        
-        // Update location to server - IMPORTANT: Add small delay to ensure everything is set
+
+        // Update location to server
         await Future.delayed(const Duration(milliseconds: 500));
         final success = await locationProvider.updateLocationToServer();
-        
+
         if (!success) {
-          print("Failed to update location to server: ${locationProvider.errorMessage}");
+          print(
+              "Failed to update location to server: ${locationProvider.errorMessage}");
         } else {
           print("Location updated successfully to server");
         }
-        
+
         setState(() {
           _isLocationLoading = false;
           _isInitialized = true;
         });
+
+        // ✅ Auto-navigate to app once location is successfully fetched —
+        // no need for the user to tap "Get Started"
+        if (mounted) {
+          _proceedToApp();
+        }
       } else {
         setState(() {
           _errorMessage =
@@ -677,10 +666,11 @@ class _LogoScreenState extends State<LogoScreen>
   }
 
   void _proceedToApp() {
-    if (_isLoggedIn) {
+    if (_isLoggedIn == true) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavbarScreen(initialIndex: 0)),
+        MaterialPageRoute(
+            builder: (context) => const NavbarScreen(initialIndex: 0)),
       );
     } else {
       Navigator.pushReplacement(
@@ -724,6 +714,10 @@ class _LogoScreenState extends State<LogoScreen>
 
   @override
   Widget build(BuildContext context) {
+    // ─── Still checking login state: show only the logo, no button ───
+    // This prevents the brief "Login" button flash for logged-in users
+    final bool isCheckingAuth = _isLoggedIn == null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -750,24 +744,41 @@ class _LogoScreenState extends State<LogoScreen>
               ),
             ),
           ),
-
           Column(
             children: [
-              if (_isLoggedIn) ...[
-                if (_isLocationLoading)
-                  _buildLoadingStatus()
-                else if (_locationPermissionDenied)
-                  _buildPermissionDeniedStatus()
-                else if (_errorMessage != null)
-                  _buildErrorStatus(),
+              // ── Status section: hidden while auth check is in progress ──
+              if (!isCheckingAuth) ...[
+                if (_isLoggedIn == true) ...[
+                  if (_isLocationLoading)
+                    _buildLoadingStatus()
+                  else if (_locationPermissionDenied)
+                    _buildPermissionDeniedStatus()
+                  else if (_errorMessage != null)
+                    _buildErrorStatus(),
+                ] else ...[
+                  _buildWelcomeStatus(),
+                ],
               ] else ...[
-                _buildWelcomeStatus(),
+                // Minimal loading indicator while we silently check session
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ),
               ],
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: _buildActionButton(),
-              ),
+              // ── Action button: hidden while auth check is in progress ──
+              if (!isCheckingAuth)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: _buildActionButton(),
+                ),
 
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -789,28 +800,30 @@ class _LogoScreenState extends State<LogoScreen>
                           label: 'Website',
                           icon: Icons.language_rounded,
                           color: const Color(0xFF7C3AED),
-                          onTap: () => _launch('https://www.pixelmindsolutions.com'),
+                          onTap: () =>
+                              _launch('https://www.pixelmindsolutions.com'),
                         ),
                         _dot(),
                         _PMSLink(
                           label: 'Instagram',
                           icon: Icons.camera_alt_rounded,
                           color: const Color(0xFFE1306C),
-                          onTap: () => _launch('https://www.instagram.com/pixelmindsolutions?igsh=MThuZmJwbHh4dXQzcA=='),
+                          onTap: () => _launch(
+                              'https://www.instagram.com/pixelmindsolutions?igsh=MThuZmJwbHh4dXQzcA=='),
                         ),
                         _dot(),
                         _PMSLink(
                           label: 'Facebook',
                           icon: Icons.facebook_rounded,
                           color: const Color(0xFF1877F2),
-                          onTap: () => _launch('https://www.facebook.com/share/1NVMnQVMni/'),
+                          onTap: () => _launch(
+                              'https://www.facebook.com/share/1NVMnQVMni/'),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-
               Image.asset(
                 'assets/images/splash2.png',
                 width: double.infinity,
@@ -831,13 +844,14 @@ class _LogoScreenState extends State<LogoScreen>
 
   Widget _dot() => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Text('·', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+        child: Text('·',
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
       );
 
   Widget _buildLoadingStatus() {
     return Container(
-      margin:  EdgeInsets.only(bottom: 20),
-      padding:  EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       child: Column(
         children: [
           const AmodersLoading(),
@@ -919,14 +933,21 @@ class _LogoScreenState extends State<LogoScreen>
     String buttonText;
     VoidCallback? onPressed;
 
-    if (_isLoggedIn) {
+    if (_isLoggedIn == true) {
       if (_isLocationLoading) {
+        // Location is being fetched — button is disabled
         buttonText = "Getting Ready...";
         onPressed = null;
       } else if (_locationPermissionDenied) {
         buttonText = "Enable Location";
         onPressed = _openLocationSettings;
+      } else if (_errorMessage != null) {
+        // Location failed — let user proceed manually
+        buttonText = "Continue Anyway";
+        onPressed = _proceedToApp;
       } else {
+        // Location success — auto-navigate is already triggered in
+        // _initializeLocation(), this button is just a fallback
         buttonText = "Get Started";
         onPressed = _proceedToApp;
       }
