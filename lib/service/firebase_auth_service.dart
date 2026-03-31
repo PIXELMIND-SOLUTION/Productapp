@@ -1,6 +1,7 @@
 // lib/services/firebase_auth_service.dart (Alternative version)
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseAuthService {
@@ -11,6 +12,25 @@ class FirebaseAuthService {
     scopes: ['email', 'profile'],
     signInOption: SignInOption.standard,
   );
+
+
+  Future<void> waitForAPNSToken() async {
+  String? token;
+
+  for (int i = 0; i < 10; i++) {
+    token = await FirebaseMessaging.instance.getAPNSToken();
+
+    if (token != null) {
+      print('✅ APNs Token Ready: $token');
+      return;
+    }
+
+    print('⏳ Waiting for APNs token...');
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  throw Exception('❌ APNs token not available');
+}
 
   // Send OTP
   Future<String?> sendOtp(String phoneNumber) async {

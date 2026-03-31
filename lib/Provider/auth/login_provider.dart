@@ -97,6 +97,9 @@ class AuthProvider extends ChangeNotifier {
         formattedNumber = '+91$phoneNumber'; // For India
       }
 
+          await _firebaseAuth.waitForAPNSToken();
+
+
       // 1. Send OTP via Firebase
       _verificationId = await _firebaseAuth.sendOtp(formattedNumber);
 

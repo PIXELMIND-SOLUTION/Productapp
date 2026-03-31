@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.product.product_app"
+    namespace = "com.pixelmind.estatehouz"
     compileSdk = 35
     ndkVersion = "27.0.12077973"
 
