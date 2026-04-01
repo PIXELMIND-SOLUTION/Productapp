@@ -1,5 +1,6 @@
 // lib/providers/auth_provider.dart
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:product_app/helper/helper_function.dart';
@@ -97,8 +98,9 @@ class AuthProvider extends ChangeNotifier {
         formattedNumber = '+91$phoneNumber'; // For India
       }
 
-          await _firebaseAuth.waitForAPNSToken();
-
+      if (Platform.isIOS) {
+        await _firebaseAuth.waitForAPNSToken();
+      }
 
       // 1. Send OTP via Firebase
       _verificationId = await _firebaseAuth.sendOtp(formattedNumber);

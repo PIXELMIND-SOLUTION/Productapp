@@ -22,9 +22,8 @@ class NotificationProvider extends ChangeNotifier {
       _fcmToken = token;
       notifyListeners();
     });
-    
+
     NotificationService.handleForegroundMessages();
-    NotificationService.handleBackgroundMessages();
     await NotificationService.handleInitialMessage();
   }
 

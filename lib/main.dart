@@ -20,59 +20,81 @@ import 'package:provider/provider.dart';
 // ============================================
 // BACKGROUND MESSAGE HANDLER (App in Background/Terminated)
 // ============================================
+// @pragma('vm:entry-point')
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+
+//   // 🔴🔴🔴 BACKGROUND NOTIFICATION TRIGGERED 🔴🔴🔴
+//   print('=' * 50);
+//   print('🔥 BACKGROUND NOTIFICATION RECEIVED!');
+//   print('=' * 50);
+//   print('📱 Message ID: ${message.messageId}');
+//   print('📱 Message Type: BACKGROUND/TERMINATED');
+//   print('📱 Sent Time: ${message.sentTime}');
+//   print('📱 From: ${message.from}');
+//   print('📱 Collapse Key: ${message.collapseKey}');
+//   print('-' * 50);
+
+//   // Get image from data payload (NOT from notification)
+//   String? imageUrl = message.data['image'];
+
+//   // Notification Data
+//   if (message.notification != null) {
+//     print('🔔 NOTIFICATION CONTENT:');
+//     print('   Title: ${message.notification!.title}');
+//     print('   Body: ${message.notification!.body}');
+//   } else {
+//     print('ℹ️ This is a data-only message (no notification)');
+//   }
+
+//   // Custom Data Payload (contains image URL)
+//   print('-' * 50);
+//   print('📦 CUSTOM DATA PAYLOAD:');
+//   if (message.data.isNotEmpty) {
+//     message.data.forEach((key, value) {
+//       print('   $key: $value');
+//     });
+//   } else {
+//     print('   No custom data');
+//   }
+
+//   print('=' * 50);
+
+//   // Show local notification with image from data
+//   String title = message.notification?.title ??
+//       message.data['title'] ??
+//       'New Notification';
+
+//   String body = message.notification?.body ?? message.data['body'] ?? '';
+
+//   await NotificationService.showNotification(
+//     title: title,
+//     body: body,
+//     payload: message.data.toString(),
+//     imageUrl: imageUrl, // Pass image URL from data
+//   );
+// }
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 
-  // 🔴🔴🔴 BACKGROUND NOTIFICATION TRIGGERED 🔴🔴🔴
-  print('=' * 50);
-  print('🔥 BACKGROUND NOTIFICATION RECEIVED!');
-  print('=' * 50);
-  print('📱 Message ID: ${message.messageId}');
-  print('📱 Message Type: BACKGROUND/TERMINATED');
-  print('📱 Sent Time: ${message.sentTime}');
-  print('📱 From: ${message.from}');
-  print('📱 Collapse Key: ${message.collapseKey}');
-  print('-' * 50);
+  // ✅ ONLY show notification if it's a data-only message (no auto-notification from Firebase)
+  if (message.notification == null) {
+    String? imageUrl = message.data['image'];
+    String title = message.data['title'] ??
+        message.notification?.title ??
+        'New Notification';
+    String body = message.data['body'] ?? message.notification?.body ?? '';
 
-  // Get image from data payload (NOT from notification)
-  String? imageUrl = message.data['image'];
-
-  // Notification Data
-  if (message.notification != null) {
-    print('🔔 NOTIFICATION CONTENT:');
-    print('   Title: ${message.notification!.title}');
-    print('   Body: ${message.notification!.body}');
-  } else {
-    print('ℹ️ This is a data-only message (no notification)');
+    await NotificationService.showNotification(
+      title: title,
+      body: body,
+      payload: message.data.toString(),
+      imageUrl: imageUrl,
+    );
   }
-
-  // Custom Data Payload (contains image URL)
-  print('-' * 50);
-  print('📦 CUSTOM DATA PAYLOAD:');
-  if (message.data.isNotEmpty) {
-    message.data.forEach((key, value) {
-      print('   $key: $value');
-    });
-  } else {
-    print('   No custom data');
-  }
-
-  print('=' * 50);
-
-  // Show local notification with image from data
-  String title = message.notification?.title ??
-      message.data['title'] ??
-      'New Notification';
-
-  String body = message.notification?.body ?? message.data['body'] ?? '';
-
-  await NotificationService.showNotification(
-    title: title,
-    body: body,
-    payload: message.data.toString(),
-    imageUrl: imageUrl, // Pass image URL from data
-  );
+  // If message.notification exists, Firebase already showed it automatically
 }
 
 void main() async {
@@ -152,6 +174,7 @@ void main() async {
       imageUrl: imageUrl, // Pass image URL from data
     );
   });
+
   print('✅ Foreground message handler registered');
 
   // ⭐ BACKGROUND MESSAGES WHEN APP IS OPENED FROM BACKGROUND (User taps)
