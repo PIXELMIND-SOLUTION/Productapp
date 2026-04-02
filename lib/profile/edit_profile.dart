@@ -101,16 +101,26 @@ class _EditProfileState extends State<EditProfile> {
                   // Camera
                   Expanded(
                     child: GestureDetector(
-                      onTap: () async {
-                        Navigator.pop(context);
-                        final XFile? file = await _picker.pickImage(
-                          source: ImageSource.camera,
-                          imageQuality: 80,
-                        );
-                        if (file != null) {
-                          setState(() => _selectedImage = File(file.path));
-                        }
-                      },
+      onTap: () async {
+  Navigator.pop(context);
+
+  try {
+    final XFile? file = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    print("Camera result: $file");
+
+    if (file != null) {
+      setState(() => _selectedImage = File(file.path));
+    } else {
+      print("User cancelled or camera not available");
+    }
+  } catch (e) {
+    print("Camera error: $e");
+  }
+},
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         decoration: BoxDecoration(
@@ -280,7 +290,7 @@ class _EditProfileState extends State<EditProfile> {
       );
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        Navigator.pop(context, true);
+        // Navigator.pop(context, true);
       }
     } else {
       _showErrorSnackBar(provider.errorMessage ?? 'Failed to update profile');

@@ -390,6 +390,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
 
                         // OR Divider
+                        if(                        Platform.isAndroid)
                         Row(
                           children: [
                             Expanded(
