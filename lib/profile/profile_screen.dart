@@ -27,27 +27,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SafeArea(
           child: Column(
             children: [
-                          _buildHeader(),
-        
+              _buildHeader(),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   children: [
                     // ── Personal Info (highlighted) ──
                     _ProfileTile(
                       icon: Icons.person_outline,
                       title: "Personal information",
                       onTap: () {
+                        final userId = SharedPrefHelper.getUserId();
+                        if (userId == null || userId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('User ID not found, Login first')),
+                          );
+                          return;
+                        }
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const EditProfile()),
+                          MaterialPageRoute(
+                              builder: (context) => const EditProfile()),
                         );
                       },
                       isHighlighted: true,
                     ),
-                
+
                     const SizedBox(height: 12),
-                
+
                     // ── Change Address ──
                     _ProfileTile(
                       icon: Icons.location_on_outlined,
@@ -56,37 +66,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final userId = SharedPrefHelper.getUserId();
                         if (userId == null || userId.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('User ID not found')),
+                            const SnackBar(
+                                content:
+                                    Text('User ID not found, Login first')),
                           );
                           return;
                         }
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LocationFetchScreen(userId: userId),
+                            builder: (context) =>
+                                LocationFetchScreen(userId: userId),
                           ),
                         );
                       },
                     ),
-                
+
                     const SizedBox(height: 12),
-                
+
                     // ── My Postings ──
                     _ProfileTile(
                       icon: Icons.grid_view_outlined,
                       title: "My Postings",
                       onTap: () {
-Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => const NavbarScreen(initialIndex: 3),
-  ),
-);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const NavbarScreen(initialIndex: 3),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 12),
-        
-                                      // ── Help section label ──
+
+                    // ── Help section label ──
                     Text(
                       "Support",
                       style: TextStyle(
@@ -95,9 +109,9 @@ Navigator.push(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-        
-                                  const SizedBox(height: 12),
-                
+
+                    const SizedBox(height: 12),
+
                     // ── About Us ──
                     _ProfileTile(
                       icon: Icons.info_outline,
@@ -106,25 +120,21 @@ Navigator.push(
                           'https://product-web-rho-tan.vercel.app/home',
                           context),
                     ),
-                
+
                     const SizedBox(height: 12),
-                
+
                     // ── Contact Us ──
                     _ProfileTile(
                       icon: Icons.phone_outlined,
                       title: "Contact Us",
                       onTap: () => _launchURL(
-                          'https://estatehouz.onrender.com/contact',
-                          context),
+                          'https://estatehouz.onrender.com/contact', context),
                     ),
-                
-            
-                
+
                     const SizedBox(height: 24),
-                
-                
+
                     const SizedBox(height: 24),
-                
+
                     // ── Account section label ──
                     Text(
                       "Account & Terms",
@@ -134,9 +144,9 @@ Navigator.push(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                
+
                     const SizedBox(height: 12),
-                
+
                     // ── Privacy Policy ──
                     _ProfileTile(
                       icon: Icons.privacy_tip_outlined,
@@ -145,9 +155,9 @@ Navigator.push(
                           'https://estatehouz.onrender.com/privacy-policy',
                           context),
                     ),
-                
+
                     const SizedBox(height: 12),
-                
+
                     // ── Terms & Conditions ──
                     _ProfileTile(
                       icon: Icons.description_outlined,
@@ -156,24 +166,34 @@ Navigator.push(
                           'https://estatehouz.onrender.com/terms-and-conditions',
                           context),
                     ),
-                
+
                     const SizedBox(height: 22),
-                
+
                     // ── Delete Account ──
                     _ProfileTile(
                       icon: Icons.delete_outline,
                       title: "Delete Account",
                       onTap: () {
+                        final userId = SharedPrefHelper.getUserId();
+                        if (userId == null || userId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('User ID not found, Login first')),
+                          );
+                          return;
+                        }
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const DeleteAccount()),
+                          MaterialPageRoute(
+                              builder: (context) => const DeleteAccount()),
                         );
                       },
                       isDelete: true,
                     ),
-                
+
                     const SizedBox(height: 24),
-                
+
                     // ── Logout ──
                     _ProfileTile(
                       icon: Icons.logout_rounded,
@@ -186,7 +206,8 @@ Navigator.push(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             title: const Text('Confirm Logout'),
-                            content: const Text('Are you sure you want to logout?'),
+                            content:
+                                const Text('Are you sure you want to logout?'),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
@@ -199,12 +220,14 @@ Navigator.push(
                                 onPressed: () async {
                                   Navigator.pop(context);
                                   final authProvider =
-                                      Provider.of<AuthProvider>(context, listen: false);
+                                      Provider.of<AuthProvider>(context,
+                                          listen: false);
                                   await authProvider.logout();
                                   if (context.mounted) {
                                     Navigator.pushAndRemoveUntil(
                                       context,
-                                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                      MaterialPageRoute(
+                                          builder: (_) => const LoginScreen()),
                                       (route) => false,
                                     );
                                   }
@@ -220,7 +243,7 @@ Navigator.push(
                       },
                       isLogout: true,
                     ),
-                
+
                     const SizedBox(height: 30),
                   ],
                 ),
@@ -247,37 +270,36 @@ Navigator.push(
   }
 }
 
-
-  Widget _buildHeader() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              'Profile',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(height:20),
-            Divider(),
-          ],
-        ),
+Widget _buildHeader() {
+  return Center(
+    child: Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-    );
-  }
+      child: Column(
+        children: [
+          Text(
+            'Profile',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 20),
+          Divider(),
+        ],
+      ),
+    ),
+  );
+}
 
 // ── Profile Tile (exact same as first UI) ────────────────────────────────────
 
@@ -307,7 +329,8 @@ class _ProfileTile extends StatelessWidget {
     final Border border = isHighlighted
         ? Border.all(color: const Color(0xFFE33629), width: 1.2)
         : isLogout
-            ? Border.all(color: const Color(0xFFE33629).withOpacity(0.4), width: 1.2)
+            ? Border.all(
+                color: const Color(0xFFE33629).withOpacity(0.4), width: 1.2)
             : isDelete
                 ? Border.all(color: Colors.red.withOpacity(0.4), width: 1.2)
                 : Border.all(color: Colors.grey.shade200);

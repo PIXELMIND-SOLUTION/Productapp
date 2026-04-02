@@ -8,7 +8,6 @@ import 'package:product_app/model/user_model.dart';
 import 'package:product_app/service/firebase_auth_service.dart';
 import 'package:product_app/service/login_service.dart';
 import 'package:product_app/service/notification_service.dart';
-import 'package:product_app/utils/shared_preference.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 

@@ -7,7 +7,7 @@ class WishlistProvider with ChangeNotifier {
   final WishlistService _wishlistService = WishlistService();
 
   List<dynamic> _wishlistItems = [];
-  
+
   Set<String> _wishlistProductIds = {};
 
   // Loading states
@@ -30,6 +30,12 @@ class WishlistProvider with ChangeNotifier {
     return _wishlistProductIds.contains(productId);
   }
 
+  void setError(String message) {
+    _errorMessage = message;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   /// Toggle wishlist (Add/Remove)
   Future<bool> toggleWishlist(String productId) async {
     _isToggling = true;
@@ -38,7 +44,7 @@ class WishlistProvider with ChangeNotifier {
 
     try {
       final result = await _wishlistService.toggleWishlist(productId);
-      
+
       if (result['success'] == true) {
         if (result['isAdded'] == true) {
           _wishlistProductIds.add(productId);
@@ -46,7 +52,7 @@ class WishlistProvider with ChangeNotifier {
           _wishlistProductIds.remove(productId);
           _wishlistItems.removeWhere((item) => item['_id'] == productId);
         }
-        
+
         _isToggling = false;
         notifyListeners();
         return true;
@@ -72,13 +78,12 @@ class WishlistProvider with ChangeNotifier {
 
     try {
       final wishlist = await _wishlistService.getWishlist();
-      
+
       _wishlistItems = wishlist;
-      
-      _wishlistProductIds = wishlist
-          .map((item) => item['_id'] as String)
-          .toSet();
-      
+
+      _wishlistProductIds =
+          wishlist.map((item) => item['_id'] as String).toSet();
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {

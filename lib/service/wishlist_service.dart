@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
 
-
 class WishlistService {
   /// Toggle wishlist (Add/Remove)
   Future<Map<String, dynamic>> toggleWishlist(String productId) async {
@@ -21,14 +20,16 @@ class WishlistService {
         throw Exception('Authentication token not found. Please login again.');
       }
 
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse(ApiConstants.wishlisturl),
         headers: ApiConstants.getAuthHeaders(token),
         body: jsonEncode({
           'userId': userId,
           'productId': productId,
         }),
-      ).timeout(
+      )
+          .timeout(
         ApiConstants.connectionTimeout,
         onTimeout: () {
           throw Exception('Connection timeout. Please try again.');
@@ -37,9 +38,9 @@ class WishlistService {
 
       final data = jsonDecode(response.body);
 
-      print('response status code for get add and remove wishlist ${response.statusCode}');
-            print('response bodyyyyyyyy add and remove wishlist ${response.body}');
-
+      print(
+          'response status code for get add and remove wishlist ${response.statusCode}');
+      print('response bodyyyyyyyy add and remove wishlist ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {
@@ -62,7 +63,7 @@ class WishlistService {
       final token = SharedPrefHelper.getToken();
 
       if (userId == null || userId.isEmpty) {
-        throw Exception('User ID not found. Please login again.');
+        throw Exception('User not found. Please login again.');
       }
 
       if (token == null || token.isEmpty) {
@@ -74,10 +75,12 @@ class WishlistService {
 
       print("lllllllllllllllllll$url");
 
-      final response = await http.get(
+      final response = await http
+          .get(
         Uri.parse(url),
         headers: ApiConstants.getAuthHeaders(token),
-      ).timeout(
+      )
+          .timeout(
         ApiConstants.connectionTimeout,
         onTimeout: () {
           throw Exception('Connection timeout. Please try again.');
@@ -86,8 +89,8 @@ class WishlistService {
 
       final data = jsonDecode(response.body);
 
-       print('response status code for get  wishlist ${response.statusCode}');
-            print('response bodyyyyyyyy get  wishlist ${response.body}');
+      print('response status code for get  wishlist ${response.statusCode}');
+      print('response bodyyyyyyyy get  wishlist ${response.body}');
 
       if (response.statusCode == 200) {
         if (data['success'] == true) {

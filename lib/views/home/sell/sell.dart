@@ -31,7 +31,7 @@ class _SellScreenState extends State<SellScreen> {
   final _contactNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _websiteController = TextEditingController();
-  
+
   // Location Controllers
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
@@ -48,7 +48,7 @@ class _SellScreenState extends State<SellScreen> {
 
   // ===== NEW: Portfolio Section =====
   List<Map<String, dynamic>> _portfolioItems = [];
-  
+
   // ===== NEW: Previous Events Section =====
   List<Map<String, dynamic>> _previousEvents = [];
 
@@ -66,28 +66,79 @@ class _SellScreenState extends State<SellScreen> {
     'availability': ['Ready to Move', 'Under Construction', 'Upcoming'],
     'ownership': ['Freehold', 'Leasehold', 'Co-operative'],
     'waterSource': ['Borewell', 'Municipal', 'Well', 'Canal', 'Tanker'],
-    'landType': ['Residential', 'Commercial', 'Agricultural', 'Industrial', 'Mixed Use'],
+    'landType': [
+      'Residential',
+      'Commercial',
+      'Agricultural',
+      'Industrial',
+      'Mixed Use'
+    ],
     'parking': ['Yes', 'No'],
-    'roomTypes': ['Single', 'Double', 'Suite', 'Deluxe', 'Executive', 'Presidential'],
-    'businessType': ['Startup', 'Small Business', 'Enterprise', 'Co-working', 'Freelance'],
-    'serviceType': ['Gold Purchase', 'Gold Sale', 'Exchange', 'Custom Design', 'Repairs'],
+    'roomTypes': [
+      'Single',
+      'Double',
+      'Suite',
+      'Deluxe',
+      'Executive',
+      'Presidential'
+    ],
+    'businessType': [
+      'Startup',
+      'Small Business',
+      'Enterprise',
+      'Co-working',
+      'Freelance'
+    ],
+    'serviceType': [
+      'Gold Purchase',
+      'Gold Sale',
+      'Exchange',
+      'Custom Design',
+      'Repairs'
+    ],
     'workingDays': ['Mon-Fri', 'Mon-Sat', 'All Days', 'Weekends Only'],
-    'amenities': ['WiFi', 'Parking', 'Cafeteria', 'Conference Room', 'Security', 'Power Backup'],
-    'industry': [
-    'App Development',
-    'Web Development',
-    'Digital Marketing'
-    ]
+    'amenities': [
+      'WiFi',
+      'Parking',
+      'Cafeteria',
+      'Conference Room',
+      'Security',
+      'Power Backup'
+    ],
+    'industry': ['App Development', 'Web Development', 'Digital Marketing']
   };
 
   // Category-specific attribute templates
   final Map<String, List<Map<String, dynamic>>> categoryAttributes = {
     'villa': [
-      {'key': 'bedrooms', 'label': 'Bedrooms', 'type': 'number', 'hint': 'e.g., 3', 'isRequired': true},
-      {'key': 'bathrooms', 'label': 'Bathrooms', 'type': 'number', 'hint': 'e.g., 2', 'isRequired': true},
-      {'key': 'sqft', 'label': 'Area (sq.ft)', 'type': 'number', 'hint': 'e.g., 2500', 'isRequired': true},
+      {
+        'key': 'bedrooms',
+        'label': 'Bedrooms',
+        'type': 'number',
+        'hint': 'e.g., 3',
+        'isRequired': true
+      },
+      {
+        'key': 'bathrooms',
+        'label': 'Bathrooms',
+        'type': 'number',
+        'hint': 'e.g., 2',
+        'isRequired': true
+      },
+      {
+        'key': 'sqft',
+        'label': 'Area (sq.ft)',
+        'type': 'number',
+        'hint': 'e.g., 2500',
+        'isRequired': true
+      },
       {'key': 'floors', 'label': 'Floors', 'type': 'number', 'hint': 'e.g., 2'},
-      {'key': 'furnishing', 'label': 'Furnishing', 'type': 'dropdown', 'options': 'furnishing'},
+      {
+        'key': 'furnishing',
+        'label': 'Furnishing',
+        'type': 'dropdown',
+        'options': 'furnishing'
+      },
       {'key': 'privatePool', 'label': 'Private Pool', 'type': 'boolean'},
       {'key': 'garden', 'label': 'Garden', 'type': 'boolean'},
       {'key': 'parking', 'label': 'Parking', 'type': 'boolean'},
@@ -96,10 +147,32 @@ class _SellScreenState extends State<SellScreen> {
       {'key': 'servantRoom', 'label': 'Servant Room', 'type': 'boolean'},
     ],
     'hotel': [
-      {'key': 'totalRooms', 'label': 'Total Rooms', 'type': 'number', 'hint': 'e.g., 30', 'isRequired': true},
-      {'key': 'roomTypes', 'label': 'Room Types', 'type': 'multiselect', 'options': 'roomTypes'},
-      {'key': 'pricePerNight', 'label': 'Price per Night (₹)', 'type': 'number', 'hint': 'e.g., 2500', 'isRequired': true},
-      {'key': 'starRating', 'label': 'Star Rating', 'type': 'dropdown', 'options': ['1 Star', '2 Star', '3 Star', '4 Star', '5 Star']},
+      {
+        'key': 'totalRooms',
+        'label': 'Total Rooms',
+        'type': 'number',
+        'hint': 'e.g., 30',
+        'isRequired': true
+      },
+      {
+        'key': 'roomTypes',
+        'label': 'Room Types',
+        'type': 'multiselect',
+        'options': 'roomTypes'
+      },
+      {
+        'key': 'pricePerNight',
+        'label': 'Price per Night (₹)',
+        'type': 'number',
+        'hint': 'e.g., 2500',
+        'isRequired': true
+      },
+      {
+        'key': 'starRating',
+        'label': 'Star Rating',
+        'type': 'dropdown',
+        'options': ['1 Star', '2 Star', '3 Star', '4 Star', '5 Star']
+      },
       {'key': 'restaurantAvailable', 'label': 'Restaurant', 'type': 'boolean'},
       {'key': 'parking', 'label': 'Parking', 'type': 'boolean'},
       {'key': 'wifi', 'label': 'WiFi', 'type': 'boolean'},
@@ -107,17 +180,64 @@ class _SellScreenState extends State<SellScreen> {
       {'key': 'gym', 'label': 'Gym', 'type': 'boolean'},
       {'key': 'spa', 'label': 'Spa', 'type': 'boolean'},
       {'key': 'conferenceHall', 'label': 'Conference Hall', 'type': 'boolean'},
-      {'key': 'breakfastIncluded', 'label': 'Breakfast Included', 'type': 'boolean'},
-      {'key': 'checkInTime', 'label': 'Check-in Time', 'type': 'text', 'hint': 'e.g., 2:00 PM'},
-      {'key': 'checkOutTime', 'label': 'Check-out Time', 'type': 'text', 'hint': 'e.g., 11:00 AM'},
+      {
+        'key': 'breakfastIncluded',
+        'label': 'Breakfast Included',
+        'type': 'boolean'
+      },
+      {
+        'key': 'checkInTime',
+        'label': 'Check-in Time',
+        'type': 'text',
+        'hint': 'e.g., 2:00 PM'
+      },
+      {
+        'key': 'checkOutTime',
+        'label': 'Check-out Time',
+        'type': 'text',
+        'hint': 'e.g., 11:00 AM'
+      },
     ],
     'apartment': [
-      {'key': 'bedrooms', 'label': 'Bedrooms', 'type': 'number', 'hint': 'e.g., 2', 'isRequired': true},
-      {'key': 'bathrooms', 'label': 'Bathrooms', 'type': 'number', 'hint': 'e.g., 2', 'isRequired': true},
-      {'key': 'sqft', 'label': 'Area (sq.ft)', 'type': 'number', 'hint': 'e.g., 1200', 'isRequired': true},
-      {'key': 'floorNumber', 'label': 'Floor Number', 'type': 'number', 'hint': 'e.g., 5'},
-      {'key': 'totalFloors', 'label': 'Total Floors', 'type': 'number', 'hint': 'e.g., 10'},
-      {'key': 'furnishing', 'label': 'Furnishing', 'type': 'dropdown', 'options': 'furnishing'},
+      {
+        'key': 'bedrooms',
+        'label': 'Bedrooms',
+        'type': 'number',
+        'hint': 'e.g., 2',
+        'isRequired': true
+      },
+      {
+        'key': 'bathrooms',
+        'label': 'Bathrooms',
+        'type': 'number',
+        'hint': 'e.g., 2',
+        'isRequired': true
+      },
+      {
+        'key': 'sqft',
+        'label': 'Area (sq.ft)',
+        'type': 'number',
+        'hint': 'e.g., 1200',
+        'isRequired': true
+      },
+      {
+        'key': 'floorNumber',
+        'label': 'Floor Number',
+        'type': 'number',
+        'hint': 'e.g., 5'
+      },
+      {
+        'key': 'totalFloors',
+        'label': 'Total Floors',
+        'type': 'number',
+        'hint': 'e.g., 10'
+      },
+      {
+        'key': 'furnishing',
+        'label': 'Furnishing',
+        'type': 'dropdown',
+        'options': 'furnishing'
+      },
       {'key': 'parking', 'label': 'Parking', 'type': 'boolean'},
       {'key': 'balcony', 'label': 'Balcony', 'type': 'boolean'},
       {'key': 'lift', 'label': 'Lift', 'type': 'boolean'},
@@ -125,48 +245,175 @@ class _SellScreenState extends State<SellScreen> {
       {'key': 'swimmingPool', 'label': 'Swimming Pool', 'type': 'boolean'},
       {'key': 'clubhouse', 'label': 'Clubhouse', 'type': 'boolean'},
       {'key': 'security', 'label': 'Security', 'type': 'boolean'},
-      {'key': 'maintenance', 'label': 'Maintenance (₹)', 'type': 'number', 'hint': 'e.g., 2000'},
+      {
+        'key': 'maintenance',
+        'label': 'Maintenance (₹)',
+        'type': 'number',
+        'hint': 'e.g., 2000'
+      },
     ],
     'farmhouse': [
-      {'key': 'landSize', 'label': 'Land Size', 'type': 'number', 'hint': 'Enter size', 'isRequired': true},
-      {'key': 'unit', 'label': 'Unit', 'type': 'dropdown', 'options': 'unit', 'isRequired': true},
-      {'key': 'bedrooms', 'label': 'Bedrooms', 'type': 'number', 'hint': 'e.g., 3', 'isRequired': true},
-      {'key': 'bathrooms', 'label': 'Bathrooms', 'type': 'number', 'hint': 'e.g., 2'},
+      {
+        'key': 'landSize',
+        'label': 'Land Size',
+        'type': 'number',
+        'hint': 'Enter size',
+        'isRequired': true
+      },
+      {
+        'key': 'unit',
+        'label': 'Unit',
+        'type': 'dropdown',
+        'options': 'unit',
+        'isRequired': true
+      },
+      {
+        'key': 'bedrooms',
+        'label': 'Bedrooms',
+        'type': 'number',
+        'hint': 'e.g., 3',
+        'isRequired': true
+      },
+      {
+        'key': 'bathrooms',
+        'label': 'Bathrooms',
+        'type': 'number',
+        'hint': 'e.g., 2'
+      },
       {'key': 'farmHouseBuilt', 'label': 'Main House Built', 'type': 'boolean'},
-      {'key': 'waterSource', 'label': 'Water Source', 'type': 'dropdown', 'options': 'waterSource'},
-      {'key': 'electricityAvailable', 'label': 'Electricity', 'type': 'boolean'},
+      {
+        'key': 'waterSource',
+        'label': 'Water Source',
+        'type': 'dropdown',
+        'options': 'waterSource'
+      },
+      {
+        'key': 'electricityAvailable',
+        'label': 'Electricity',
+        'type': 'boolean'
+      },
       {'key': 'borewell', 'label': 'Borewell', 'type': 'boolean'},
       {'key': 'swimmingPool', 'label': 'Swimming Pool', 'type': 'boolean'},
       {'key': 'garden', 'label': 'Garden', 'type': 'boolean'},
       {'key': 'parking', 'label': 'Parking', 'type': 'boolean'},
-      {'key': 'crops', 'label': 'Crops Grown', 'type': 'text', 'hint': 'e.g., Rice, Sugarcane'},
-      {'key': 'animals', 'label': 'Animals', 'type': 'text', 'hint': 'e.g., Cows, Goats'},
+      {
+        'key': 'crops',
+        'label': 'Crops Grown',
+        'type': 'text',
+        'hint': 'e.g., Rice, Sugarcane'
+      },
+      {
+        'key': 'animals',
+        'label': 'Animals',
+        'type': 'text',
+        'hint': 'e.g., Cows, Goats'
+      },
     ],
     'gold shops': [
-      {'key': 'shopName', 'label': 'Shop Name', 'type': 'text', 'hint': 'e.g., Sri Lakshmi Gold Palace', 'isRequired': true},
-      {'key': 'establishedYear', 'label': 'Established Year', 'type': 'number', 'hint': 'e.g., 2010'},
-      {'key': 'services', 'label': 'Services Offered', 'type': 'multiselect', 'options': 'serviceType'},
+      {
+        'key': 'shopName',
+        'label': 'Shop Name',
+        'type': 'text',
+        'hint': 'e.g., Sri Lakshmi Gold Palace',
+        'isRequired': true
+      },
+      {
+        'key': 'establishedYear',
+        'label': 'Established Year',
+        'type': 'number',
+        'hint': 'e.g., 2010'
+      },
+      {
+        'key': 'services',
+        'label': 'Services Offered',
+        'type': 'multiselect',
+        'options': 'serviceType'
+      },
       {'key': 'certified', 'label': 'BIS Certified', 'type': 'boolean'},
-      {'key': 'hallmarkAvailable', 'label': 'Hallmark Jewellery', 'type': 'boolean'},
-      {'key': 'exchangeAvailable', 'label': 'Exchange Available', 'type': 'boolean'},
+      {
+        'key': 'hallmarkAvailable',
+        'label': 'Hallmark Jewellery',
+        'type': 'boolean'
+      },
+      {
+        'key': 'exchangeAvailable',
+        'label': 'Exchange Available',
+        'type': 'boolean'
+      },
       {'key': 'customDesign', 'label': 'Custom Design', 'type': 'boolean'},
       {'key': 'repairsService', 'label': 'Repairs Service', 'type': 'boolean'},
-      {'key': 'goldRate', 'label': 'Today\'s Gold Rate (per gram)', 'type': 'number', 'hint': 'e.g., 5200'},
-      {'key': 'silverRate', 'label': 'Today\'s Silver Rate (per gram)', 'type': 'number', 'hint': 'e.g., 65'},
-      {'key': 'makingCharge', 'label': 'Making Charge (per gram)', 'type': 'number', 'hint': 'e.g., 450'},
-      {'key': 'schemesAvailable', 'label': 'Monthly Schemes', 'type': 'boolean'},
+      {
+        'key': 'goldRate',
+        'label': 'Today\'s Gold Rate (per gram)',
+        'type': 'number',
+        'hint': 'e.g., 5200'
+      },
+      {
+        'key': 'silverRate',
+        'label': 'Today\'s Silver Rate (per gram)',
+        'type': 'number',
+        'hint': 'e.g., 65'
+      },
+      {
+        'key': 'makingCharge',
+        'label': 'Making Charge (per gram)',
+        'type': 'number',
+        'hint': 'e.g., 450'
+      },
+      {
+        'key': 'schemesAvailable',
+        'label': 'Monthly Schemes',
+        'type': 'boolean'
+      },
       {'key': 'parking', 'label': 'Customer Parking', 'type': 'boolean'},
       {'key': 'security', 'label': 'Security', 'type': 'boolean'},
-      {'key': 'workingHours', 'label': 'Working Hours', 'type': 'text', 'hint': 'e.g., 10:00 AM - 9:00 PM'},
-      {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
+      {
+        'key': 'workingHours',
+        'label': 'Working Hours',
+        'type': 'text',
+        'hint': 'e.g., 10:00 AM - 9:00 PM'
+      },
+      {
+        'key': 'workingDays',
+        'label': 'Working Days',
+        'type': 'dropdown',
+        'options': 'workingDays'
+      },
     ],
     'companies': [
-        //  {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
-      {'key': 'industry', 'label': 'Industry', 'type': 'dropdown', 'options': 'industry', 'isRequired': true},
-      {'key': 'foundedYear', 'label': 'Founded Year', 'type': 'number', 'hint': 'e.g., 2020'},
-      {'key': 'services', 'label': 'Services Offered', 'type': 'text', 'hint': 'e.g., App Development, UI/UX Design, Cloud Solutions', 'isRequired': true},
-      {'key': 'technologies', 'label': 'Technologies', 'type': 'text', 'hint': 'e.g., Flutter, React, Node.js, Python'},
-      {'key': 'clients', 'label': 'Notable Clients', 'type': 'text', 'hint': 'e.g., Startup Name, Enterprise Name'},
+      //  {'key': 'businessType', 'label': 'Business Type', 'type': 'dropdown', 'options': 'businessType', 'isRequired': true},
+      {
+        'key': 'industry',
+        'label': 'Industry',
+        'type': 'dropdown',
+        'options': 'industry',
+        'isRequired': true
+      },
+      {
+        'key': 'foundedYear',
+        'label': 'Founded Year',
+        'type': 'number',
+        'hint': 'e.g., 2020'
+      },
+      {
+        'key': 'services',
+        'label': 'Services Offered',
+        'type': 'text',
+        'hint': 'e.g., App Development, UI/UX Design, Cloud Solutions',
+        'isRequired': true
+      },
+      {
+        'key': 'technologies',
+        'label': 'Technologies',
+        'type': 'text',
+        'hint': 'e.g., Flutter, React, Node.js, Python'
+      },
+      {
+        'key': 'clients',
+        'label': 'Notable Clients',
+        'type': 'text',
+        'hint': 'e.g., Startup Name, Enterprise Name'
+      },
       // {'key': 'officeSpace', 'label': 'Office Space (sq.ft)', 'type': 'number', 'hint': 'e.g., 1500'},
       // {'key': 'meetingRooms', 'label': 'Meeting Rooms', 'type': 'number', 'hint': 'e.g., 2'},
       // {'key': 'amenities', 'label': 'Amenities', 'type': 'multiselect', 'options': 'amenities'},
@@ -174,8 +421,18 @@ class _SellScreenState extends State<SellScreen> {
       // {'key': 'parking', 'label': 'Parking Available', 'type': 'boolean'},
       // {'key': 'cafeteria', 'label': 'Cafeteria', 'type': 'boolean'},
       // {'key': 'powerBackup', 'label': 'Power Backup', 'type': 'boolean'},
-      {'key': 'workingHours', 'label': 'Working Hours', 'type': 'text', 'hint': 'e.g., 10:00 AM - 07:00 PM'},
-      {'key': 'workingDays', 'label': 'Working Days', 'type': 'dropdown', 'options': 'workingDays'},
+      {
+        'key': 'workingHours',
+        'label': 'Working Hours',
+        'type': 'text',
+        'hint': 'e.g., 10:00 AM - 07:00 PM'
+      },
+      {
+        'key': 'workingDays',
+        'label': 'Working Days',
+        'type': 'dropdown',
+        'options': 'workingDays'
+      },
       // {'key': 'remoteWork', 'label': 'Remote Work Options', 'type': 'boolean'},
       // {'key': 'hiring', 'label': 'Currently Hiring', 'type': 'boolean'},
     ],
@@ -198,15 +455,15 @@ class _SellScreenState extends State<SellScreen> {
     _websiteController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
-    
+
     for (var controller in attributeControllers.values) {
       controller.dispose();
     }
-    
+
     for (var controller in _featureNameControllers) {
       controller.dispose();
     }
-    
+
     super.dispose();
   }
 
@@ -227,10 +484,10 @@ class _SellScreenState extends State<SellScreen> {
           setState(() {
             categories = List<Map<String, dynamic>>.from(
               data['categories'].map((category) => {
-                'id': category['_id']?.toString() ?? '',
-                'name': category['name']?.toString() ?? '',
-                'image': category['image']?.toString() ?? '',
-              }),
+                    'id': category['_id']?.toString() ?? '',
+                    'name': category['name']?.toString() ?? '',
+                    'image': category['image']?.toString() ?? '',
+                  }),
             );
             isLoadingCategories = false;
           });
@@ -241,7 +498,7 @@ class _SellScreenState extends State<SellScreen> {
       setState(() {
         isLoadingCategories = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -272,7 +529,8 @@ class _SellScreenState extends State<SellScreen> {
     } else if (categoryName.toLowerCase() == 'hotel') {
       priceLabel = 'Price per Night (₹)';
     }
-    _addAttributeField('price', priceLabel, 'Enter amount', isRequired: true, isNumber: true);
+    _addAttributeField('price', priceLabel, 'Enter amount',
+        isRequired: true, isNumber: true);
 
     // Get category-specific attributes
     final String lowerCategory = categoryName.toLowerCase();
@@ -285,18 +543,36 @@ class _SellScreenState extends State<SellScreen> {
       attributes = categoryAttributes['hotel'];
     } else if (lowerCategory.contains('apartment')) {
       attributes = categoryAttributes['apartment'];
-    } else if (lowerCategory.contains('farm') || lowerCategory.contains('farmhouse')) {
+    } else if (lowerCategory.contains('farm') ||
+        lowerCategory.contains('farmhouse')) {
       attributes = categoryAttributes['farmhouse'];
-    } else if (lowerCategory.contains('gold') || lowerCategory.contains('shop')) {
+    } else if (lowerCategory.contains('gold') ||
+        lowerCategory.contains('shop')) {
       attributes = categoryAttributes['gold shops'];
-    } else if (lowerCategory.contains('companies') || lowerCategory.contains('startup')) {
+    } else if (lowerCategory.contains('companies') ||
+        lowerCategory.contains('startup')) {
       attributes = categoryAttributes['companies'];
     } else {
       // Default attributes for unknown categories
       attributes = [
-        {'key': 'bedrooms', 'label': 'Bedrooms', 'type': 'number', 'hint': 'e.g., 2'},
-        {'key': 'bathrooms', 'label': 'Bathrooms', 'type': 'number', 'hint': 'e.g., 2'},
-        {'key': 'sqft', 'label': 'Area (sq.ft)', 'type': 'number', 'hint': 'e.g., 1200'},
+        {
+          'key': 'bedrooms',
+          'label': 'Bedrooms',
+          'type': 'number',
+          'hint': 'e.g., 2'
+        },
+        {
+          'key': 'bathrooms',
+          'label': 'Bathrooms',
+          'type': 'number',
+          'hint': 'e.g., 2'
+        },
+        {
+          'key': 'sqft',
+          'label': 'Area (sq.ft)',
+          'type': 'number',
+          'hint': 'e.g., 1200'
+        },
       ];
     }
 
@@ -311,10 +587,12 @@ class _SellScreenState extends State<SellScreen> {
 
       switch (type) {
         case 'number':
-          _addAttributeField(key, label, hint, isNumber: true, isRequired: isRequired);
+          _addAttributeField(key, label, hint,
+              isNumber: true, isRequired: isRequired);
           break;
         case 'text':
-          _addAttributeField(key, label, hint, isNumber: false, isRequired: isRequired);
+          _addAttributeField(key, label, hint,
+              isNumber: false, isRequired: isRequired);
           break;
         case 'boolean':
           _addBooleanField(key, label);
@@ -339,7 +617,7 @@ class _SellScreenState extends State<SellScreen> {
     setState(() {});
   }
 
-  void _addAttributeField(String key, String label, String hint, 
+  void _addAttributeField(String key, String label, String hint,
       {bool isNumber = false, bool isRequired = false}) {
     attributeControllers[key] = TextEditingController();
     attributeValues[key] = {
@@ -378,7 +656,7 @@ class _SellScreenState extends State<SellScreen> {
     } else if (optionsKey is List) {
       options = List<String>.from(optionsKey);
     }
-    
+
     attributeValues[key] = {
       'label': label,
       'type': 'multiselect',
@@ -424,7 +702,7 @@ class _SellScreenState extends State<SellScreen> {
     (item['appStoreLink'] as TextEditingController).dispose();
     (item['website'] as TextEditingController).dispose();
     (item['description'] as TextEditingController).dispose();
-    
+
     setState(() {
       _portfolioItems.removeAt(index);
     });
@@ -446,7 +724,9 @@ class _SellScreenState extends State<SellScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking logo: $e'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text('Error picking logo: $e'),
+            backgroundColor: Colors.red),
       );
     }
   }
@@ -469,7 +749,7 @@ class _SellScreenState extends State<SellScreen> {
     (event['title'] as TextEditingController).dispose();
     (event['description'] as TextEditingController).dispose();
     (event['location'] as TextEditingController).dispose();
-    
+
     setState(() {
       _previousEvents.removeAt(index);
     });
@@ -491,7 +771,9 @@ class _SellScreenState extends State<SellScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text('Error picking image: $e'),
+            backgroundColor: Colors.red),
       );
     }
   }
@@ -503,7 +785,7 @@ class _SellScreenState extends State<SellScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    
+
     if (picked != null) {
       setState(() {
         _previousEvents[index]['eventDate'] = picked;
@@ -684,7 +966,8 @@ class _SellScreenState extends State<SellScreen> {
       _longitudeController.text = longitude.toString();
 
       // Get address from coordinates
-      List<geocoding.Placemark> placemarks = await geocoding.placemarkFromCoordinates(
+      List<geocoding.Placemark> placemarks =
+          await geocoding.placemarkFromCoordinates(
         latitude,
         longitude,
       );
@@ -697,7 +980,7 @@ class _SellScreenState extends State<SellScreen> {
           place.administrativeArea,
           place.country,
         ].where((e) => e != null && e.isNotEmpty).join(', ');
-        
+
         _addressController.text = address;
       }
     } catch (e) {
@@ -757,31 +1040,37 @@ class _SellScreenState extends State<SellScreen> {
   }
 
   // ===== NEW: Build portfolio items for API =====
-List<Map<String, dynamic>> _buildPortfolioData() {
-  return _portfolioItems.map((item) {
-    return {
-      'name': (item['name'] as TextEditingController?)?.text ?? '',
-      'playStoreLink': (item['playStoreLink'] as TextEditingController?)?.text ?? '',
-      'appStoreLink': (item['appStoreLink'] as TextEditingController?)?.text ?? '',
-      'website': (item['website'] as TextEditingController?)?.text ?? '',
-      'description': (item['description'] as TextEditingController?)?.text ?? '',
-    };
-  }).where((item) {
-    final name = item['name'];
-    return name != null && name is String && name.isNotEmpty;
-  }).toList();
-}
+  List<Map<String, dynamic>> _buildPortfolioData() {
+    return _portfolioItems.map((item) {
+      return {
+        'name': (item['name'] as TextEditingController?)?.text ?? '',
+        'playStoreLink':
+            (item['playStoreLink'] as TextEditingController?)?.text ?? '',
+        'appStoreLink':
+            (item['appStoreLink'] as TextEditingController?)?.text ?? '',
+        'website': (item['website'] as TextEditingController?)?.text ?? '',
+        'description':
+            (item['description'] as TextEditingController?)?.text ?? '',
+      };
+    }).where((item) {
+      final name = item['name'];
+      return name != null && name is String && name.isNotEmpty;
+    }).toList();
+  }
 
   // ===== NEW: Build previous events for API =====
   List<Map<String, dynamic>> _buildEventsData() {
-    return _previousEvents.map((event) {
-      return {
-        'title': (event['title'] as TextEditingController).text,
-        'description': (event['description'] as TextEditingController).text,
-        'location': (event['location'] as TextEditingController).text,
-        'eventDate': event['eventDate']?.toIso8601String(),
-      };
-    }).where((event) => event['title'].isNotEmpty).toList();
+    return _previousEvents
+        .map((event) {
+          return {
+            'title': (event['title'] as TextEditingController).text,
+            'description': (event['description'] as TextEditingController).text,
+            'location': (event['location'] as TextEditingController).text,
+            'eventDate': event['eventDate']?.toIso8601String(),
+          };
+        })
+        .where((event) => event['title'].isNotEmpty)
+        .toList();
   }
 
   Widget _buildMultiSelectField(String key, Map<String, dynamic> fieldData) {
@@ -829,7 +1118,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                   selectedColor: const Color(0xFFE33629).withOpacity(0.2),
                   checkmarkColor: const Color(0xFFE33629),
                   labelStyle: TextStyle(
-                    color: isSelected ? const Color(0xFFE33629) : Colors.black87,
+                    color:
+                        isSelected ? const Color(0xFFE33629) : Colors.black87,
                     fontSize: 12,
                   ),
                 );
@@ -841,8 +1131,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
     );
   }
 
-
-    Future<void> _pickFeatureImage(int index) async {
+  Future<void> _pickFeatureImage(int index) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.gallery,
@@ -898,12 +1187,12 @@ List<Map<String, dynamic>> _buildPortfolioData() {
   //   bool hasRequiredFields = true;
   //   attributeValues.forEach((key, value) {
   //     // Skip price validation for gold shops and companies
-  //     if (key == 'price' && 
-  //         (selectedCategoryName?.toLowerCase() == 'gold shops' || 
+  //     if (key == 'price' &&
+  //         (selectedCategoryName?.toLowerCase() == 'gold shops' ||
   //          selectedCategoryName?.toLowerCase() == 'companies')) {
   //       return;
   //     }
-      
+
   //     if (value['isRequired'] == true) {
   //       if (attributeControllers.containsKey(key) && attributeControllers[key]!.text.isEmpty) {
   //         hasRequiredFields = false;
@@ -945,11 +1234,11 @@ List<Map<String, dynamic>> _buildPortfolioData() {
   //     request.fields['contactNumber'] = _contactNumberController.text;
   //     request.fields['email'] = _emailController.text;
   //     request.fields['website'] = _websiteController.text;
-  //     request.fields['latitude'] = _latitudeController.text.isNotEmpty 
-  //         ? _latitudeController.text 
+  //     request.fields['latitude'] = _latitudeController.text.isNotEmpty
+  //         ? _latitudeController.text
   //         : '17.4065';
-  //     request.fields['longitude'] = _longitudeController.text.isNotEmpty 
-  //         ? _longitudeController.text 
+  //     request.fields['longitude'] = _longitudeController.text.isNotEmpty
+  //         ? _longitudeController.text
   //         : '78.4483';
 
   //     // Create contact object
@@ -965,7 +1254,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
 
   //     // Add contact as JSON string
   //     request.fields['contact'] = json.encode(contactInfo);
-      
+
   //     // Add attributes as JSON
   //     request.fields['attributes'] = json.encode(_buildAttributes());
 
@@ -1050,7 +1339,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
   //             backgroundColor: Colors.green,
   //           ),
   //         );
-          
+
   //         // Navigate back
   //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const NavbarScreen()));
   //       }
@@ -1075,203 +1364,214 @@ List<Map<String, dynamic>> _buildPortfolioData() {
   //   }
   // }
 
-
-
   Future<void> _submitListing() async {
-  if (!_formKey.currentState!.validate()) {
-    return;
-  }
-
-  if (selectedCategoryId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please select a category'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  if (_selectedImages.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please add at least one image'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  setState(() {
-    _isUploading = true;
-  });
-
-  try {
-    final userId = await SharedPrefHelper.getUserId();
-    if (userId == null) {
-      throw Exception('User not logged in');
-    }
-
-    // Prepare the request
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('${ApiConstants.baseUrl}/api/create/$selectedCategoryId'),
-    );
-
-    // Add basic fields
-    request.fields['userId'] = userId;
-    request.fields['name'] = _titleController.text;
-    request.fields['description'] = _descriptionController.text;
-    request.fields['address'] = _addressController.text;
-    request.fields['latitude'] = _latitudeController.text.isNotEmpty 
-        ? _latitudeController.text 
-        : '17.4065';
-    request.fields['longitude'] = _longitudeController.text.isNotEmpty 
-        ? _longitudeController.text 
-        : '78.4483';
-
-    // Create contact object
-    Map<String, dynamic> contactInfo = {};
-    if (_contactNumberController.text.isNotEmpty) {
-      contactInfo['callNumber'] = _contactNumberController.text;
-    }
-    if (_emailController.text.isNotEmpty) {
-      contactInfo['email'] = _emailController.text;
-    }
-    if (_websiteController.text.isNotEmpty) {
-      contactInfo['website'] = _websiteController.text;
-    }
-    
-    if (contactInfo.isNotEmpty) {
-      request.fields['contact'] = json.encode(contactInfo);
-    }
-    
-    // Add attributes as JSON
-    final attributes = _buildAttributes();
-    if (attributes.isNotEmpty) {
-      request.fields['attributes'] = json.encode(attributes);
-    }
-
-    // ✅ FIX: Add feature names ONLY if there are features
-    if (_featureNameControllers.isNotEmpty && _featureNameControllers.any((c) => c.text.isNotEmpty)) {
-      List<String> featureNames = _featureNameControllers
-          .where((c) => c.text.isNotEmpty)
-          .map((c) => c.text)
-          .toList();
-      if (featureNames.isNotEmpty) {
-        // Your backend already handles featureNames from the request body
-        request.fields['featureNames'] = json.encode(featureNames);
-      }
-    }
-
-    // Add portfolio data
-    final portfolioData = _buildPortfolioData();
-    if (portfolioData.isNotEmpty) {
-      request.fields['portfolio'] = json.encode(portfolioData);
-    }
-
-    // Add previous events data
-    final eventsData = _buildEventsData();
-    if (eventsData.isNotEmpty) {
-      request.fields['previousEvents'] = json.encode(eventsData);
-    }
-
-    // ✅ ADD DEBUG PRINT
-    print("========== FIELDS BEING SENT ==========");
-    request.fields.forEach((key, value) {
-      print("Field: $key = $value");
-    });
-
-    // Add main images
-    for (var i = 0; i < _selectedImages.length; i++) {
-      var file = await http.MultipartFile.fromPath(
-        'images',
-        _selectedImages[i].path,
-      );
-      request.files.add(file);
-    }
-
-    // Add feature images
-    for (var i = 0; i < _featureImages.length; i++) {
-      if (_featureImages[i].path.isNotEmpty) {
-        var file = await http.MultipartFile.fromPath(
-          'featureImages',
-          _featureImages[i].path,
-        );
-        request.files.add(file);
-      }
-    }
-
-    // Add portfolio logos
-    for (var i = 0; i < _portfolioItems.length; i++) {
-      final logo = _portfolioItems[i]['logo'];
-      if (logo != null && logo.path.isNotEmpty) {
-        var file = await http.MultipartFile.fromPath(
-          'portfolioLogos',
-          logo.path,
-        );
-        request.files.add(file);
-      }
-    }
-
-    // Add event images
-    for (var i = 0; i < _previousEvents.length; i++) {
-      final image = _previousEvents[i]['image'];
-      if (image != null && image.path.isNotEmpty) {
-        var file = await http.MultipartFile.fromPath(
-          'eventImages',
-          image.path,
-        );
-        request.files.add(file);
-      }
-    }
-
-    // ✅ ADD DEBUG PRINT FOR FILES
-    print("========== FILES BEING SENT ==========");
-    for (var file in request.files) {
-      print("File field: ${file.field} - ${file.filename}");
-    }
-
-    // Send request
-    var response = await request.send();
-    var responseData = await response.stream.bytesToString();
-    var decodedData = json.decode(responseData);
-
-    print("Response status: ${response.statusCode}");
-    print("Response body: $decodedData");
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Property listed successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const NavbarScreen()));
-      }
-    } else {
-      throw Exception(decodedData['message'] ?? 'Failed to list property');
-    }
-  } catch (e) {
-    print("Submission error: $e");
-    if (mounted) {
+    final userId = SharedPrefHelper.getUserId();
+    if (userId == null || userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
+        const SnackBar(
+          content: Text('User not found. Please login again.'),
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isUploading = false;
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a category'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least one image'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final userId = await SharedPrefHelper.getUserId();
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+
+      // Prepare the request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConstants.baseUrl}/api/create/$selectedCategoryId'),
+      );
+
+      // Add basic fields
+      request.fields['userId'] = userId;
+      request.fields['name'] = _titleController.text;
+      request.fields['description'] = _descriptionController.text;
+      request.fields['address'] = _addressController.text;
+      request.fields['latitude'] = _latitudeController.text.isNotEmpty
+          ? _latitudeController.text
+          : '17.4065';
+      request.fields['longitude'] = _longitudeController.text.isNotEmpty
+          ? _longitudeController.text
+          : '78.4483';
+
+      // Create contact object
+      Map<String, dynamic> contactInfo = {};
+      if (_contactNumberController.text.isNotEmpty) {
+        contactInfo['callNumber'] = _contactNumberController.text;
+      }
+      if (_emailController.text.isNotEmpty) {
+        contactInfo['email'] = _emailController.text;
+      }
+      if (_websiteController.text.isNotEmpty) {
+        contactInfo['website'] = _websiteController.text;
+      }
+
+      if (contactInfo.isNotEmpty) {
+        request.fields['contact'] = json.encode(contactInfo);
+      }
+
+      // Add attributes as JSON
+      final attributes = _buildAttributes();
+      if (attributes.isNotEmpty) {
+        request.fields['attributes'] = json.encode(attributes);
+      }
+
+      // ✅ FIX: Add feature names ONLY if there are features
+      if (_featureNameControllers.isNotEmpty &&
+          _featureNameControllers.any((c) => c.text.isNotEmpty)) {
+        List<String> featureNames = _featureNameControllers
+            .where((c) => c.text.isNotEmpty)
+            .map((c) => c.text)
+            .toList();
+        if (featureNames.isNotEmpty) {
+          // Your backend already handles featureNames from the request body
+          request.fields['featureNames'] = json.encode(featureNames);
+        }
+      }
+
+      // Add portfolio data
+      final portfolioData = _buildPortfolioData();
+      if (portfolioData.isNotEmpty) {
+        request.fields['portfolio'] = json.encode(portfolioData);
+      }
+
+      // Add previous events data
+      final eventsData = _buildEventsData();
+      if (eventsData.isNotEmpty) {
+        request.fields['previousEvents'] = json.encode(eventsData);
+      }
+
+      // ✅ ADD DEBUG PRINT
+      print("========== FIELDS BEING SENT ==========");
+      request.fields.forEach((key, value) {
+        print("Field: $key = $value");
       });
+
+      // Add main images
+      for (var i = 0; i < _selectedImages.length; i++) {
+        var file = await http.MultipartFile.fromPath(
+          'images',
+          _selectedImages[i].path,
+        );
+        request.files.add(file);
+      }
+
+      // Add feature images
+      for (var i = 0; i < _featureImages.length; i++) {
+        if (_featureImages[i].path.isNotEmpty) {
+          var file = await http.MultipartFile.fromPath(
+            'featureImages',
+            _featureImages[i].path,
+          );
+          request.files.add(file);
+        }
+      }
+
+      // Add portfolio logos
+      for (var i = 0; i < _portfolioItems.length; i++) {
+        final logo = _portfolioItems[i]['logo'];
+        if (logo != null && logo.path.isNotEmpty) {
+          var file = await http.MultipartFile.fromPath(
+            'portfolioLogos',
+            logo.path,
+          );
+          request.files.add(file);
+        }
+      }
+
+      // Add event images
+      for (var i = 0; i < _previousEvents.length; i++) {
+        final image = _previousEvents[i]['image'];
+        if (image != null && image.path.isNotEmpty) {
+          var file = await http.MultipartFile.fromPath(
+            'eventImages',
+            image.path,
+          );
+          request.files.add(file);
+        }
+      }
+
+      // ✅ ADD DEBUG PRINT FOR FILES
+      print("========== FILES BEING SENT ==========");
+      for (var file in request.files) {
+        print("File field: ${file.field} - ${file.filename}");
+      }
+
+      // Send request
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+      var decodedData = json.decode(responseData);
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: $decodedData");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Property listed successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const NavbarScreen()));
+        }
+      } else {
+        throw Exception(decodedData['message'] ?? 'Failed to list property');
+      }
+    } catch (e) {
+      print("Submission error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -1323,7 +1623,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      
+
                       isLoadingCategories
                           ? _buildCategorySkeleton()
                           : categories.isEmpty
@@ -1340,13 +1640,16 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                 )
                               : Container(
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade200),
+                                    border:
+                                        Border.all(color: Colors.grey.shade200),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: GridView.builder(
                                     shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4,
                                       childAspectRatio: 0.9,
                                       crossAxisSpacing: 8,
@@ -1356,15 +1659,18 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     itemCount: categories.length,
                                     itemBuilder: (context, index) {
                                       final category = categories[index];
-                                      final isSelected = selectedCategoryId == category['id'];
-      
+                                      final isSelected =
+                                          selectedCategoryId == category['id'];
+
                                       return GestureDetector(
                                         onTap: () {
                                           setState(() {
                                             selectedCategoryId = category['id'];
-                                            selectedCategoryName = category['name'];
+                                            selectedCategoryName =
+                                                category['name'];
                                           });
-                                          _initializeAttributeFields(category['name']);
+                                          _initializeAttributeFields(
+                                              category['name']);
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -1378,8 +1684,11 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                                     end: Alignment.bottomRight,
                                                   )
                                                 : null,
-                                            color: isSelected ? null : Colors.grey.shade50,
-                                            borderRadius: BorderRadius.circular(12),
+                                            color: isSelected
+                                                ? null
+                                                : Colors.grey.shade50,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                             border: Border.all(
                                               color: isSelected
                                                   ? const Color(0xFFE33629)
@@ -1387,7 +1696,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                             ),
                                           ),
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Container(
                                                 width: 30,
@@ -1396,17 +1706,22 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
                                                 ),
-                                                child: category['image'] != null && category['image'].isNotEmpty
+                                                child: category['image'] !=
+                                                            null &&
+                                                        category['image']
+                                                            .isNotEmpty
                                                     ? Image.network(
                                                         category['image'],
                                                         width: 20,
                                                         height: 20,
-                                                        errorBuilder: (_, __, ___) {
+                                                        errorBuilder:
+                                                            (_, __, ___) {
                                                           return Icon(
                                                             Icons.category,
                                                             size: 20,
                                                             color: isSelected
-                                                                ? const Color(0xFFE33629)
+                                                                ? const Color(
+                                                                    0xFFE33629)
                                                                 : Colors.grey,
                                                           );
                                                         },
@@ -1415,7 +1730,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                                         Icons.category,
                                                         size: 20,
                                                         color: isSelected
-                                                            ? const Color(0xFFE33629)
+                                                            ? const Color(
+                                                                0xFFE33629)
                                                             : Colors.grey,
                                                       ),
                                               ),
@@ -1439,9 +1755,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     },
                                   ),
                                 ),
-      
+
                       const SizedBox(height: 24),
-      
+
                       // Images Section
                       const Text(
                         "Property Photos",
@@ -1452,7 +1768,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      
+
                       // Image Grid
                       if (_selectedImages.isNotEmpty)
                         Container(
@@ -1471,7 +1787,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       image: DecorationImage(
-                                        image: FileImage(_selectedImages[index]),
+                                        image:
+                                            FileImage(_selectedImages[index]),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -1500,7 +1817,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             },
                           ),
                         ),
-                      
+
                       // Add Image Button
                       GestureDetector(
                         onTap: _showImagePickerSheet,
@@ -1535,9 +1852,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                       ),
-      
+
                       const SizedBox(height: 24),
-      
+
                       // Basic Details Section
                       const Text(
                         "Basic Details",
@@ -1548,12 +1865,12 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         ),
                       ),
                       const SizedBox(height: 12),
-      
+
                       // Title
                       _buildTextField(
                         controller: _titleController,
-                        label: selectedCategoryName != null 
-                            ? "${selectedCategoryName!} Title" 
+                        label: selectedCategoryName != null
+                            ? "${selectedCategoryName!} Title"
                             : "Property Title",
                         hint: "e.g., ${_getExampleTitle(selectedCategoryName)}",
                         validator: (value) {
@@ -1563,9 +1880,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           return null;
                         },
                       ),
-      
+
                       const SizedBox(height: 16),
-      
+
                       // Description
                       _buildTextField(
                         controller: _descriptionController,
@@ -1579,9 +1896,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           return null;
                         },
                       ),
-      
+
                       const SizedBox(height: 16),
-      
+
                       // Contact Information
                       const Text(
                         "Contact Information",
@@ -1592,7 +1909,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         ),
                       ),
                       const SizedBox(height: 12),
-      
+
                       // Contact Number
                       _buildTextField(
                         controller: _contactNumberController,
@@ -1606,9 +1923,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           return null;
                         },
                       ),
-      
+
                       const SizedBox(height: 12),
-      
+
                       // Email
                       _buildTextField(
                         controller: _emailController,
@@ -1616,20 +1933,20 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         hint: "e.g., contact@example.com",
                         keyboardType: TextInputType.emailAddress,
                       ),
-      
+
                       const SizedBox(height: 12),
-      
+
                       // Website (optional)
-                      if (selectedCategoryName?.toLowerCase() == 'companies' || 
+                      if (selectedCategoryName?.toLowerCase() == 'companies' ||
                           selectedCategoryName?.toLowerCase() == 'gold shops')
                         _buildTextField(
                           controller: _websiteController,
                           label: "Website",
                           hint: "e.g., www.example.com",
                         ),
-      
+
                       const SizedBox(height: 16),
-      
+
                       // Location Section
                       const Text(
                         "Location Details",
@@ -1640,7 +1957,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                         ),
                       ),
                       const SizedBox(height: 12),
-      
+
                       // Address
                       _buildTextField(
                         controller: _addressController,
@@ -1653,9 +1970,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           return null;
                         },
                       ),
-      
+
                       const SizedBox(height: 12),
-      
+
                       // Latitude & Longitude
                       Row(
                         children: [
@@ -1678,22 +1995,26 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ],
                       ),
-      
+
                       const SizedBox(height: 12),
-      
+
                       // Get Current Location Button
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
-                          onPressed: _isGettingLocation ? null : _getCurrentLocation,
+                          onPressed:
+                              _isGettingLocation ? null : _getCurrentLocation,
                           icon: _isGettingLocation
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Icon(Icons.my_location, size: 18),
-                          label: Text(_isGettingLocation ? 'Getting Location...' : 'Get Current Location'),
+                          label: Text(_isGettingLocation
+                              ? 'Getting Location...'
+                              : 'Get Current Location'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFFE33629),
                             side: const BorderSide(color: Color(0xFFE33629)),
@@ -1701,9 +2022,9 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                       ),
-      
+
                       const SizedBox(height: 24),
-      
+
                       // Dynamic Attribute Fields based on Category
                       if (selectedCategoryId != null) ...[
                         const Text(
@@ -1715,14 +2036,19 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                         const SizedBox(height: 12),
-      
+
                         // Price Field (always show)
-                        if (selectedCategoryName?.toLowerCase() != 'companies' && 
-                            selectedCategoryName?.toLowerCase() != 'gold shops') ...[
+                        if (selectedCategoryName?.toLowerCase() !=
+                                'companies' &&
+                            selectedCategoryName?.toLowerCase() !=
+                                'gold shops') ...[
                           _buildTextField(
-                            controller: attributeControllers['price'] ?? TextEditingController(),
-                            label: attributeValues['price']?['label'] ?? 'Price',
-                            hint: attributeValues['price']?['hint'] ?? 'Enter price',
+                            controller: attributeControllers['price'] ??
+                                TextEditingController(),
+                            label:
+                                attributeValues['price']?['label'] ?? 'Price',
+                            hint: attributeValues['price']?['hint'] ??
+                                'Enter price',
                             keyboardType: TextInputType.number,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -1733,119 +2059,129 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                           const SizedBox(height: 16),
                         ],
-      
+
                         // Dynamic Fields
                         ...attributeValues.keys
                             .where((key) => key != 'price')
                             .map((key) {
-                              final fieldData = attributeValues[key];
-                              if (fieldData == null) return const SizedBox();
-      
-                              switch (fieldData['type']) {
-                                case 'boolean':
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: Row(
-                                      children: [
-                                        Checkbox(
-                                          value: booleanAttributes[key] ?? false,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              booleanAttributes[key] = value ?? false;
-                                            });
-                                          },
-                                          activeColor: const Color(0xFFE33629),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            fieldData['label'],
-                                            style: const TextStyle(fontSize: 14),
-                                          ),
-                                        ),
-                                      ],
+                          final fieldData = attributeValues[key];
+                          if (fieldData == null) return const SizedBox();
+
+                          switch (fieldData['type']) {
+                            case 'boolean':
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: booleanAttributes[key] ?? false,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          booleanAttributes[key] =
+                                              value ?? false;
+                                        });
+                                      },
+                                      activeColor: const Color(0xFFE33629),
                                     ),
-                                  );
-                                
-                                case 'dropdown':
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          fieldData['label'],
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(color: Colors.grey.shade300),
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: dropdownAttributes[key] ?? 
-                                                  (fieldData['options'] as List<String>?)?.firstOrNull,
-                                            isExpanded: true,
-                                            underline: const SizedBox(),
-                                            icon: const Icon(Icons.arrow_drop_down),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                dropdownAttributes[key] = value!;
-                                              });
-                                            },
-                                            items: (fieldData['options'] as List<String>)
-                                                .map((String item) {
-                                              return DropdownMenuItem<String>(
-                                                value: item,
-                                                child: Text(
-                                                  item,
-                                                  style: const TextStyle(fontSize: 14),
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                
-                                case 'multiselect':
-                                  return _buildMultiSelectField(key, fieldData);
-                                
-                                default:
-                                  return Column(
-                                    children: [
-                                      _buildTextField(
-                                        controller: attributeControllers[key]!,
-                                        label: fieldData['label'],
-                                        hint: fieldData['hint'] ?? 'Enter ${fieldData['label']}',
-                                        keyboardType: fieldData['isNumber'] == true
-                                            ? TextInputType.number
-                                            : TextInputType.text,
-                                        validator: fieldData['isRequired'] == true
-                                            ? (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return '${fieldData['label']} is required';
-                                                }
-                                                return null;
-                                              }
-                                            : null,
+                                    Expanded(
+                                      child: Text(
+                                        fieldData['label'],
+                                        style: const TextStyle(fontSize: 14),
                                       ),
-                                      const SizedBox(height: 16),
-                                    ],
-                                  );
-                              }
-                            }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                            case 'dropdown':
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      fieldData['label'],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 14),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade300),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: dropdownAttributes[key] ??
+                                            (fieldData['options']
+                                                    as List<String>?)
+                                                ?.firstOrNull,
+                                        isExpanded: true,
+                                        underline: const SizedBox(),
+                                        icon: const Icon(Icons.arrow_drop_down),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            dropdownAttributes[key] = value!;
+                                          });
+                                        },
+                                        items: (fieldData['options']
+                                                as List<String>)
+                                            .map((String item) {
+                                          return DropdownMenuItem<String>(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                            case 'multiselect':
+                              return _buildMultiSelectField(key, fieldData);
+
+                            default:
+                              return Column(
+                                children: [
+                                  _buildTextField(
+                                    controller: attributeControllers[key]!,
+                                    label: fieldData['label'],
+                                    hint: fieldData['hint'] ??
+                                        'Enter ${fieldData['label']}',
+                                    keyboardType: fieldData['isNumber'] == true
+                                        ? TextInputType.number
+                                        : TextInputType.text,
+                                    validator: fieldData['isRequired'] == true
+                                        ? (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return '${fieldData['label']} is required';
+                                            }
+                                            return null;
+                                          }
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                          }
+                        }).toList(),
                       ],
-      
+
                       const SizedBox(height: 24),
-      
+
                       // ===== NEW: Portfolio Section =====
-                      if (selectedCategoryName?.toLowerCase() == 'companies') ...[
+                      if (selectedCategoryName?.toLowerCase() ==
+                          'companies') ...[
                         const Text(
                           "Portfolio (Optional)",
                           style: TextStyle(
@@ -1855,7 +2191,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        
+
                         // Portfolio Items
                         ListView.builder(
                           shrinkWrap: true,
@@ -1882,11 +2218,14 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                           height: 60,
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
                                             image: item['logo'] != null
                                                 ? DecorationImage(
-                                                    image: FileImage(item['logo']),
+                                                    image:
+                                                        FileImage(item['logo']),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : null,
@@ -1913,7 +2252,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  
+
                                   // Name
                                   TextFormField(
                                     controller: item['name'],
@@ -1927,14 +2266,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Play Store Link
                                   TextFormField(
                                     controller: item['playStoreLink'],
@@ -1948,14 +2288,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // App Store Link
                                   TextFormField(
                                     controller: item['appStoreLink'],
@@ -1969,14 +2310,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Website
                                   TextFormField(
                                     controller: item['website'],
@@ -1990,14 +2332,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Description
                                   TextFormField(
                                     controller: item['description'],
@@ -2008,22 +2351,25 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                         fontSize: 12,
                                         color: Colors.grey.shade600,
                                       ),
-                                      hintText: 'Brief description of the project',
+                                      hintText:
+                                          'Brief description of the project',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
-                                  
+
                                   if (_portfolioItems.length > 1)
                                     Align(
                                       alignment: Alignment.centerRight,
                                       child: TextButton(
-                                        onPressed: () => _removePortfolioItem(index),
+                                        onPressed: () =>
+                                            _removePortfolioItem(index),
                                         child: const Text(
                                           'Remove',
                                           style: TextStyle(color: Colors.red),
@@ -2035,7 +2381,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             );
                           },
                         ),
-                        
+
                         // Add Portfolio Button
                         TextButton.icon(
                           onPressed: _addPortfolioItem,
@@ -2045,14 +2391,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             foregroundColor: const Color(0xFFE33629),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
                       ],
-      
+
                       // ===== NEW: Previous Events Section =====
-                      if (selectedCategoryName?.toLowerCase() == 'companies' || 
+                      if (selectedCategoryName?.toLowerCase() == 'companies' ||
                           selectedCategoryName?.toLowerCase() == 'hotel' ||
-                          selectedCategoryName?.toLowerCase() == 'gold shops') ...[
+                          selectedCategoryName?.toLowerCase() ==
+                              'gold shops') ...[
                         const Text(
                           "Previous Events (Optional)",
                           style: TextStyle(
@@ -2062,7 +2409,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        
+
                         // Event Items
                         ListView.builder(
                           shrinkWrap: true,
@@ -2089,11 +2436,14 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                           height: 80,
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
                                             image: event['image'] != null
                                                 ? DecorationImage(
-                                                    image: FileImage(event['image']),
+                                                    image: FileImage(
+                                                        event['image']),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : null,
@@ -2110,7 +2460,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Event Image',
@@ -2134,7 +2485,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  
+
                                   // Title
                                   TextFormField(
                                     controller: event['title'],
@@ -2144,18 +2495,20 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                         fontSize: 12,
                                         color: Colors.grey.shade600,
                                       ),
-                                      hintText: 'e.g., Annual Tech Conference 2024',
+                                      hintText:
+                                          'e.g., Annual Tech Conference 2024',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Description
                                   TextFormField(
                                     controller: event['description'],
@@ -2166,18 +2519,20 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                         fontSize: 12,
                                         color: Colors.grey.shade600,
                                       ),
-                                      hintText: 'Brief description of the event',
+                                      hintText:
+                                          'Brief description of the event',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Location
                                   TextFormField(
                                     controller: event['location'],
@@ -2191,14 +2546,15 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 12,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  
+
                                   // Event Date
                                   GestureDetector(
                                     onTap: () => _selectEventDate(index),
@@ -2208,7 +2564,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                         vertical: 14,
                                       ),
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.grey.shade300),
+                                        border: Border.all(
+                                            color: Colors.grey.shade300),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -2226,9 +2583,10 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                                   : 'Select Event Date',
                                               style: TextStyle(
                                                 fontSize: 13,
-                                                color: event['eventDate'] != null
-                                                    ? Colors.black87
-                                                    : Colors.grey.shade500,
+                                                color:
+                                                    event['eventDate'] != null
+                                                        ? Colors.black87
+                                                        : Colors.grey.shade500,
                                               ),
                                             ),
                                           ),
@@ -2236,12 +2594,13 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                       ),
                                     ),
                                   ),
-                                  
+
                                   if (_previousEvents.length > 1)
                                     Align(
                                       alignment: Alignment.centerRight,
                                       child: TextButton(
-                                        onPressed: () => _removePreviousEvent(index),
+                                        onPressed: () =>
+                                            _removePreviousEvent(index),
                                         child: const Text(
                                           'Remove',
                                           style: TextStyle(color: Colors.red),
@@ -2253,7 +2612,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             );
                           },
                         ),
-                        
+
                         // Add Event Button
                         TextButton.icon(
                           onPressed: _addPreviousEvent,
@@ -2263,10 +2622,10 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             foregroundColor: const Color(0xFFE33629),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
                       ],
-      
+
                       // Features Section (Optional)
                       if (selectedCategoryId != null) ...[
                         const Text(
@@ -2278,7 +2637,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                         const SizedBox(height: 12),
-      
+
                         // Feature Fields
                         ListView.builder(
                           shrinkWrap: true,
@@ -2298,18 +2657,22 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     children: [
                                       Expanded(
                                         child: TextFormField(
-                                          controller: _featureNameControllers[index],
+                                          controller:
+                                              _featureNameControllers[index],
                                           decoration: InputDecoration(
                                             labelText: 'Feature Name',
                                             labelStyle: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey.shade600,
                                             ),
-                                            hintText: _getFeatureHint(selectedCategoryName),
+                                            hintText: _getFeatureHint(
+                                                selectedCategoryName),
                                             border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            contentPadding: const EdgeInsets.symmetric(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 12,
                                             ),
@@ -2324,18 +2687,27 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                           height: 50,
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: Colors.grey.shade300),
-                                            image: _featureImages.length > index && 
-                                                  _featureImages[index].path.isNotEmpty
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: Colors.grey.shade300),
+                                            image: _featureImages.length >
+                                                        index &&
+                                                    _featureImages[index]
+                                                        .path
+                                                        .isNotEmpty
                                                 ? DecorationImage(
-                                                    image: FileImage(_featureImages[index]),
+                                                    image: FileImage(
+                                                        _featureImages[index]),
                                                     fit: BoxFit.cover,
                                                   )
                                                 : null,
                                           ),
-                                          child: _featureImages.length <= index || 
-                                                 _featureImages[index].path.isEmpty
+                                          child: _featureImages.length <=
+                                                      index ||
+                                                  _featureImages[index]
+                                                      .path
+                                                      .isEmpty
                                               ? Icon(
                                                   Icons.add_photo_alternate,
                                                   size: 24,
@@ -2350,7 +2722,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                                     Align(
                                       alignment: Alignment.centerRight,
                                       child: TextButton(
-                                        onPressed: () => _removeFeatureField(index),
+                                        onPressed: () =>
+                                            _removeFeatureField(index),
                                         child: const Text(
                                           'Remove',
                                           style: TextStyle(color: Colors.red),
@@ -2362,7 +2735,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             );
                           },
                         ),
-      
+
                         // Add More Feature Button
                         TextButton.icon(
                           onPressed: _addFeatureField,
@@ -2372,12 +2745,12 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                             foregroundColor: const Color(0xFFE33629),
                           ),
                         ),
-      
+
                         const SizedBox(height: 16),
                       ],
-      
+
                       const SizedBox(height: 32),
-      
+
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
@@ -2400,7 +2773,7 @@ List<Map<String, dynamic>> _buildPortfolioData() {
                           ),
                         ),
                       ),
-      
+
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -2412,8 +2785,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
 
   String _getExampleTitle(String? categoryName) {
     if (categoryName == null) return 'Luxurious Villa';
-    
-    switch(categoryName.toLowerCase()) {
+
+    switch (categoryName.toLowerCase()) {
       case 'villa':
         return '3 BHK Luxurious Villa with Pool';
       case 'hotel':
@@ -2433,8 +2806,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
 
   String _getDescriptionHint(String? categoryName) {
     if (categoryName == null) return 'Describe your property...';
-    
-    switch(categoryName.toLowerCase()) {
+
+    switch (categoryName.toLowerCase()) {
       case 'villa':
         return 'Describe the villa, its amenities, location advantages, etc.';
       case 'hotel':
@@ -2454,8 +2827,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
 
   String _getFeatureHint(String? categoryName) {
     if (categoryName == null) return 'e.g., Swimming Pool';
-    
-    switch(categoryName.toLowerCase()) {
+
+    switch (categoryName.toLowerCase()) {
       case 'villa':
         return 'e.g., Private Pool, Garden';
       case 'hotel':
@@ -2551,8 +2924,8 @@ List<Map<String, dynamic>> _buildPortfolioData() {
   }
 
   // Price controller getter
-  TextEditingController get _priceController => 
-      attributeControllers.containsKey('price') 
-          ? attributeControllers['price']! 
+  TextEditingController get _priceController =>
+      attributeControllers.containsKey('price')
+          ? attributeControllers['price']!
           : TextEditingController();
 }

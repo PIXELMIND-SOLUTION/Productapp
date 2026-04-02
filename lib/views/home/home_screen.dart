@@ -421,12 +421,12 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> fetchNearestProducts() async {
     final userId = SharedPrefHelper.getUserId();
 
-    if (userId == null) {
-      setState(() {
-        isLoadingNearestProducts = false;
-      });
-      return;
-    }
+    // if (userId == null) {
+    //   setState(() {
+    //     isLoadingNearestProducts = false;
+    //   });
+    //   return;
+    // }
 
     setState(() {
       isLoadingNearestProducts = true;
@@ -434,9 +434,23 @@ class _HomeScreenState extends State<HomeScreen>
 
     try {
       // Build URL with optional category filter
-      String url = '${ApiConstants.baseUrl}/api/nearest/user/$userId';
+      print("jjjjjjjjjjjjjjjjjj$userId");
+
+      String url;
+      if (userId != null && userId.isNotEmpty) {
+        print("llllllllllllllllllllllllllllllll$userId");
+        url = '${ApiConstants.baseUrl}/api/nearest/user/$userId';
+      } else {
+        print("ddffdfdfdfdfdfdfdfdfdfdfdf$userId");
+
+        url = '${ApiConstants.baseUrl}/api/products';
+      }
       if (_selectedCategoryId != null && _selectedCategoryId!.isNotEmpty) {
-        url += '/$_selectedCategoryId';
+        if (userId != null && userId.isNotEmpty) {
+          url += '/$_selectedCategoryId';
+        } else {
+          url += '/category/$_selectedCategoryId';
+        }
       }
 
       if (_searchQuery.isNotEmpty) {
@@ -1287,7 +1301,18 @@ class _HomeScreenState extends State<HomeScreen>
                                 return _PropertyListCard(
                                   key: ValueKey(property['id']),
                                   property: property,
-                                  onTap: () {
+                                  onTap: () async {
+                                    final userId =
+                                        await SharedPrefHelper.getUserId();
+                                    if (userId == null || userId.isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'You are guest, for access this login first')),
+                                      );
+                                      return;
+                                    }
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -1427,6 +1452,14 @@ class _HomeScreenState extends State<HomeScreen>
             final imageUrl = profileProvider.profileImageUrl;
             return GestureDetector(
               onTap: () {
+                final userId = SharedPrefHelper.getUserId();
+                if (userId == null || userId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('User ID not found, Login first')),
+                  );
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const EditProfile()),
@@ -1451,7 +1484,11 @@ class _HomeScreenState extends State<HomeScreen>
         Expanded(
           child: Consumer<ProfileProvider>(
             builder: (context, profileProvider, _) {
-              final userName = profileProvider.name ?? 'Go to Profile';
+              final userId = SharedPrefHelper.getUserId();
+
+              final userName = (userId != null && userId.isNotEmpty)
+                  ? (profileProvider.name ?? 'Go to Profile')
+                  : 'Guest';
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1476,6 +1513,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
         const PixelmindLogoButton(),
+
         // Location Icon
         IconButton(
           icon: const Icon(Icons.location_on),
@@ -1486,6 +1524,13 @@ class _HomeScreenState extends State<HomeScreen>
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
           onPressed: () {
+            final userId = SharedPrefHelper.getUserId();
+            if (userId == null || userId.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('User ID not found, Login first')),
+              );
+              return;
+            }
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -2854,6 +2899,15 @@ class _PropertyListCard extends StatelessWidget {
                       right: 10,
                       child: GestureDetector(
                         onTap: () async {
+                          final userId = SharedPrefHelper.getUserId();
+                          if (userId == null || userId.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'You are guest, for access this login first')),
+                            );
+                            return;
+                          }
                           final success = await wishlistProvider
                               .toggleWishlist(property['id']);
                           if (context.mounted) {
@@ -3042,7 +3096,16 @@ class _PropertyListCard extends StatelessWidget {
                       // Action Buttons Row
                       Row(
                         children: [
-                          _CallButton(onTap: () {
+                          _CallButton(onTap: () async {
+                            final userId = SharedPrefHelper.getUserId();
+                            if (userId == null || userId.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'You are guest, for access this login first')),
+                              );
+                              return;
+                            }
                             CallUtils.showCallOptions(
                               context: context,
                               phoneNumber: agentPhone,
@@ -3055,7 +3118,16 @@ class _PropertyListCard extends StatelessWidget {
                           _ActionButton(
                             imagePath: 'assets/images/whatsapp.png',
                             label: "Whatsapp",
-                            onTap: () {
+                            onTap: () async {
+                              final userId = SharedPrefHelper.getUserId();
+                              if (userId == null || userId.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'You are guest, for access this login first')),
+                                );
+                                return;
+                              }
                               WhatsAppUtils.shareProperty(
                                 context: context,
                                 propertyTitle: primaryTitle,
@@ -3073,7 +3145,16 @@ class _PropertyListCard extends StatelessWidget {
                             _ActionButton(
                               imagePath: 'assets/images/location.png',
                               label: "Location",
-                              onTap: () {
+                              onTap: () async {
+                                final userId = SharedPrefHelper.getUserId();
+                                if (userId == null || userId.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'You are guest, for access this login first')),
+                                  );
+                                  return;
+                                }
                                 LocationUtils.openMap(
                                   context: context,
                                   latitude: 28.6139,

@@ -1,5 +1,6 @@
-
 // lib/views/login_screen.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:product_app/Provider/auth/login_provider.dart';
 import 'package:product_app/views/auth/otp_screen.dart';
@@ -412,35 +413,39 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
 
                         // Google Sign In Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: OutlinedButton.icon(
-                            onPressed: _isLoading ? null : _handleGoogleSignIn,
-                            icon: Image.asset(
-                              'assets/images/go.png',
-                              width: 20,
-                              height: 20,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.g_mobiledata,
-                                color: Colors.red,
-                              ),
-                            ),
-                            label: const Text(
-                              "Continue with Google",
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontSize: 15,
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.grey.shade300),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
+                        Platform.isAndroid
+                            ? SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: OutlinedButton.icon(
+                                  onPressed:
+                                      _isLoading ? null : _handleGoogleSignIn,
+                                  icon: Image.asset(
+                                    'assets/images/go.png',
+                                    width: 20,
+                                    height: 20,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.g_mobiledata,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  label: const Text(
+                                    "Continue with Google",
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    side:
+                                        BorderSide(color: Colors.grey.shade300),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox()
                       ],
                     ),
                   ),

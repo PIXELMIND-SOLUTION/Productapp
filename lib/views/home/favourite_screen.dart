@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:product_app/Provider/auth/login_provider.dart';
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
+import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/utils/call_utils.dart';
 import 'package:product_app/utils/whatsapp_utils.dart';
 import 'package:product_app/utils/location_utils.dart';
 import 'package:product_app/views/Details/nearest_house_detail.dart';
+import 'package:product_app/views/auth/login_screen.dart';
 import 'package:product_app/views/widgets/app_back_control.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -18,19 +21,46 @@ class FavouriteScreen extends StatefulWidget {
 class _FavouriteScreenState extends State<FavouriteScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<WishlistProvider>().fetchWishlist();
+      _checkAuthAndLoadWishlist();
       _animationController.forward();
     });
+  }
+
+  void _checkAuthAndLoadWishlist() {
+    final userId = SharedPrefHelper.getUserId();
+    final token = SharedPrefHelper.getToken();
+    final isGuest = SharedPrefHelper.prefs.getBool('is_guest') ?? false;
+
+    // If guest user, show login required message
+    if (isGuest) {
+      context
+          .read<WishlistProvider>()
+          .setError('Please login to view your wishlist');
+      return;
+    }
+
+    if (userId == null || token == null) {
+      context
+          .read<WishlistProvider>()
+          .setError('Authentication required. Please login to continue.');
+      return;
+    }
+
+    // Real user - fetch wishlist
+    context.read<WishlistProvider>().fetchWishlist();
   }
 
   @override
@@ -348,30 +378,79 @@ class _FavouriteScreenState extends State<FavouriteScreen>
   }
 
   Widget _buildErrorState(WishlistProvider wishlistProvider) {
+    final errorMessage =
+        wishlistProvider.errorMessage ?? 'Something went wrong';
+    final isLoginRequired = errorMessage.toLowerCase().contains('login') ||
+        errorMessage.toLowerCase().contains('user id') ||
+        errorMessage.toLowerCase().contains('not found') ||
+        errorMessage.toLowerCase().contains('session expired') ||
+        errorMessage.toLowerCase().contains('unauthorized') ||
+        errorMessage.toLowerCase().contains('authenticated') ||
+        errorMessage.toLowerCase().contains('token');
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Colors.grey.shade400,
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isLoginRequired
+                    ? const Color(0xFFE33629).withOpacity(0.1)
+                    : Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isLoginRequired ? Icons.lock_outline : Icons.error_outline,
+                size: 48,
+                color: isLoginRequired
+                    ? const Color(0xFFE33629)
+                    : Colors.grey.shade400,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
-              wishlistProvider.errorMessage ?? 'Something went wrong',
-              style: const TextStyle(
+              isLoginRequired ? 'Login Required' : 'Oops! Something went wrong',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              errorMessage,
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.black54,
+                color: Colors.grey.shade600,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                wishlistProvider.fetchWishlist();
+              onPressed: () async {
+                if (isLoginRequired) {
+                  final authProvider =
+                      Provider.of<AuthProvider>(context, listen: false);
+                  await authProvider.logout();
+                  if (context.mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
+                  // Navigate to login screen
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                  );
+                } else {
+                  wishlistProvider.fetchWishlist();
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE33629),
@@ -381,10 +460,10 @@ class _FavouriteScreenState extends State<FavouriteScreen>
                   vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Retry'),
+              child: Text(isLoginRequired ? 'Login' : 'Retry'),
             ),
           ],
         ),
