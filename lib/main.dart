@@ -10,6 +10,7 @@ import 'package:product_app/Provider/navbar_provider.dart';
 import 'package:product_app/Provider/notification_provider.dart';
 import 'package:product_app/Provider/product/product_provider.dart';
 import 'package:product_app/Provider/profile/profile_provider.dart';
+import 'package:product_app/Provider/story_provider.dart';
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
 import 'package:product_app/helper/helper_function.dart';
 import 'package:product_app/service/notification_service.dart';
@@ -315,8 +316,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
-        ChangeNotifierProvider(
-            create: (_) => VersionProvider()), // Add version provider
+        ChangeNotifierProvider(create: (_) => VersionProvider()), // Add
+        ChangeNotifierProvider(create: (_) => StoryProvider()),
       ],
       child: const _AppBootstrapper(), // Use bootstrapper pattern
     );

@@ -4,9 +4,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_app/Provider/location/location_provider.dart';
 import 'package:product_app/Provider/profile/profile_provider.dart';
+import 'package:product_app/Provider/story_provider.dart';
 import 'package:product_app/Provider/wishlist/wishlist_provider.dart';
 import 'package:product_app/constant/api_constant.dart';
 import 'package:product_app/helper/helper_function.dart';
+import 'package:product_app/model/story_model.dart';
 import 'package:product_app/profile/edit_profile.dart';
 import 'package:product_app/utils/call_utils.dart';
 import 'package:product_app/utils/location_utils.dart';
@@ -20,8 +22,10 @@ import 'package:product_app/views/location/location_screen.dart';
 import 'package:product_app/views/nearesthouses/nearest_houses.dart';
 import 'package:product_app/views/search/filter_screen.dart';
 import 'package:product_app/views/search/search_screen.dart';
+import 'package:product_app/views/story/create_story_screen.dart';
 import 'package:product_app/views/widget/banner_carousel.dart';
 import 'package:product_app/views/widget/pms.dart';
+import 'package:product_app/views/widget/story_widgets.dart';
 import 'package:product_app/views/widgets/app_back_control.dart';
 import 'package:product_app/views/widgets/debouncer.dart';
 import 'package:provider/provider.dart';
@@ -99,6 +103,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    _initializeStories();
+
     super.initState();
 
     _animationController = AnimationController(
@@ -127,6 +133,14 @@ class _HomeScreenState extends State<HomeScreen>
 
     fetchCategories();
     _initializeLocationAndData();
+  }
+
+  void _initializeStories() async {
+    final userId = await SharedPrefHelper.getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      await Provider.of<StoryProvider>(context, listen: false)
+          .fetchAllStories(userId: userId);
+    }
   }
 
   void _onSearchChanged() {
@@ -962,6 +976,298 @@ class _HomeScreenState extends State<HomeScreen>
     return _buildHomeScreen();
   }
 
+  // Add this method to your _HomeScreenState class
+// Update your _buildStoriesSection method
+  Widget _buildStoriesSection() {
+    final currentUserId = SharedPrefHelper.getUserId() ?? '';
+
+    return Consumer<StoryProvider>(
+      builder: (context, storyProvider, child) {
+        if (storyProvider.isLoading && storyProvider.storyGroups.isEmpty) {
+          return const SizedBox(
+            height: 150,
+            child: Center(
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+
+        // Find current user's stories
+        StoryGroup? currentUserStories;
+        for (var group in storyProvider.storyGroups) {
+          if (group.userId == currentUserId) {
+            currentUserStories = group;
+            break;
+          }
+        }
+
+        return StoriesListWidget(
+          storyGroups: storyProvider.storyGroups,
+          currentUserId: currentUserId,
+          currentUserStories: currentUserStories,
+          onAddStory: () async {
+            final userId = await SharedPrefHelper.getUserId();
+            if (userId == null || userId.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please login to add story')),
+              );
+              return;
+            }
+
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const CreateStoryScreen()),
+            );
+
+            if (result == true) {
+              await _refreshStories();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Story posted successfully!')),
+                );
+              }
+            }
+          },
+          onStoryTap: (storyGroup) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StoryViewerScreen(
+                  allStories: [storyGroup],
+                  initialIndex: 0,
+                  currentUserId: currentUserId,
+                ),
+              ),
+            ).then((_) {
+              _refreshStories();
+            });
+          },
+        );
+      },
+    );
+  }
+
+// Add Story Button
+  Widget _buildAddStoryButton() {
+    return GestureDetector(
+      onTap: () async {
+        final userId = await SharedPrefHelper.getUserId();
+        if (userId == null || userId.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please login to add story')),
+          );
+          return;
+        }
+
+        // Navigate to create story screen
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CreateStoryScreen()),
+        );
+
+        if (result == true) {
+          // ✅ Refresh stories after posting
+          await _refreshStories();
+
+          // ✅ Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Story posted successfully!')),
+            );
+          }
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Column(
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade300, width: 2),
+              ),
+              child: Stack(
+                children: [
+                  ClipOval(
+                    child: Container(
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.person,
+                          size: 40, color: Colors.grey),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFE33629),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child:
+                          const Icon(Icons.add, size: 14, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Your Story',
+              style: TextStyle(fontSize: 11),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// Story Circle Widget
+// Story Circle Widget - FIXED VERSION
+// Story Circle Widget - FIXED VERSION (no backend changes needed)
+  Widget _buildStoryCircle(StoryGroup storyGroup) {
+    final userId = SharedPrefHelper.getUserId() ?? '';
+
+    // ✅ Check viewers array to determine if any story is unviewed
+    final hasUnviewedStories =
+        storyGroup.stories.any((story) => !story.isViewedByUser(userId));
+
+    return GestureDetector(
+      onTap: () {
+        _viewStory(storyGroup);
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Column(
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: hasUnviewedStories
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFFE33629),
+                          Colors.purple,
+                          Colors.orange
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                border: hasUnviewedStories
+                    ? null
+                    : Border.all(color: Colors.grey.shade300, width: 2),
+              ),
+              padding: const EdgeInsets.all(2),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: ClipOval(
+                  child: storyGroup.userProfileImage != null &&
+                          storyGroup.userProfileImage!.isNotEmpty
+                      ? Image.network(
+                          storyGroup.userProfileImage!,
+                          width: 66,
+                          height: 66,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) {
+                            return Container(
+                              color: Colors.grey.shade200,
+                              child: const Icon(Icons.person, size: 30),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: Colors.grey.shade200,
+                          child: const Icon(Icons.person, size: 30),
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              width: 70,
+              child: Text(
+                storyGroup.userName,
+                style: const TextStyle(fontSize: 11),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// View single user's stories
+  void _viewStory(StoryGroup storyGroup) async {
+    final userId = await SharedPrefHelper.getUserId();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StoryViewerScreen(
+          allStories: [storyGroup],
+          initialIndex: 0,
+          currentUserId: userId ?? '',
+        ),
+      ),
+    ).then((_) {
+      // Refresh stories after viewing
+      _refreshStories();
+    });
+  }
+
+// View all stories (like Instagram explore)
+  void _viewAllStories(List<StoryGroup> allStories) async {
+    final userId = await SharedPrefHelper.getUserId();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StoryViewerScreen(
+          allStories: allStories,
+          initialIndex: 0,
+          currentUserId: userId ?? '',
+        ),
+      ),
+    ).then((_) {
+      // Refresh stories after viewing
+      _refreshStories();
+    });
+  }
+
+// Refresh stories
+// Refresh stories
+  Future<void> _refreshStories() async {
+    final userId = await SharedPrefHelper.getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      final storyProvider = Provider.of<StoryProvider>(context, listen: false);
+      await storyProvider.fetchAllStories(userId: userId);
+      // Force a rebuild of the UI
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   Widget _buildHomeScreen() {
     final List<Map<String, dynamic>> displayProducts =
         nearestProducts.isNotEmpty ? nearestProducts : [];
@@ -973,20 +1279,23 @@ class _HomeScreenState extends State<HomeScreen>
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
 
-                    // Custom App Bar
-                    _buildCustomAppBar(),
+                  // Custom App Bar
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _buildCustomAppBar(),
+                  ),
 
-                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                    // Search Bar - FIXED: Now with controller and callbacks
-                    _SearchBar(
+                  // Search Bar - FIXED: Now with controller and callbacks
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _SearchBar(
                       controller: _searchController,
                       focusNode: _searchFocusNode,
                       onChanged: (value) {
@@ -998,17 +1307,24 @@ class _HomeScreenState extends State<HomeScreen>
                         print('Search submitted: $value');
                       },
                     ),
+                  ),
 
-                    // Banner Card
-                    // _BannerCard(),
-                    const SizedBox(height: 20),
+                  // Banner Card
+                  // _BannerCard(),
+                  const SizedBox(height: 20),
 
-                    const BannerCarousel(),
+                  const BannerCarousel(),
 
-                    const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
-                    // Categories Container
-                    Container(
+                  _buildStoriesSection(), // 👈 ADD THIS LINE
+
+                  const SizedBox(height: 5),
+
+                  // Categories Container
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
                           width: 2,
@@ -1036,15 +1352,17 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
                     ),
+                  ),
 
-                    // After categories container
-                    const SizedBox(height: 20),
+                  // After categories container
+                  const SizedBox(height: 20),
 
-// Company Industry Filter - Show only when companies category is selected
-// Company Industry Filter - Show only when companies category is selected
-                    if (_selectedCategoryName?.toLowerCase() ==
-                        'companies') ...[
-                      Container(
+                  // Company Industry Filter - Show only when companies category is selected
+                  // Company Industry Filter - Show only when companies category is selected
+                  if (_selectedCategoryName?.toLowerCase() == 'companies') ...[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
@@ -1146,11 +1464,14 @@ class _HomeScreenState extends State<HomeScreen>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                    ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
 
-                    // Section Header
-                    Row(
+                  // Section Header
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
@@ -1175,162 +1496,157 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ],
                     ),
+                  ),
 
-                    // After section header
-                    const SizedBox(height: 12),
+                  // After section header
+                  const SizedBox(height: 12),
 
-// Search Results Count
-                    if (_isSearching)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          'Searching for "$_searchQuery"...',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                            fontStyle: FontStyle.italic,
-                          ),
+                  // Search Results Count
+                  if (_isSearching)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'Searching for "$_searchQuery"...',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
+                    ),
 
-// Properties List
-                    isLoadingNearestProducts
-                        ? _buildSkeletonLoader()
-                        : () {
-                            // Filter products based on selected industry
-                            List<Map<String, dynamic>> filteredProducts =
-                                displayProducts;
+                  // Properties List
+                  isLoadingNearestProducts
+                      ? _buildSkeletonLoader()
+                      : () {
+                          // Filter products based on selected industry
+                          List<Map<String, dynamic>> filteredProducts =
+                              displayProducts;
 
-                            if (_selectedIndustry != null &&
-                                _selectedCategoryName?.toLowerCase() ==
-                                    'companies') {
-                              filteredProducts =
-                                  displayProducts.where((product) {
-                                final attributes = product['attributes']
-                                    as Map<String, dynamic>?;
-                                if (attributes == null) return false;
+                          if (_selectedIndustry != null &&
+                              _selectedCategoryName?.toLowerCase() ==
+                                  'companies') {
+                            filteredProducts = displayProducts.where((product) {
+                              final attributes = product['attributes']
+                                  as Map<String, dynamic>?;
+                              if (attributes == null) return false;
 
-                                // Check industry field
-                                final industry =
-                                    attributes['industry']?.toString() ?? '';
-                                if (industry == _selectedIndustry) return true;
+                              // Check industry field
+                              final industry =
+                                  attributes['industry']?.toString() ?? '';
+                              if (industry == _selectedIndustry) return true;
 
-                                // Check businessType as fallback
-                                final businessType =
-                                    attributes['businessType']?.toString() ??
-                                        '';
-                                if (businessType == _selectedIndustry)
-                                  return true;
+                              // Check businessType as fallback
+                              final businessType =
+                                  attributes['businessType']?.toString() ?? '';
+                              if (businessType == _selectedIndustry)
+                                return true;
 
-                                return false;
-                              }).toList();
-                            }
+                              return false;
+                            }).toList();
+                          }
 
-                            if (filteredProducts.isEmpty) {
-                              return Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(40.0),
-                                  child: Column(
-                                    children: [
-                                      Icon(
-                                        _selectedIndustry != null
-                                            ? Icons.business_center
-                                            : Icons.house_outlined,
-                                        size: 60,
-                                        color: Colors.grey.shade400,
+                          if (filteredProducts.isEmpty) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(40.0),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      _selectedIndustry != null
+                                          ? Icons.business_center
+                                          : Icons.house_outlined,
+                                      size: 60,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      _selectedIndustry != null
+                                          ? 'No $_selectedIndustry companies found'
+                                          : (_isSearching
+                                              ? 'No results found for "$_searchQuery"'
+                                              : (_selectedCategoryName != null
+                                                  ? "No $_selectedCategoryName properties found"
+                                                  : "No Properties Found")),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey.shade600,
                                       ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        _selectedIndustry != null
-                                            ? 'No $_selectedIndustry companies found'
-                                            : (_isSearching
-                                                ? 'No results found for "$_searchQuery"'
-                                                : (_selectedCategoryName != null
-                                                    ? "No $_selectedCategoryName properties found"
-                                                    : "No Properties Found")),
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                        textAlign: TextAlign.center,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (_selectedIndustry != null) ...[
+                                      const SizedBox(height: 12),
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedIndustry = null;
+                                          });
+                                        },
+                                        child:
+                                            const Text('Clear Industry Filter'),
                                       ),
-                                      if (_selectedIndustry != null) ...[
-                                        const SizedBox(height: 12),
-                                        TextButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _selectedIndustry = null;
-                                            });
-                                          },
-                                          child: const Text(
-                                              'Clear Industry Filter'),
-                                        ),
-                                      ] else if (_isSearching) ...[
-                                        const SizedBox(height: 12),
-                                        TextButton(
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            setState(() {
-                                              _searchQuery = '';
-                                              _isSearching = false;
-                                            });
-                                            fetchNearestProducts();
-                                          },
-                                          child: const Text('Clear Search'),
-                                        ),
-                                      ] else if (_selectedCategoryId !=
-                                          null) ...[
-                                        const SizedBox(height: 12),
-                                        TextButton(
-                                          onPressed: _clearCategoryFilter,
-                                          child: const Text('Clear Filter'),
-                                        ),
-                                      ],
+                                    ] else if (_isSearching) ...[
+                                      const SizedBox(height: 12),
+                                      TextButton(
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {
+                                            _searchQuery = '';
+                                            _isSearching = false;
+                                          });
+                                          fetchNearestProducts();
+                                        },
+                                        child: const Text('Clear Search'),
+                                      ),
+                                    ] else if (_selectedCategoryId != null) ...[
+                                      const SizedBox(height: 12),
+                                      TextButton(
+                                        onPressed: _clearCategoryFilter,
+                                        child: const Text('Clear Filter'),
+                                      ),
                                     ],
-                                  ),
+                                  ],
                                 ),
-                              );
-                            }
-
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: filteredProducts.length,
-                              itemBuilder: (context, index) {
-                                final property = filteredProducts[index];
-                                return _PropertyListCard(
-                                  key: ValueKey(property['id']),
-                                  property: property,
-                                  onTap: () async {
-                                    final userId =
-                                        await SharedPrefHelper.getUserId();
-                                    if (userId == null || userId.isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'You are guest, for access this login first')),
-                                      );
-                                      return;
-                                    }
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            NearestHouseDetail(
-                                          productId: property['id'],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                              ),
                             );
-                          }(),
+                          }
 
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: filteredProducts.length,
+                            itemBuilder: (context, index) {
+                              final property = filteredProducts[index];
+                              return _PropertyListCard(
+                                key: ValueKey(property['id']),
+                                property: property,
+                                onTap: () async {
+                                  final userId =
+                                      await SharedPrefHelper.getUserId();
+                                  if (userId == null || userId.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'You are guest, for access this login first')),
+                                    );
+                                    return;
+                                  }
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => NearestHouseDetail(
+                                        productId: property['id'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        }(),
+
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
           ),
@@ -2833,270 +3149,74 @@ class _PropertyListCard extends StatelessWidget {
 
         return GestureDetector(
           onTap: onTap,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.07),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image Section with Carousel
-                Stack(
-                  children: [
-                    // Image Carousel
-                    SizedBox(
-                      height: 180,
-                      width: double.infinity,
-                      child: images.length > 1
-                          ? _ImageCarousel(
-                              images: images,
-                              categoryIcon: categoryIcon,
-                            )
-                          : ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                              child:
-                                  _buildSingleImage(images.first, categoryIcon),
-                            ),
-                    ),
-
-                    // Category Badge
-                    // Positioned(
-                    //   top: 10,
-                    //   left: 10,
-                    //   child: Container(
-                    //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    //     decoration: BoxDecoration(
-                    //       color: categoryColor,
-                    //       borderRadius: BorderRadius.circular(12),
-                    //     ),
-                    //     child: Text(
-                    //       property['category'] != null && property['category'] is Map
-                    //           ? (property['category']['name']?.toString() ?? 'Listing')
-                    //           : (property['tag'] ?? 'Listing'),
-                    //       style: const TextStyle(
-                    //         fontSize: 10,
-                    //         color: Colors.white,
-                    //         fontWeight: FontWeight.w600,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-
-                    // Favorite Button
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: GestureDetector(
-                        onTap: () async {
-                          final userId = SharedPrefHelper.getUserId();
-                          if (userId == null || userId.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'You are guest, for access this login first')),
-                            );
-                            return;
-                          }
-                          final success = await wishlistProvider
-                              .toggleWishlist(property['id']);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor:
-                                    success ? Colors.green : Colors.red,
-                                content: Text(
-                                  success
-                                      ? (isInWishlist
-                                          ? 'Removed from wishlist'
-                                          : 'Added to wishlist')
-                                      : (wishlistProvider.errorMessage ??
-                                          'Failed to update wishlist'),
-                                ),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isInWishlist
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 16,
-                            color: isInWishlist
-                                ? Colors.red
-                                : Colors.grey.shade500,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Image Counter (if multiple images)
-                    if (images.length > 1)
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.photo_library,
-                                size: 12,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${images.length}',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-
-                // Rest of your existing card content...
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.07),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image Section with Carousel
+                  Stack(
                     children: [
-                      // Primary Title
-                      Text(
-                        primaryTitle,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      // Image Carousel
+                      SizedBox(
+                        height: 180,
+                        width: double.infinity,
+                        child: images.length > 1
+                            ? _ImageCarousel(
+                                images: images,
+                                categoryIcon: categoryIcon,
+                              )
+                            : ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                ),
+                                child: _buildSingleImage(
+                                    images.first, categoryIcon),
+                              ),
                       ),
 
-                      // Secondary Information
-                      if (secondaryInfo.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          secondaryInfo,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                      // Category Badge
+                      // Positioned(
+                      //   top: 10,
+                      //   left: 10,
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      //     decoration: BoxDecoration(
+                      //       color: categoryColor,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //     child: Text(
+                      //       property['category'] != null && property['category'] is Map
+                      //           ? (property['category']['name']?.toString() ?? 'Listing')
+                      //           : (property['tag'] ?? 'Listing'),
+                      //       style: const TextStyle(
+                      //         fontSize: 10,
+                      //         color: Colors.white,
+                      //         fontWeight: FontWeight.w600,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
 
-                      // Location
-                      if (property['location'] != "Unknown") ...[
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 14,
-                              color: Colors.grey.shade500,
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                property['location'],
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey.shade600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-
-                      // Price
-                      if (price.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          price,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFE33629),
-                          ),
-                        ),
-                      ],
-
-                      // Property Stats
-                      if (isProperty &&
-                          (stats['bed'] != "N/A" ||
-                              stats['bath'] != "N/A" ||
-                              stats['area'] != "N/A")) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (stats['bed'] != "N/A")
-                              _StatChip(
-                                imagePath: 'assets/images/bed.png',
-                                label: stats['bed']!,
-                              ),
-                            if (stats['bed'] != "N/A" &&
-                                (stats['bath'] != "N/A" ||
-                                    stats['area'] != "N/A"))
-                              const SizedBox(width: 12),
-                            if (stats['bath'] != "N/A")
-                              _StatChip(
-                                imagePath: 'assets/images/bath.png',
-                                label: stats['bath']!,
-                              ),
-                            if (stats['bath'] != "N/A" &&
-                                stats['area'] != "N/A")
-                              const SizedBox(width: 12),
-                            if (stats['area'] != "N/A")
-                              _StatChip(
-                                imagePath: 'assets/images/sqft.png',
-                                label: stats['area']!,
-                              ),
-                          ],
-                        ),
-                      ],
-
-                      const SizedBox(height: 12),
-                      Divider(color: Colors.grey.shade200, height: 1),
-                      const SizedBox(height: 10),
-
-                      // Action Buttons Row
-                      Row(
-                        children: [
-                          _CallButton(onTap: () async {
+                      // Favorite Button
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: GestureDetector(
+                          onTap: () async {
                             final userId = SharedPrefHelper.getUserId();
                             if (userId == null || userId.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -3106,19 +3226,195 @@ class _PropertyListCard extends StatelessWidget {
                               );
                               return;
                             }
-                            CallUtils.showCallOptions(
-                              context: context,
-                              phoneNumber: agentPhone,
-                              name: '',
-                              showMessage: true,
-                              showWhatsApp: true,
-                            );
-                          }),
-                          const SizedBox(width: 12),
-                          _ActionButton(
-                            imagePath: 'assets/images/whatsapp.png',
-                            label: "Whatsapp",
-                            onTap: () async {
+                            final success = await wishlistProvider
+                                .toggleWishlist(property['id']);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor:
+                                      success ? Colors.green : Colors.red,
+                                  content: Text(
+                                    success
+                                        ? (isInWishlist
+                                            ? 'Removed from wishlist'
+                                            : 'Added to wishlist')
+                                        : (wishlistProvider.errorMessage ??
+                                            'Failed to update wishlist'),
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isInWishlist
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              size: 16,
+                              color: isInWishlist
+                                  ? Colors.red
+                                  : Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Image Counter (if multiple images)
+                      if (images.length > 1)
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.photo_library,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${images.length}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  // Rest of your existing card content...
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Primary Title
+                        Text(
+                          primaryTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        // Secondary Information
+                        if (secondaryInfo.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            secondaryInfo,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+
+                        // Location
+                        if (property['location'] != "Unknown") ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 14,
+                                color: Colors.grey.shade500,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  property['location'],
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+
+                        // Price
+                        if (price.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            price,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFE33629),
+                            ),
+                          ),
+                        ],
+
+                        // Property Stats
+                        if (isProperty &&
+                            (stats['bed'] != "N/A" ||
+                                stats['bath'] != "N/A" ||
+                                stats['area'] != "N/A")) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              if (stats['bed'] != "N/A")
+                                _StatChip(
+                                  imagePath: 'assets/images/bed.png',
+                                  label: stats['bed']!,
+                                ),
+                              if (stats['bed'] != "N/A" &&
+                                  (stats['bath'] != "N/A" ||
+                                      stats['area'] != "N/A"))
+                                const SizedBox(width: 12),
+                              if (stats['bath'] != "N/A")
+                                _StatChip(
+                                  imagePath: 'assets/images/bath.png',
+                                  label: stats['bath']!,
+                                ),
+                              if (stats['bath'] != "N/A" &&
+                                  stats['area'] != "N/A")
+                                const SizedBox(width: 12),
+                              if (stats['area'] != "N/A")
+                                _StatChip(
+                                  imagePath: 'assets/images/sqft.png',
+                                  label: stats['area']!,
+                                ),
+                            ],
+                          ),
+                        ],
+
+                        const SizedBox(height: 12),
+                        Divider(color: Colors.grey.shade200, height: 1),
+                        const SizedBox(height: 10),
+
+                        // Action Buttons Row
+                        Row(
+                          children: [
+                            _CallButton(onTap: () async {
                               final userId = SharedPrefHelper.getUserId();
                               if (userId == null || userId.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -3128,23 +3424,18 @@ class _PropertyListCard extends StatelessWidget {
                                 );
                                 return;
                               }
-                              WhatsAppUtils.shareProperty(
+                              CallUtils.showCallOptions(
                                 context: context,
-                                propertyTitle: primaryTitle,
-                                propertyLocation: property['location'],
-                                propertyPrice: price.isNotEmpty
-                                    ? price
-                                    : 'Contact for details',
-                                agentPhone: "+91$agentPhone",
-                                categoryName: property['tag'] ?? 'Listing',
+                                phoneNumber: agentPhone,
+                                name: '',
+                                showMessage: true,
+                                showWhatsApp: true,
                               );
-                            },
-                          ),
-                          const Spacer(),
-                          if (property['location'] != "Unknown")
+                            }),
+                            const SizedBox(width: 12),
                             _ActionButton(
-                              imagePath: 'assets/images/location.png',
-                              label: "Location",
+                              imagePath: 'assets/images/whatsapp.png',
+                              label: "Whatsapp",
                               onTap: () async {
                                 final userId = SharedPrefHelper.getUserId();
                                 if (userId == null || userId.isEmpty) {
@@ -3155,23 +3446,51 @@ class _PropertyListCard extends StatelessWidget {
                                   );
                                   return;
                                 }
-                                LocationUtils.openMap(
+                                WhatsAppUtils.shareProperty(
                                   context: context,
-                                  latitude: 28.6139,
-                                  longitude: 77.2090,
-                                  address: property['location'],
-                                  label: primaryTitle,
+                                  propertyTitle: primaryTitle,
+                                  propertyLocation: property['location'],
+                                  propertyPrice: price.isNotEmpty
+                                      ? price
+                                      : 'Contact for details',
+                                  agentPhone: "+91$agentPhone",
+                                  categoryName: property['tag'] ?? 'Listing',
                                 );
                               },
                             ),
-                        ],
-                      ),
+                            const Spacer(),
+                            if (property['location'] != "Unknown")
+                              _ActionButton(
+                                imagePath: 'assets/images/location.png',
+                                label: "Location",
+                                onTap: () async {
+                                  final userId = SharedPrefHelper.getUserId();
+                                  if (userId == null || userId.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'You are guest, for access this login first')),
+                                    );
+                                    return;
+                                  }
+                                  LocationUtils.openMap(
+                                    context: context,
+                                    latitude: 28.6139,
+                                    longitude: 77.2090,
+                                    address: property['location'],
+                                    label: primaryTitle,
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
 
-                      const SizedBox(height: 12),
-                    ],
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
