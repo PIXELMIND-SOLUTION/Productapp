@@ -52,10 +52,32 @@
 //         await _storyService.deleteComment(storyId, commentId, userId);
 
 //     if (result['success'] == true) {
-//       await fetchAllStories(userId: userId);
+//       // Optimistically remove comment from local state
+//       _removeCommentLocally(storyId, commentId);
+//       notifyListeners();
+//       // Refresh in background
+//       fetchAllStories(userId: userId);
 //       return true;
 //     }
 //     return false;
+//   }
+
+//   void _removeCommentLocally(String storyId, String commentId) {
+//     for (int i = 0; i < _storyGroups.length; i++) {
+//       final group = _storyGroups[i];
+//       for (int j = 0; j < group.stories.length; j++) {
+//         if (group.stories[j].id == storyId) {
+//           final story = group.stories[j];
+//           final updatedComments =
+//               story.comments.where((c) => c.id != commentId).toList();
+//           final updatedStory = story.copyWith(comments: updatedComments);
+//           final updatedStories = List<StoryModel>.from(group.stories);
+//           updatedStories[j] = updatedStory;
+//           _storyGroups[i] = group.copyWith(stories: updatedStories);
+//           return;
+//         }
+//       }
+//     }
 //   }
 
 //   // Fetch user stories
@@ -111,36 +133,145 @@
 //     final result = await _storyService.viewStory(storyId, userId);
 
 //     if (result['success'] == true) {
-//       // Refresh stories to get updated viewers list
-//       await fetchAllStories(userId: userId);
+//       // Optimistically mark story as viewed locally
+//       _markStoryViewedLocally(storyId, userId);
+//       notifyListeners();
 //       return true;
 //     }
 //     return false;
 //   }
 
-//   // Toggle like
+//   void _markStoryViewedLocally(String storyId, String userId) {
+//     for (int i = 0; i < _storyGroups.length; i++) {
+//       final group = _storyGroups[i];
+//       for (int j = 0; j < group.stories.length; j++) {
+//         if (group.stories[j].id == storyId) {
+//           final story = group.stories[j];
+//           if (!story.isViewedByUser(userId)) {
+//             final newViewer = Viewer(
+//               userId: userId,
+//               userName: '',
+//               viewedAt: DateTime.now(),
+//             );
+//             final updatedViewers = List<Viewer>.from(story.viewers)
+//               ..add(newViewer);
+//             final updatedStory = story.copyWith(viewers: updatedViewers);
+//             final updatedStories = List<StoryModel>.from(group.stories);
+//             updatedStories[j] = updatedStory;
+//             _storyGroups[i] = group.copyWith(stories: updatedStories);
+//           }
+//           return;
+//         }
+//       }
+//     }
+//   }
+
+//   // Toggle like — optimistic update
 //   Future<bool> toggleLike(
 //       String storyId, String userId, bool currentlyLiked) async {
+//     // Optimistically update local state immediately
+//     _toggleLikeLocally(storyId, userId, currentlyLiked);
+//     notifyListeners();
+
 //     final result = await _storyService.toggleLike(storyId, userId);
 
 //     if (result['success'] == true) {
-//       // Refresh stories to get updated likes
-//       await fetchAllStories(userId: userId);
+//       // Sync actual count from server
+//       _syncLikeCount(storyId, result['likesCount'] as int?,
+//           result['liked'] as bool?, userId);
+//       notifyListeners();
 //       return true;
+//     } else {
+//       // Revert on failure
+//       _toggleLikeLocally(storyId, userId, !currentlyLiked);
+//       notifyListeners();
+//       return false;
 //     }
-//     return false;
 //   }
 
-//   // Add comment
+//   void _toggleLikeLocally(String storyId, String userId, bool currentlyLiked) {
+//     for (int i = 0; i < _storyGroups.length; i++) {
+//       final group = _storyGroups[i];
+//       for (int j = 0; j < group.stories.length; j++) {
+//         if (group.stories[j].id == storyId) {
+//           final story = group.stories[j];
+//           List<String> updatedLikes = List<String>.from(story.likes);
+//           if (currentlyLiked) {
+//             updatedLikes.remove(userId);
+//           } else {
+//             if (!updatedLikes.contains(userId)) {
+//               updatedLikes.add(userId);
+//             }
+//           }
+//           final updatedStory = story.copyWith(likes: updatedLikes);
+//           final updatedStories = List<StoryModel>.from(group.stories);
+//           updatedStories[j] = updatedStory;
+//           _storyGroups[i] = group.copyWith(stories: updatedStories);
+//           return;
+//         }
+//       }
+//     }
+//   }
+
+//   void _syncLikeCount(
+//       String storyId, int? serverCount, bool? serverLiked, String userId) {
+//     if (serverCount == null) return;
+//     for (int i = 0; i < _storyGroups.length; i++) {
+//       final group = _storyGroups[i];
+//       for (int j = 0; j < group.stories.length; j++) {
+//         if (group.stories[j].id == storyId) {
+//           final story = group.stories[j];
+//           List<String> updatedLikes = List<String>.from(story.likes);
+//           // Ensure local liked state matches server
+//           if (serverLiked == true && !updatedLikes.contains(userId)) {
+//             updatedLikes.add(userId);
+//           } else if (serverLiked == false) {
+//             updatedLikes.remove(userId);
+//           }
+//           final updatedStory = story.copyWith(likes: updatedLikes);
+//           final updatedStories = List<StoryModel>.from(group.stories);
+//           updatedStories[j] = updatedStory;
+//           _storyGroups[i] = group.copyWith(stories: updatedStories);
+//           return;
+//         }
+//       }
+//     }
+//   }
+
+//   // Add comment — FIX: pass userId, optimistic update
 //   Future<bool> addComment(String storyId, String userId, String text) async {
 //     final result = await _storyService.addComment(storyId, userId, text);
 
 //     if (result['success'] == true) {
-//       // Refresh stories to get updated comments
-//       await fetchAllStories(userId: userId);
+//       // Optimistically add comment to local state
+//       if (result['comment'] != null) {
+//         _addCommentLocally(storyId, result['comment'] as Map<String, dynamic>);
+//       }
+//       notifyListeners();
+//       // Refresh in background to get full populated comment data
+//       fetchAllStories(userId: userId);
 //       return true;
 //     }
 //     return false;
+//   }
+
+//   void _addCommentLocally(String storyId, Map<String, dynamic> commentJson) {
+//     for (int i = 0; i < _storyGroups.length; i++) {
+//       final group = _storyGroups[i];
+//       for (int j = 0; j < group.stories.length; j++) {
+//         if (group.stories[j].id == storyId) {
+//           final story = group.stories[j];
+//           final newComment = Comment.fromJson(commentJson);
+//           final updatedComments = List<Comment>.from(story.comments)
+//             ..add(newComment);
+//           final updatedStory = story.copyWith(comments: updatedComments);
+//           final updatedStories = List<StoryModel>.from(group.stories);
+//           updatedStories[j] = updatedStory;
+//           _storyGroups[i] = group.copyWith(stories: updatedStories);
+//           return;
+//         }
+//       }
+//     }
 //   }
 
 //   // Fetch my stories
@@ -169,11 +300,38 @@
 //     final result = await _storyService.deleteStory(storyId, userId);
 
 //     if (result['success'] == true) {
-//       await fetchAllStories(userId: userId);
-//       await fetchMyStories(userId);
+//       // Remove locally immediately
+//       _storyGroups = _storyGroups
+//           .map((group) => group.copyWith(
+//               stories: group.stories.where((s) => s.id != storyId).toList()))
+//           .where((group) => group.stories.isNotEmpty)
+//           .toList();
+//       notifyListeners();
+//       // Refresh in background
+//       fetchAllStories(userId: userId);
+//       fetchMyStories(userId);
 //       return true;
 //     }
 //     return false;
+//   }
+
+//   // Get a single story by ID from current groups
+//   StoryModel? getStoryById(String storyId) {
+//     for (final group in _storyGroups) {
+//       for (final story in group.stories) {
+//         if (story.id == storyId) return story;
+//       }
+//     }
+//     return null;
+//   }
+
+//   // Get story group by userId
+//   StoryGroup? getGroupByUserId(String userId) {
+//     try {
+//       return _storyGroups.firstWhere((g) => g.userId == userId);
+//     } catch (_) {
+//       return null;
+//     }
 //   }
 
 //   // Clear error
@@ -214,6 +372,20 @@ class StoryProvider extends ChangeNotifier {
   bool get isLoadingUserStories => _isLoadingUserStories;
   String? get errorMessage => _errorMessage;
 
+  // Helper method to check if story is within 24 hours
+  bool _isWithin24Hours(DateTime createdAt) {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+    return difference.inHours < 24;
+  }
+
+  // Helper method to filter active stories (within 24 hours)
+  List<StoryModel> _filterActiveStories(List<StoryModel> stories) {
+    return stories.where((story) {
+      return story.isActive && _isWithin24Hours(story.createdAt);
+    }).toList();
+  }
+
   // Fetch all stories
   Future<bool> fetchAllStories({String? userId}) async {
     _isLoading = true;
@@ -223,7 +395,17 @@ class StoryProvider extends ChangeNotifier {
     final result = await _storyService.getAllStories(userId: userId);
 
     if (result['success'] == true) {
-      _storyGroups = result['storyGroups'];
+      List<StoryGroup> rawGroups = result['storyGroups'];
+
+      // Filter each group's stories to only show those within 24 hours
+      _storyGroups = rawGroups
+          .map((group) {
+            final activeStories = _filterActiveStories(group.stories);
+            return group.copyWith(stories: activeStories);
+          })
+          .where((group) => group.stories.isNotEmpty)
+          .toList();
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -279,7 +461,9 @@ class StoryProvider extends ChangeNotifier {
         await _storyService.getUserStories(userId, viewerId: viewerId);
 
     if (result['success'] == true) {
-      _userStories = result['stories'];
+      List<StoryModel> rawStories = result['stories'];
+      // Only show stories within 24 hours
+      _userStories = _filterActiveStories(rawStories);
       _isLoadingUserStories = false;
       notifyListeners();
       return true;
@@ -472,8 +656,19 @@ class StoryProvider extends ChangeNotifier {
     final result = await _storyService.getMyStories(userId);
 
     if (result['success'] == true) {
-      _myActiveStories = result['activeStories'];
-      _myExpiredStories = result['expiredStories'];
+      List<StoryModel> allActiveStories = result['activeStories'];
+      List<StoryModel> allExpiredStories = result['expiredStories'];
+
+      // Filter active stories to ensure only within 24 hours
+      _myActiveStories = _filterActiveStories(allActiveStories);
+
+      // Move any stories beyond 24 hours from active to expired
+      final expiredFromActive = allActiveStories.where((story) {
+        return !_isWithin24Hours(story.createdAt);
+      }).toList();
+
+      _myExpiredStories = [...allExpiredStories, ...expiredFromActive];
+
       _isLoading = false;
       notifyListeners();
       return true;

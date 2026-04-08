@@ -1272,381 +1272,391 @@ class _HomeScreenState extends State<HomeScreen>
     final List<Map<String, dynamic>> displayProducts =
         nearestProducts.isNotEmpty ? nearestProducts : [];
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: AppBackControl(
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        body: AppBackControl(
+          child: SafeArea(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
 
-                  // Custom App Bar
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: _buildCustomAppBar(),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Search Bar - FIXED: Now with controller and callbacks
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: _SearchBar(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      onChanged: (value) {
-                        // onChanged is already handled by _onSearchChanged via listener
-                        // This is just a placeholder
-                      },
-                      onSubmitted: (value) {
-                        // Optional: handle search submit
-                        print('Search submitted: $value');
-                      },
+                    // Custom App Bar
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _buildCustomAppBar(),
                     ),
-                  ),
 
-                  // Banner Card
-                  // _BannerCard(),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                  const BannerCarousel(),
-
-                  const SizedBox(height: 15),
-
-                  _buildStoriesSection(), // 👈 ADD THIS LINE
-
-                  const SizedBox(height: 5),
-
-                  // Categories Container
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: const Color.fromARGB(255, 216, 209, 187),
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            _buildCategoriesRow(),
-                            const SizedBox(height: 6),
-                            _AllCategoryRow(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CategoryScreen()),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                    // Search Bar - FIXED: Now with controller and callbacks
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: _SearchBar(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: (value) {
+                          // onChanged is already handled by _onSearchChanged via listener
+                          // This is just a placeholder
+                        },
+                        onSubmitted: (value) {
+                          // Optional: handle search submit
+                          print('Search submitted: $value');
+                        },
                       ),
                     ),
-                  ),
 
-                  // After categories container
-                  const SizedBox(height: 20),
+                    // Banner Card
+                    // _BannerCard(),
+                    const SizedBox(height: 20),
 
-                  // Company Industry Filter - Show only when companies category is selected
-                  // Company Industry Filter - Show only when companies category is selected
-                  if (_selectedCategoryName?.toLowerCase() == 'companies') ...[
+                    const BannerCarousel(),
+
+                    const SizedBox(height: 15),
+
+                    _buildStoriesSection(), // 👈 ADD THIS LINE
+
+                    const SizedBox(height: 5),
+
+                    // Categories Container
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.blue.shade200),
+                          border: Border.all(
+                            width: 2,
+                            color: const Color.fromARGB(255, 216, 209, 187),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.business,
-                                    size: 18, color: Colors.blue.shade700),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Filter by Industry',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              _buildCategoriesRow(),
+                              const SizedBox(height: 6),
+                              _AllCategoryRow(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CategoryScreen()),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // After categories container
+                    const SizedBox(height: 20),
+
+                    // Company Industry Filter - Show only when companies category is selected
+                    // Company Industry Filter - Show only when companies category is selected
+                    if (_selectedCategoryName?.toLowerCase() ==
+                        'companies') ...[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.business,
+                                      size: 18, color: Colors.blue.shade700),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Filter by Industry',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                                const Spacer(),
-                                if (_selectedIndustry != null)
-                                  GestureDetector(
+                                  const Spacer(),
+                                  if (_selectedIndustry != null)
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedIndustry = null;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade200,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: const Row(
+                                          children: [
+                                            Icon(Icons.clear, size: 12),
+                                            SizedBox(width: 2),
+                                            Text('Clear',
+                                                style: TextStyle(fontSize: 11)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Industry chips - USING _industryOptions HERE
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _industryOptions.map((industry) {
+                                  final isSelected =
+                                      _selectedIndustry == industry;
+                                  return GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        _selectedIndustry = null;
+                                        if (_selectedIndustry == industry) {
+                                          _selectedIndustry = null;
+                                        } else {
+                                          _selectedIndustry = industry;
+                                        }
                                       });
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
+                                          horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Row(
-                                        children: [
-                                          Icon(Icons.clear, size: 12),
-                                          SizedBox(width: 2),
-                                          Text('Clear',
-                                              style: TextStyle(fontSize: 11)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-
-                            // Industry chips - USING _industryOptions HERE
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _industryOptions.map((industry) {
-                                final isSelected =
-                                    _selectedIndustry == industry;
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (_selectedIndustry == industry) {
-                                        _selectedIndustry = null;
-                                      } else {
-                                        _selectedIndustry = industry;
-                                      }
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.blue
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
                                         color: isSelected
                                             ? Colors.blue
-                                            : Colors.grey.shade300,
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? Colors.blue
+                                              : Colors.grey.shade300,
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      industry,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black87,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Section Header
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: _SectionHeader(
-                            title: _selectedCategoryName != null
-                                ? "$_selectedCategoryName"
-                                : "Listing",
-                            onSeeAll: () {
-                              if (_selectedCategoryId != null) {
-                                _clearCategoryFilter();
-                              } else {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => NearestHouses()),
-                                );
-                              }
-                            },
-                            showClearFilter: _selectedCategoryId != null,
-                            onClearFilter: _clearCategoryFilter,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // After section header
-                  const SizedBox(height: 12),
-
-                  // Search Results Count
-                  if (_isSearching)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        'Searching for "$_searchQuery"...',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-
-                  // Properties List
-                  isLoadingNearestProducts
-                      ? _buildSkeletonLoader()
-                      : () {
-                          // Filter products based on selected industry
-                          List<Map<String, dynamic>> filteredProducts =
-                              displayProducts;
-
-                          if (_selectedIndustry != null &&
-                              _selectedCategoryName?.toLowerCase() ==
-                                  'companies') {
-                            filteredProducts = displayProducts.where((product) {
-                              final attributes = product['attributes']
-                                  as Map<String, dynamic>?;
-                              if (attributes == null) return false;
-
-                              // Check industry field
-                              final industry =
-                                  attributes['industry']?.toString() ?? '';
-                              if (industry == _selectedIndustry) return true;
-
-                              // Check businessType as fallback
-                              final businessType =
-                                  attributes['businessType']?.toString() ?? '';
-                              if (businessType == _selectedIndustry)
-                                return true;
-
-                              return false;
-                            }).toList();
-                          }
-
-                          if (filteredProducts.isEmpty) {
-                            return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(40.0),
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                      _selectedIndustry != null
-                                          ? Icons.business_center
-                                          : Icons.house_outlined,
-                                      size: 60,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      _selectedIndustry != null
-                                          ? 'No $_selectedIndustry companies found'
-                                          : (_isSearching
-                                              ? 'No results found for "$_searchQuery"'
-                                              : (_selectedCategoryName != null
-                                                  ? "No $_selectedCategoryName properties found"
-                                                  : "No Properties Found")),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    if (_selectedIndustry != null) ...[
-                                      const SizedBox(height: 12),
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedIndustry = null;
-                                          });
-                                        },
-                                        child:
-                                            const Text('Clear Industry Filter'),
-                                      ),
-                                    ] else if (_isSearching) ...[
-                                      const SizedBox(height: 12),
-                                      TextButton(
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() {
-                                            _searchQuery = '';
-                                            _isSearching = false;
-                                          });
-                                          fetchNearestProducts();
-                                        },
-                                        child: const Text('Clear Search'),
-                                      ),
-                                    ] else if (_selectedCategoryId != null) ...[
-                                      const SizedBox(height: 12),
-                                      TextButton(
-                                        onPressed: _clearCategoryFilter,
-                                        child: const Text('Clear Filter'),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: filteredProducts.length,
-                            itemBuilder: (context, index) {
-                              final property = filteredProducts[index];
-                              return _PropertyListCard(
-                                key: ValueKey(property['id']),
-                                property: property,
-                                onTap: () async {
-                                  final userId =
-                                      await SharedPrefHelper.getUserId();
-                                  if (userId == null || userId.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              'You are guest, for access this login first')),
-                                    );
-                                    return;
-                                  }
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => NearestHouseDetail(
-                                        productId: property['id'],
+                                      child: Text(
+                                        industry,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black87,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
                                       ),
                                     ),
                                   );
-                                },
-                              );
-                            },
-                          );
-                        }(),
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
 
-                  const SizedBox(height: 20),
-                ],
+                    // Section Header
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _SectionHeader(
+                              title: _selectedCategoryName != null
+                                  ? "$_selectedCategoryName"
+                                  : "Listing",
+                              onSeeAll: () {
+                                if (_selectedCategoryId != null) {
+                                  _clearCategoryFilter();
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NearestHouses()),
+                                  );
+                                }
+                              },
+                              showClearFilter: _selectedCategoryId != null,
+                              onClearFilter: _clearCategoryFilter,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // After section header
+                    const SizedBox(height: 12),
+
+                    // Search Results Count
+                    if (_isSearching)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          'Searching for "$_searchQuery"...',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+
+                    // Properties List
+                    isLoadingNearestProducts
+                        ? _buildSkeletonLoader()
+                        : () {
+                            // Filter products based on selected industry
+                            List<Map<String, dynamic>> filteredProducts =
+                                displayProducts;
+
+                            if (_selectedIndustry != null &&
+                                _selectedCategoryName?.toLowerCase() ==
+                                    'companies') {
+                              filteredProducts =
+                                  displayProducts.where((product) {
+                                final attributes = product['attributes']
+                                    as Map<String, dynamic>?;
+                                if (attributes == null) return false;
+
+                                // Check industry field
+                                final industry =
+                                    attributes['industry']?.toString() ?? '';
+                                if (industry == _selectedIndustry) return true;
+
+                                // Check businessType as fallback
+                                final businessType =
+                                    attributes['businessType']?.toString() ??
+                                        '';
+                                if (businessType == _selectedIndustry)
+                                  return true;
+
+                                return false;
+                              }).toList();
+                            }
+
+                            if (filteredProducts.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(40.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        _selectedIndustry != null
+                                            ? Icons.business_center
+                                            : Icons.house_outlined,
+                                        size: 60,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        _selectedIndustry != null
+                                            ? 'No $_selectedIndustry companies found'
+                                            : (_isSearching
+                                                ? 'No results found for "$_searchQuery"'
+                                                : (_selectedCategoryName != null
+                                                    ? "No $_selectedCategoryName properties found"
+                                                    : "No Properties Found")),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      if (_selectedIndustry != null) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedIndustry = null;
+                                            });
+                                          },
+                                          child: const Text(
+                                              'Clear Industry Filter'),
+                                        ),
+                                      ] else if (_isSearching) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            setState(() {
+                                              _searchQuery = '';
+                                              _isSearching = false;
+                                            });
+                                            fetchNearestProducts();
+                                          },
+                                          child: const Text('Clear Search'),
+                                        ),
+                                      ] else if (_selectedCategoryId !=
+                                          null) ...[
+                                        const SizedBox(height: 12),
+                                        TextButton(
+                                          onPressed: _clearCategoryFilter,
+                                          child: const Text('Clear Filter'),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: filteredProducts.length,
+                              itemBuilder: (context, index) {
+                                final property = filteredProducts[index];
+                                return _PropertyListCard(
+                                  key: ValueKey(property['id']),
+                                  property: property,
+                                  onTap: () async {
+                                    final userId =
+                                        await SharedPrefHelper.getUserId();
+                                    if (userId == null || userId.isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'You are guest, for access this login first')),
+                                      );
+                                      return;
+                                    }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            NearestHouseDetail(
+                                          productId: property['id'],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          }(),
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
