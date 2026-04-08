@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:product_app/Provider/story_provider.dart';
 import 'package:product_app/model/story_model.dart';
+import 'package:product_app/views/story/create_story_screen.dart';
 import 'package:product_app/views/story/exo_video_player.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -1073,12 +1074,11 @@ class _StoryViewerScreenState extends State<StoryViewerScreen> {
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Add new story - implement your flow'),
-                              duration: Duration(seconds: 2),
-                            ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const CreateStoryScreen()),
                           );
                         },
                         child: Container(
