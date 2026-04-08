@@ -30,7 +30,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
+              title: const Text('Choose Image from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
                 final XFile? media =
@@ -39,6 +39,21 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   setState(() {
                     _selectedMedia = File(media.path);
                     _mediaType = 'image';
+                  });
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.video_library), // Changed icon
+              title: const Text('Choose Video from Gallery'), // NEW OPTION
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? media =
+                    await _picker.pickVideo(source: ImageSource.gallery);
+                if (media != null) {
+                  setState(() {
+                    _selectedMedia = File(media.path);
+                    _mediaType = 'video';
                   });
                 }
               },
