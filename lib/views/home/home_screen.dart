@@ -189,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen>
   }) async {
     const playStoreUrl =
         'https://play.google.com/store/apps/details?id=com.product.product_app';
-    const appStoreUrl = 'https://apps.apple.com/in/app/vegiffyy/id6757138352';
+    const appStoreUrl = 'https://apps.apple.com/in/app/estatehouz/id6761403299';
 
     final url = Platform.isIOS ? appStoreUrl : playStoreUrl;
 
