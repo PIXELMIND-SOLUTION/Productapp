@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:product_app/Provider/VersionProvider/version_provider.dart';
 import 'package:product_app/Provider/location/location_provider.dart';
 import 'package:product_app/Provider/profile/profile_provider.dart';
 import 'package:product_app/Provider/story_provider.dart';
@@ -33,6 +35,8 @@ import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -107,6 +111,24 @@ class _HomeScreenState extends State<HomeScreen>
 
     super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final versionProvider =
+          Provider.of<VersionProvider>(context, listen: false);
+
+      print("📱 Current Version: ${versionProvider.currentVersion}");
+      print("🏪 Store Version: ${versionProvider.storeVersion}");
+      print("⬆️ Needs Update: ${versionProvider.needsUpdate}");
+
+      // 🚨 FORCE UPDATE LOGIC
+      if (versionProvider.needsUpdate) {
+        await showUpgradeDialog(
+          context: context,
+          currentVersion: versionProvider.currentVersion,
+          storeVersion: versionProvider.storeVersion,
+        );
+      }
+    });
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -158,6 +180,45 @@ class _HomeScreenState extends State<HomeScreen>
         fetchNearestProducts(); // Re-fetch with search query
       }
     });
+  }
+
+  Future<void> showUpgradeDialog({
+    required BuildContext context,
+    required String currentVersion,
+    required String storeVersion,
+  }) async {
+    const playStoreUrl =
+        'https://play.google.com/store/apps/details?id=com.product.product_app';
+    const appStoreUrl = 'https://apps.apple.com/in/app/vegiffyy/id6757138352';
+
+    final url = Platform.isIOS ? appStoreUrl : playStoreUrl;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // ❌ CANNOT CLOSE
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false, // ❌ BACK BUTTON DISABLED
+          child: AlertDialog(
+            title: const Text("Update Required"),
+            content: Text(
+              "You must update the app to continue.\n\n"
+              "Current: $currentVersion\n"
+              "Latest: $storeVersion",
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                  final uri = Uri.parse(url);
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                },
+                child: const Text("Update"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -1942,11 +2003,25 @@ class _SearchBar extends StatelessWidget {
         onTap: onTap,
         onSubmitted: onSubmitted,
         onChanged: onChanged,
+        textAlignVertical: TextAlignVertical.center, // ✅ ADD THIS
+
         decoration: InputDecoration(
           hintText: "Search listings...",
           hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-          prefixIcon: Icon(Icons.search,
-              color: const Color.fromARGB(255, 58, 58, 58), size: 20),
+
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 6),
+            child: Icon(
+              Icons.search,
+              color: const Color.fromARGB(255, 58, 58, 58),
+              size: 20,
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minHeight: 20,
+            minWidth: 20,
+          ),
+
           suffixIcon: controller != null && controller!.text.isNotEmpty
               ? IconButton(
                   icon:
@@ -1957,8 +2032,11 @@ class _SearchBar extends StatelessWidget {
                   },
                 )
               : null,
+
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+
+          isDense: true, // ✅ IMPORTANT
+          contentPadding: const EdgeInsets.symmetric(vertical: 9), // tweak here
         ),
       ),
     );

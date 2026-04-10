@@ -33,7 +33,7 @@ class VersionProvider extends ChangeNotifier {
 
       // 2️⃣ Configure store lookup
       // ⚠️ Put YOUR real IDs here:
-      const androidId = 'com.veggify.veegify';
+      const androidId = 'com.product.product_app';
       const iosId = 'com.yourcompany.veegify';
 
       final newVersion = NewVersionPlus(
