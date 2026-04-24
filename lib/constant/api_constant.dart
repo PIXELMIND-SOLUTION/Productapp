@@ -4,7 +4,7 @@ class ApiConstants {
   // Base URL
   // static const String baseUrl = 'https://estatehouz-backend.onrender.com';
 
-  static const String baseUrl = 'http://31.97.228.17:9174/';
+  static const String baseUrl = 'http://31.97.228.17:9174';
 
   // API Endpoints
   static const String sendOtp = '$baseUrl/api/auth/send-otp';
