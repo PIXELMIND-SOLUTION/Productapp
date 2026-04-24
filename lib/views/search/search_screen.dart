@@ -36,7 +36,7 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://31.97.206.144:9174/api/products/search?keyword=$keyword'),
+            'http://31.97.228.17:9174/api/products/search?keyword=$keyword'),
       );
 
       if (response.statusCode == 200) {

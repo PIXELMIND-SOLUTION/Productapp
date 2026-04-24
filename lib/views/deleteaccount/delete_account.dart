@@ -16,7 +16,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
   Future<void> _deleteAccount() async {
     final userId = SharedPrefHelper.getUserId();
-    
+
     if (userId == null || userId.isEmpty) {
       _showErrorDialog('User ID not found. Please login again.');
       return;
@@ -26,7 +26,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
     try {
       final response = await http.delete(
-        Uri.parse('http://31.97.206.144:9174/api/auth/deletemyaccount/$userId'),
+        Uri.parse('http://31.97.228.17:9174/api/auth/deletemyaccount/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${SharedPrefHelper.getToken() ?? ''}',
@@ -40,23 +40,21 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
       if (!mounted) return;
 
-
       print('Response status code delete account ${response.statusCode}');
-            print('Response bodyyyyyyyyyy code delete account ${response.body}');
-
+      print('Response bodyyyyyyyyyy code delete account ${response.body}');
 
       if (response.statusCode == 200) {
         // Account deleted successfully
         await SharedPrefHelper.clearAll();
-        
+
         if (!mounted) return;
-        
+
         // Navigate to login screen and remove all previous routes
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/login', // Replace with your login route
           (route) => false,
         );
-        
+
         _showSuccessSnackBar('Account deleted successfully');
       } else {
         final errorData = json.decode(response.body);
@@ -223,9 +221,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Title
                   const Text(
                     'Delete Your Account',
@@ -234,9 +232,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Warning Message
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -269,9 +267,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // What will be deleted section
                   const Text(
                     'What will be deleted:',
@@ -280,16 +278,17 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildDeleteItem(Icons.person, 'Your profile information'),
                   _buildDeleteItem(Icons.history, 'Your activity history'),
-                  _buildDeleteItem(Icons.settings, 'Your preferences and settings'),
+                  _buildDeleteItem(
+                      Icons.settings, 'Your preferences and settings'),
                   _buildDeleteItem(Icons.data_usage, 'All associated data'),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Note
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -305,9 +304,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Delete Button
                   SizedBox(
                     width: double.infinity,
@@ -331,9 +330,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Cancel Button
                   SizedBox(
                     width: double.infinity,

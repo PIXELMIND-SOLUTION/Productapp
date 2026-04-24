@@ -16,44 +16,44 @@ class _FilterScreenState extends State<FilterScreen> {
   String searchName = '';
   String? selectedCategory;
   String? selectedLocation;
-  
+
   // Products state
   List<dynamic> products = [];
   bool isLoading = false;
   bool showFilters = true;
-  
+
   // Sample categories from your data
   final List<String> categories = ['Mobiles', 'House'];
   final List<String> types = ['Sale', 'Rent'];
-  
+
   @override
   void initState() {
     super.initState();
     _fetchProducts();
   }
-  
+
   Future<void> _fetchProducts() async {
     setState(() => isLoading = true);
-    
+
     try {
       // Build query parameters
       String queryParams = '';
       final params = <String>[];
-      
+
       if (searchName.isNotEmpty) params.add('name=$searchName');
       if (selectedType != null) params.add('type=$selectedType');
       if (isApproved != null) params.add('isApproved=$isApproved');
       if (selectedCategory != null) params.add('category=$selectedCategory');
       if (selectedLocation != null) params.add('address=$selectedLocation');
-      
+
       if (params.isNotEmpty) {
         queryParams = '?${params.join('&')}';
       }
-      
+
       final response = await http.get(
-        Uri.parse('http://31.97.206.144:9174/api/products/filter$queryParams'),
+        Uri.parse('http://31.97.228.17:9174/api/products/filter$queryParams'),
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -69,7 +69,7 @@ class _FilterScreenState extends State<FilterScreen> {
       _showError('Error: $e');
     }
   }
-  
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -82,7 +82,7 @@ class _FilterScreenState extends State<FilterScreen> {
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +164,7 @@ class _FilterScreenState extends State<FilterScreen> {
                     // Search by name
                     _buildSearchField(),
                     const SizedBox(height: 12),
-                    
+
                     // Quick filters row
                     Row(
                       children: [
@@ -188,7 +188,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Type and Approval filters
                     Row(
                       children: [
@@ -211,7 +211,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Apply button
                     SizedBox(
                       width: double.infinity,
@@ -239,7 +239,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 ),
               ),
             ),
-          
+
           // Products list
           Expanded(
             child: isLoading
@@ -261,7 +261,7 @@ class _FilterScreenState extends State<FilterScreen> {
       ),
     );
   }
-  
+
   Widget _buildSearchField() {
     return Container(
       decoration: BoxDecoration(
@@ -286,12 +286,13 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
           filled: true,
           fillColor: Colors.grey[100],
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         ),
       ),
     );
   }
-  
+
   Widget _buildCategoryChips() {
     return Wrap(
       spacing: 6,
@@ -323,7 +324,7 @@ class _FilterScreenState extends State<FilterScreen> {
       }).toList(),
     );
   }
-  
+
   Widget _buildCompactDropdown(
     String label,
     String? value,
@@ -369,7 +370,7 @@ class _FilterScreenState extends State<FilterScreen> {
       ],
     );
   }
-  
+
   Widget _buildApprovalDropdown() {
     final approvalOptions = ['All', 'Approved', 'Not Approved'];
     String currentValue = isApproved == null
@@ -377,7 +378,7 @@ class _FilterScreenState extends State<FilterScreen> {
         : isApproved!
             ? 'Approved'
             : 'Not Approved';
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -427,12 +428,12 @@ class _FilterScreenState extends State<FilterScreen> {
       ],
     );
   }
-  
+
   Widget _buildProductCard(dynamic product) {
     final isApproved = product['isApproved'] ?? false;
     final images = product['images'] as List<dynamic>? ?? [];
     final imageUrl = images.isNotEmpty ? images[0] : null;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -452,7 +453,8 @@ class _FilterScreenState extends State<FilterScreen> {
           // Image
           if (imageUrl != null)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: Image.network(
                 imageUrl,
                 height: 180,
@@ -467,7 +469,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 },
               ),
             ),
-          
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -490,15 +492,19 @@ class _FilterScreenState extends State<FilterScreen> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isApproved ? Colors.green[50] : Colors.orange[50],
+                        color:
+                            isApproved ? Colors.green[50] : Colors.orange[50],
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         isApproved ? 'Approved' : 'Pending',
                         style: TextStyle(
-                          color: isApproved ? Colors.green[700] : Colors.orange[700],
+                          color: isApproved
+                              ? Colors.green[700]
+                              : Colors.orange[700],
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -507,7 +513,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Description
                 if (product['description'] != null)
                   Text(
@@ -520,11 +526,12 @@ class _FilterScreenState extends State<FilterScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 8),
-                
+
                 // Details row
                 Row(
                   children: [
-                    Icon(Icons.category_outlined, size: 14, color: Colors.grey[600]),
+                    Icon(Icons.category_outlined,
+                        size: 14, color: Colors.grey[600]),
                     const SizedBox(width: 4),
                     Text(
                       product['subCategory']?['name'] ?? 'No Category',
@@ -534,7 +541,8 @@ class _FilterScreenState extends State<FilterScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Icon(Icons.local_offer_outlined, size: 14, color: Colors.grey[600]),
+                    Icon(Icons.local_offer_outlined,
+                        size: 14, color: Colors.grey[600]),
                     const SizedBox(width: 4),
                     Text(
                       product['type'] ?? 'N/A',
@@ -546,12 +554,13 @@ class _FilterScreenState extends State<FilterScreen> {
                   ],
                 ),
                 const SizedBox(height: 6),
-                
+
                 // Location
                 if (product['address'] != null)
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 14, color: Colors.grey[600]),
+                      Icon(Icons.location_on_outlined,
+                          size: 14, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -573,7 +582,7 @@ class _FilterScreenState extends State<FilterScreen> {
       ),
     );
   }
-  
+
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -601,7 +610,7 @@ class _FilterScreenState extends State<FilterScreen> {
       ),
     );
   }
-  
+
   void _resetFilters() {
     setState(() {
       selectedType = null;

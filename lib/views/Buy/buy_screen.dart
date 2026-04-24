@@ -159,7 +159,7 @@ class _BuyScreenState extends State<BuyScreen> {
   Future<void> fetchCategories() async {
     try {
       final response = await http.get(
-        Uri.parse('http://31.97.206.144:9174/api/auth/sub/all'),
+        Uri.parse('http://31.97.228.17:9174//api/auth/sub/all'),
       );
 
       print(

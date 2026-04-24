@@ -1,5 +1,3 @@
-
-
 // // lib/screens/create_listing_screen.dart
 // import 'dart:io';
 // import 'package:flutter/material.dart';
@@ -33,7 +31,7 @@
 //   final TextEditingController _mobileController = TextEditingController();
 //   final TextEditingController _emailController = TextEditingController();
 //   final TextEditingController _userNameController = TextEditingController();
-  
+
 //   // Category-specific controllers
 //   final TextEditingController _rentAmountController = TextEditingController();
 //   final TextEditingController _landAmountController = TextEditingController();
@@ -112,7 +110,7 @@
 
 //     try {
 //       final response = await http.get(
-//         Uri.parse('http://31.97.206.144:9174/api/auth/profile/$userId'),
+//         Uri.parse('http://31.97.228.17:9174/api/auth/profile/$userId'),
 //         headers: {
 //           'Content-Type': 'application/json',
 //           'Authorization': 'Bearer ${SharedPrefHelper.getToken()}',
@@ -237,7 +235,7 @@
 //       context: context,
 //       initialTime: TimeOfDay.now(),
 //     );
-    
+
 //     if (picked != null) {
 //       setState(() {
 //         controller.text = picked.format(context);
@@ -583,7 +581,7 @@
 //                         _buildSectionHeader(
 //                             'Opening Hours', Icons.access_time_rounded),
 //                         const SizedBox(height: 16),
-                        
+
 //                         if (isLarge)
 //                           _buildTwoColumnLayout(
 //                             left: _buildTimeField(
@@ -617,7 +615,7 @@
 //                             isDark: isDark,
 //                           ),
 //                         ],
-                        
+
 //                         const SizedBox(height: 24),
 //                       ],
 
@@ -804,23 +802,23 @@
 //               decoration: InputDecoration(
 //                 labelText: 'Service ${index + 1}',
 //                 hintText: 'e.g., Home Delivery, Dine-in',
-//                 prefixIcon: const Icon(Icons.room_service_rounded, 
+//                 prefixIcon: const Icon(Icons.room_service_rounded,
 //                     color: Color(0xFF2BBBAD)),
 //                 filled: true,
 //                 fillColor: isDark ? const Color(0xFF1F2937) : Colors.white,
 //                 border: OutlineInputBorder(
 //                   borderRadius: BorderRadius.circular(12),
 //                   borderSide: BorderSide(
-//                     color: isDark 
-//                         ? const Color(0xFF374151) 
+//                     color: isDark
+//                         ? const Color(0xFF374151)
 //                         : const Color(0xFFE5E7EB),
 //                   ),
 //                 ),
 //                 enabledBorder: OutlineInputBorder(
 //                   borderRadius: BorderRadius.circular(12),
 //                   borderSide: BorderSide(
-//                     color: isDark 
-//                         ? const Color(0xFF374151) 
+//                     color: isDark
+//                         ? const Color(0xFF374151)
 //                         : const Color(0xFFE5E7EB),
 //                   ),
 //                 ),
@@ -840,8 +838,8 @@
 //             onPressed: () => _removeServiceType(index),
 //             icon: const Icon(Icons.delete_outline, color: Colors.red),
 //             style: IconButton.styleFrom(
-//               backgroundColor: isDark 
-//                   ? const Color(0xFF1F2937) 
+//               backgroundColor: isDark
+//                   ? const Color(0xFF1F2937)
 //                   : const Color(0xFFFEF2F2),
 //             ),
 //           ),
@@ -1042,7 +1040,7 @@
 //                       ),
 //                       borderRadius: BorderRadius.circular(12),
 //                     ),
-//                     child: const Icon(Icons.add_photo_alternate, 
+//                     child: const Icon(Icons.add_photo_alternate,
 //                         color: Colors.white, size: 32),
 //                   ),
 //                   const SizedBox(height: 16),
@@ -1083,13 +1081,13 @@
 //                   onTap: _pickProductImages,
 //                   child: Container(
 //                     decoration: BoxDecoration(
-//                       color: isDark 
-//                           ? const Color(0xFF1F2937) 
+//                       color: isDark
+//                           ? const Color(0xFF1F2937)
 //                           : const Color(0xFFF9FAFB),
 //                       borderRadius: BorderRadius.circular(12),
 //                       border: Border.all(
-//                         color: isDark 
-//                             ? const Color(0xFF374151) 
+//                         color: isDark
+//                             ? const Color(0xFF374151)
 //                             : const Color(0xFFE5E7EB),
 //                         style: BorderStyle.solid,
 //                         width: 2,
@@ -1121,7 +1119,7 @@
 //                             color: Colors.red,
 //                             borderRadius: BorderRadius.circular(8),
 //                           ),
-//                           child: const Icon(Icons.close, 
+//                           child: const Icon(Icons.close,
 //                               color: Colors.white, size: 16),
 //                         ),
 //                       ),
@@ -1214,22 +1212,22 @@
 //                     prefixIcon: const Icon(Icons.star_outline_rounded,
 //                         color: Color(0xFF2BBBAD)),
 //                     filled: true,
-//                     fillColor: isDark 
-//                         ? const Color(0xFF111827) 
+//                     fillColor: isDark
+//                         ? const Color(0xFF111827)
 //                         : const Color(0xFFF9FAFB),
 //                     border: OutlineInputBorder(
 //                       borderRadius: BorderRadius.circular(12),
 //                       borderSide: BorderSide(
-//                         color: isDark 
-//                             ? const Color(0xFF374151) 
+//                         color: isDark
+//                             ? const Color(0xFF374151)
 //                             : const Color(0xFFE5E7EB),
 //                       ),
 //                     ),
 //                     enabledBorder: OutlineInputBorder(
 //                       borderRadius: BorderRadius.circular(12),
 //                       borderSide: BorderSide(
-//                         color: isDark 
-//                             ? const Color(0xFF374151) 
+//                         color: isDark
+//                             ? const Color(0xFF374151)
 //                             : const Color(0xFFE5E7EB),
 //                       ),
 //                     ),
@@ -1249,8 +1247,8 @@
 //                 onPressed: () => _removeFeature(index),
 //                 icon: const Icon(Icons.delete_outline, color: Colors.red),
 //                 style: IconButton.styleFrom(
-//                   backgroundColor: isDark 
-//                       ? const Color(0xFF1F2937) 
+//                   backgroundColor: isDark
+//                       ? const Color(0xFF1F2937)
 //                       : const Color(0xFFFEF2F2),
 //                 ),
 //               ),
@@ -1262,15 +1260,15 @@
 //             child: Container(
 //               height: 120,
 //               decoration: BoxDecoration(
-//                 color: isDark 
-//                     ? const Color(0xFF111827) 
+//                 color: isDark
+//                     ? const Color(0xFF111827)
 //                     : const Color(0xFFF9FAFB),
 //                 borderRadius: BorderRadius.circular(12),
 //                 border: Border.all(
 //                   color: _featureImages.length > index
 //                       ? const Color(0xFF2BBBAD)
-//                       : (isDark 
-//                           ? const Color(0xFF374151) 
+//                       : (isDark
+//                           ? const Color(0xFF374151)
 //                           : const Color(0xFFE5E7EB)),
 //                   style: BorderStyle.solid,
 //                   width: 2,
@@ -1287,15 +1285,15 @@
 //                   : Column(
 //                       mainAxisAlignment: MainAxisAlignment.center,
 //                       children: [
-//                         const Icon(Icons.add_a_photo, 
+//                         const Icon(Icons.add_a_photo,
 //                             color: Color(0xFF2BBBAD), size: 28),
 //                         const SizedBox(height: 8),
 //                         Text(
 //                           'Add feature image',
 //                           style: GoogleFonts.inter(
 //                             fontSize: 13,
-//                             color: isDark 
-//                                 ? const Color(0xFF9CA3AF) 
+//                             color: isDark
+//                                 ? const Color(0xFF9CA3AF)
 //                                 : const Color(0xFF6B7280),
 //                           ),
 //                         ),
@@ -1345,24 +1343,6 @@
 //     );
 //   }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -1492,7 +1472,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
 
     try {
       final response = await http.get(
-        Uri.parse('http://31.97.206.144:9174/api/auth/profile/$userId'),
+        Uri.parse('http://31.97.228.17:9174/api/auth/profile/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${SharedPrefHelper.getToken()}',
@@ -1667,7 +1647,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
             ),
           ],
         ),
-        backgroundColor: isError ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+        backgroundColor:
+            isError ? const Color(0xFFEF4444) : const Color(0xFF10B981),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.all(16),
@@ -1709,8 +1690,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
     if (_needsOpeningHours()) {
       if (_openingTimeController.text.trim().isEmpty ||
           _closingTimeController.text.trim().isEmpty) {
-        _showSnackBar('Please select opening and closing hours',
-            isError: true);
+        _showSnackBar('Please select opening and closing hours', isError: true);
         return;
       }
     }
@@ -1818,7 +1798,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
     final isLarge = _isLargeScreen(context);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FA),
+      backgroundColor:
+          isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FA),
       body: Consumer<ProductProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading || _isLoadingProfile) {
@@ -1930,7 +1911,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
               'Please wait a moment',
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
               ),
             ),
           ],
@@ -2091,7 +2073,9 @@ class _CreateListingScreenState extends State<CreateListingScreen>
               fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
               color: isActive
                   ? const Color(0xFF2BBBAD)
-                  : (isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280)),
+                  : (isDark
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF6B7280)),
             ),
           ),
         ],
@@ -2426,9 +2410,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Required'
-                  : null,
+              validator: (value) =>
+                  value == null || value.trim().isEmpty ? 'Required' : null,
             ),
           ),
           Container(
@@ -2514,8 +2497,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color:
-                            isDark ? Colors.white : const Color(0xFF111827),
+                        color: isDark ? Colors.white : const Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -2612,8 +2594,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
                       style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color:
-                            isDark ? Colors.white : const Color(0xFF111827),
+                        color: isDark ? Colors.white : const Color(0xFF111827),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -2981,8 +2962,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
           hintText: hint,
           prefixText: prefix,
           hintStyle: GoogleFonts.inter(
-            color:
-                isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+            color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
           ),
           prefixIcon: Container(
             margin: const EdgeInsets.all(12),
@@ -3046,8 +3026,9 @@ class _CreateListingScreenState extends State<CreateListingScreen>
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
-        validator: (value) =>
-            value == null || value.trim().isEmpty ? 'This field is required' : null,
+        validator: (value) => value == null || value.trim().isEmpty
+            ? 'This field is required'
+            : null,
       ),
     );
   }
@@ -3084,9 +3065,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
               labelText: label,
               hintText: hint,
               hintStyle: GoogleFonts.inter(
-                color: isDark
-                    ? const Color(0xFF9CA3AF)
-                    : const Color(0xFF6B7280),
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
               ),
               prefixIcon: Container(
                 margin: const EdgeInsets.all(12),
@@ -3104,7 +3084,8 @@ class _CreateListingScreenState extends State<CreateListingScreen>
               ),
               suffixIcon: const Padding(
                 padding: EdgeInsets.all(12),
-                child: Icon(Icons.access_time_rounded, color: Color(0xFF2BBBAD)),
+                child:
+                    Icon(Icons.access_time_rounded, color: Color(0xFF2BBBAD)),
               ),
               filled: true,
               fillColor: isDark
@@ -3182,9 +3163,7 @@ class _CreateListingScreenState extends State<CreateListingScreen>
             subtitle,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: isDark
-                  ? const Color(0xFF9CA3AF)
-                  : const Color(0xFF6B7280),
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
             ),
             textAlign: TextAlign.center,
           ),
